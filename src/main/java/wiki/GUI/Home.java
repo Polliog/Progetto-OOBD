@@ -12,12 +12,11 @@ public class Home {
     private JButton registratiButton;
     private JButton accediButton;
     private JButton disconnettitiButton;
-    private Registrazione registrazione = new Registrazione();
-    private Accesso accesso = new Accesso();
-
     public Home() {
-        tabbedPane.add("Registrazione", registrazione);
-        tabbedPane.add("Accesso", accesso);
+        tabbedPane.add("Registrazione", new Registrazione());
+        tabbedPane.add("Accesso", new Accesso());
+        tabbedPane.add("Crea pagina", new PageCreate());
+
 
         // Frame Settings
         JFrame frame = new JFrame("Wiki");

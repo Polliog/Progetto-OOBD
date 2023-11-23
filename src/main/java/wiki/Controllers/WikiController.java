@@ -1,16 +1,20 @@
 package wiki.Controllers;
 
+import wiki.Entities.DAO.IUtenteDAO;
+import wiki.Entities.DAOImplementations.PageDAO;
 import wiki.Entities.DAOImplementations.UtenteDAO;
 import wiki.GUI.Home;
 import wiki.Models.Utente;
 
 import javax.swing.*;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class WikiController {
     private static Utente loggedUser = null;
-    private static final UtenteDAO utenteDAO = new UtenteDAO();
+    private static final IUtenteDAO utenteDAO = new UtenteDAO();
     private static Home home = null;
+    private static final PageDAO pageDAO = new PageDAO();
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
@@ -66,5 +70,21 @@ public class WikiController {
         loggedUser = null;
         home.setLoginStatus(false, null);
         JOptionPane.showConfirmDialog(null, "Disconnessione effetuata", "Successo", JOptionPane.DEFAULT_OPTION);
+    }
+
+    public static boolean isUserLogged() {
+        return loggedUser != null;
+    }
+
+    public static Utente getLoggedUser() {
+        return loggedUser;
+    }
+
+    public static void createPage(String title, ArrayList<String> content) {
+        try {
+            pageDAO.insertPage(title, content, loggedUser);
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Errore durante la creazione della pagina", "Errore", JOptionPane.ERROR_MESSAGE);
+        }
     }
 }
