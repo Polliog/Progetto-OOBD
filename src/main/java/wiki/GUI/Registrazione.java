@@ -1,4 +1,6 @@
-package wiki.Utente;
+package wiki.GUI;
+
+import wiki.Entities.DAOImplementations.UtenteDAO;
 
 import javax.swing.*;
 import java.sql.SQLException;
@@ -15,7 +17,12 @@ public class Registrazione extends JPanel {
         add(registerPanel); // Aggiungi un componente al pannello
         setVisible(true);
 
+
         registerBtn.addActionListener(e -> registraUtente());
+
+        //event listener for enter key
+        registerName.addActionListener(e -> registraUtente());
+        registerPassword.addActionListener(e -> registraUtente());
     }
 
     public String getRegisterName() {
@@ -39,18 +46,20 @@ public class Registrazione extends JPanel {
         }
 
         try {
-            if (Utente.esisteUtente(getRegisterName())) {
+            UtenteDAO utente = new UtenteDAO();
+            if (utente.esisteUtente(getRegisterName())) {
                 JOptionPane.showMessageDialog(null, "Nome utente già esistente", "Errore", JOptionPane.ERROR_MESSAGE);
                 return;
             }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Errore durante il controllo dell'esistenza dell'utente", "Errore", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
             return;
         }
 
         try {
-            new Utente(getRegisterName(), getRegisterPassword());
-            Utente.salvaUtente(getRegisterName(), getRegisterPassword());
+            UtenteDAO utente = new UtenteDAO();
+            utente.salvaUtente(getRegisterName(), getRegisterPassword());
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Errore durante la registrazione dell'utente", "Errore", JOptionPane.ERROR_MESSAGE);
             return;

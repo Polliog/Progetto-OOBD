@@ -4,14 +4,14 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public class Database {
+public class DatabaseConnection {
     private static final String DATABASE_URL = "jdbc:mysql://localhost:3306/oo";
     private static final String DATABASE_USER = "root";
-    private static final String DATABASE_PASSWORD = "";
+    private static final String DATABASE_PASSWORD = "suca";
 
     private static Connection connection = null;
 
-    private Database() {
+    private DatabaseConnection() {
         // private constructor to prevent instantiation
     }
 
