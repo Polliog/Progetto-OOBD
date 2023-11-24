@@ -4,6 +4,7 @@ import wiki.Entities.DAO.IUserDAO;
 import wiki.Entities.DAOImplementations.PageDAO;
 import wiki.Entities.DAOImplementations.UserDAO;
 import wiki.GUI.Home;
+import wiki.Models.Page;
 import wiki.Models.User;
 
 import javax.swing.*;
@@ -13,7 +14,7 @@ import java.util.ArrayList;
 public class WikiController {
     private User loggedUser = null;
     private final IUserDAO utenteDAO = new UserDAO();
-    private final PageDAO pageDAO = new PageDAO();
+    private static final PageDAO pageDAO = new PageDAO();
 
     private static Home home;
 
@@ -85,6 +86,15 @@ public class WikiController {
         }
         catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Errore durante la creazione della pagina", "Errore", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    public static Page fetchPage(int id) {
+        try {
+            return pageDAO.fetchPage(id);
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Errore durante il caricamento della pagina", "Errore", JOptionPane.ERROR_MESSAGE);
+            return null;
         }
     }
 }

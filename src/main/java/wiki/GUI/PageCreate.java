@@ -38,9 +38,7 @@ public class PageCreate extends JPanel {
 
         //delete empty lines
         for (String line : splitted) {
-            if (!line.isEmpty()) {
                 lines.add(line);
-            }
         }
 
         return lines;
@@ -50,6 +48,12 @@ public class PageCreate extends JPanel {
     private void createPage() {
         String title = pageTitle.getText();
         String content = pageContent.getText();
+
+        if (title.isEmpty() || content.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Compila tutti i campi", "Errore", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         ArrayList<String> lines = parseText(content);
 
         if (!wikiController.isUserLogged()) {

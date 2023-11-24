@@ -2,10 +2,13 @@ package wiki.Entities.DAOImplementations;
 
 import wiki.Entities.DAO.IPageDAO;
 import wiki.Models.User;
+import wiki.Models.Page;
+import wiki.Models.PageContentString;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+
 import database.DatabaseConnection;
 
 import javax.swing.*;
@@ -56,9 +59,9 @@ public class PageDAO implements IPageDAO {
                         int textId = rs.getInt("id");
 
                         String link = word.substring(1, word.length() - 1);
-                        //save only the part after the :
+                        //save only the part after the : but if is a link like https://web.telegram.org/k/ it will save the whole link without the text before
                         if (link.contains(":")) {
-                            link = link.split(":")[1];
+                            link = link.substring(link.indexOf(":") + 1);
                         }
                         pstmt2 = conn.prepareStatement("INSERT INTO TextLink (pagetext_id, link) VALUES (?, ?)");
                         pstmt2.setInt(1, textId);
@@ -85,9 +88,58 @@ public class PageDAO implements IPageDAO {
             JOptionPane.showMessageDialog(null, "Errore durante la creazione della pagina", "Errore", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
             throw e;
-        }
-        finally {
+        } finally {
             conn.setAutoCommit(true);
+        }
+    }
+
+
+    public Page fetchPage(int id) throws SQLException {
+        Connection conn = DatabaseConnection.getConnection();
+        try {
+            var pstmt = conn.prepareStatement("SELECT * FROM Page WHERE id = ?");
+            pstmt.setInt(1, id);
+            var rs = pstmt.executeQuery();
+            rs.next();
+
+            if (rs.getRow() == 0)
+                return null;
+
+            String title = rs.getString("title");
+            String author = rs.getString("author");
+            java.sql.Timestamp creation = rs.getTimestamp("creation");
+
+            Page page = new Page(id, title, author, creation);
+
+
+            //get text and links if present
+            pstmt = conn.prepareStatement("SELECT * FROM PageText WHERE page_id = ? ORDER BY order_num");
+            pstmt.setInt(1, id);
+            rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                int textId = rs.getInt("id");
+                String text = rs.getString("text");
+                String textAuthor = rs.getString("author");
+                int order = rs.getInt("order_num");
+
+                //get link for the textId if, it's only one for text
+                pstmt = conn.prepareStatement("SELECT * FROM TextLink WHERE pagetext_id = ?");
+                pstmt.setInt(1, textId);
+                var rs2 = pstmt.executeQuery();
+                if (rs2.next()) {
+                    String link = rs2.getString("link");
+                    page.addContent(new PageContentString(textId, text,order, link, textAuthor));
+                } else
+                    page.addContent(new PageContentString(textId, text,order,"", textAuthor));
+            }
+
+
+            return page;
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Errore durante il caricamento della pagina", "Errore", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+            throw e;
         }
     }
 }

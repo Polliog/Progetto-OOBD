@@ -13,15 +13,14 @@ public class Home {
     private JButton registratiButton;
     private JButton accediButton;
     private JButton disconnettitiButton;
-
-
     public Home(WikiController wikiController) {
-        // dependency injection
         this.wikiController = wikiController;
 
         tabbedPane.add("Registrazione", new Registrazione(wikiController));
         tabbedPane.add("Accesso", new Accesso(wikiController));
         tabbedPane.add("Crea pagina", new PageCreate(wikiController));
+        tabbedPane.add("Visualizza pagina", new PageView(wikiController));
+
 
         // Frame Settings
         JFrame frame = new JFrame("Wiki");

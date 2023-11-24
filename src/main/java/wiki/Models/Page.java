@@ -1,30 +1,65 @@
 package wiki.Models;
 
+import java.util.ArrayList;
+import java.util.Date;
+
 public class Page {
-    //attributi
-    private String titolo;
-    private String contenuto;
+    private int id;
+    private String title;
+    private ArrayList<PageContentString> content = new ArrayList<>();
+    private String author;
+    private Date creation;
 
-    //costruttore
-    public Page(String titolo, String contenuto) {
-        this.titolo = titolo;
-        this.contenuto = contenuto;
+    public Page(int id, String title, String author, Date creation) {
+        this.id = id;
+        this.title = title;
+        this.author = author;
+        this.creation = creation;
     }
 
-    //metodi
-    public String getTitolo() {
-        return titolo;
+    public int getId() {
+        return id;
+    }
+    public String getTitle() {
+        return title;
     }
 
-    public String getContenuto() {
-        return contenuto;
+    public ArrayList<PageContentString> getContent() {
+        return content;
+    }
+    public String getAuthor() {
+        return author;
     }
 
-    public void setTitolo(String titolo) {
-        this.titolo = titolo;
+    public Date getCreation() {
+        return creation;
     }
 
-    public void setContenuto(String contenuto) {
-        this.contenuto = contenuto;
+    public void setContent(ArrayList<PageContentString> content) {
+        this.content = content;
+    }
+
+    public void addContent(PageContentString content) {
+        this.content.add(content);
+    }
+
+    public void removeContent(int index) {
+        this.content.remove(index);
+    }
+
+    public void removeContent(PageContentString content) {
+        this.content.remove(content);
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    public void setCreation(Date creation) {
+        this.creation = creation;
     }
 }
