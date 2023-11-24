@@ -1,14 +1,14 @@
 package wiki.Entities.DAOImplementations;
 
 import database.DatabaseConnection;
+import wiki.Entities.DAO.IUserDAO;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public class UtenteDAO implements wiki.Entities.DAO.IUtenteDAO {
-
-    public void salvaUtente(String username, String password) throws SQLException {
+public class UserDAO implements IUserDAO {
+    public void insertUser(String username, String password) throws SQLException {
         Connection conn = DatabaseConnection.getConnection();
         PreparedStatement pstmt = conn.prepareStatement("INSERT INTO utente (username, password) VALUES (?, ?)");
         pstmt.setString(1, username);
@@ -16,7 +16,7 @@ public class UtenteDAO implements wiki.Entities.DAO.IUtenteDAO {
         pstmt.executeUpdate();
     }
 
-    public boolean esisteUtente(String username) throws SQLException {
+    public boolean doesUserExist(String username) throws SQLException {
         Connection conn = DatabaseConnection.getConnection();
         PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM utente WHERE username = ?");
         pstmt.setString(1, username);

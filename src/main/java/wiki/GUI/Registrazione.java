@@ -1,28 +1,37 @@
 package wiki.GUI;
 
-import wiki.Entities.DAOImplementations.UtenteDAO;
+import wiki.Controllers.WikiController;
+import wiki.Entities.DAOImplementations.UserDAO;
 
 import javax.swing.*;
 import java.sql.SQLException;
 
 
 public class Registrazione extends JPanel {
+    private WikiController wikiController;
     private JPanel registerPanel;
     private JTextField registerName;
     private JPasswordField registerPassword;
     private JButton registerBtn;
+    private JLabel registerLabel;
 
-    public Registrazione() {
+    public Registrazione(WikiController wikiController) {
+        // dependency injection
+        this.wikiController = wikiController;
+
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS)); // Imposta un layout manager
         add(registerPanel); // Aggiungi un componente al pannello
-        setVisible(true);
 
+        //label font size
+        registerLabel.setFont(registerLabel.getFont().deriveFont(20.0f));
 
         registerBtn.addActionListener(e -> registraUtente());
 
         //event listener for enter key
         registerName.addActionListener(e -> registraUtente());
         registerPassword.addActionListener(e -> registraUtente());
+
+        setVisible(true);
     }
 
     public String getRegisterName() {
@@ -46,8 +55,8 @@ public class Registrazione extends JPanel {
         }
 
         try {
-            UtenteDAO utente = new UtenteDAO();
-            if (utente.esisteUtente(getRegisterName())) {
+            UserDAO utente = new UserDAO();
+            if (utente.doesUserExist(getRegisterName())) {
                 JOptionPane.showMessageDialog(null, "Nome utente già esistente", "Errore", JOptionPane.ERROR_MESSAGE);
                 return;
             }
@@ -58,8 +67,8 @@ public class Registrazione extends JPanel {
         }
 
         try {
-            UtenteDAO utente = new UtenteDAO();
-            utente.salvaUtente(getRegisterName(), getRegisterPassword());
+            UserDAO utente = new UserDAO();
+            utente.insertUser(getRegisterName(), getRegisterPassword());
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Errore durante la registrazione dell'utente", "Errore", JOptionPane.ERROR_MESSAGE);
             return;

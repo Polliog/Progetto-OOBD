@@ -1,7 +1,7 @@
 package wiki.Entities.DAOImplementations;
 
 import wiki.Entities.DAO.IPageDAO;
-import wiki.Models.Utente;
+import wiki.Models.User;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -12,8 +12,7 @@ import javax.swing.*;
 
 
 public class PageDAO implements IPageDAO {
-
-    public void insertPage(String title, ArrayList<String> content, Utente utente) throws SQLException {
+    public void insertPage(String title, ArrayList<String> content, User utente) throws SQLException {
         Connection conn = DatabaseConnection.getConnection();
         conn.setAutoCommit(false);
         try {
@@ -72,15 +71,16 @@ public class PageDAO implements IPageDAO {
             pstmt.close();
             conn.commit();
 
-
             JOptionPane.showMessageDialog(null, "Pagina creata con successo", "Successo", JOptionPane.INFORMATION_MESSAGE);
 
-        } catch (SQLException e) {
+        }
+        catch (SQLException e) {
             conn.rollback();
             JOptionPane.showMessageDialog(null, "Errore durante la creazione della pagina", "Errore", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
             throw e;
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             conn.rollback();
             JOptionPane.showMessageDialog(null, "Errore durante la creazione della pagina", "Errore", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();

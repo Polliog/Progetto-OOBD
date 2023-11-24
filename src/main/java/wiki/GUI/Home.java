@@ -6,17 +6,22 @@ import javax.swing.*;
 
 
 public class Home {
+    private WikiController wikiController;
     private JTabbedPane tabbedPane;
     private JPanel viewPanel;
     private JLabel userStatusLabel;
     private JButton registratiButton;
     private JButton accediButton;
     private JButton disconnettitiButton;
-    public Home() {
-        tabbedPane.add("Registrazione", new Registrazione());
-        tabbedPane.add("Accesso", new Accesso());
-        tabbedPane.add("Crea pagina", new PageCreate());
 
+
+    public Home(WikiController wikiController) {
+        // dependency injection
+        this.wikiController = wikiController;
+
+        tabbedPane.add("Registrazione", new Registrazione(wikiController));
+        tabbedPane.add("Accesso", new Accesso(wikiController));
+        tabbedPane.add("Crea pagina", new PageCreate(wikiController));
 
         // Frame Settings
         JFrame frame = new JFrame("Wiki");
@@ -51,7 +56,7 @@ public class Home {
     }
 
     private void logout() {
-        WikiController.disconnectUser();
+        wikiController.disconnectUser();
     }
 
 }

@@ -1,34 +1,34 @@
 package wiki.Controllers;
 
-import wiki.Entities.DAO.IUtenteDAO;
+import wiki.Entities.DAO.IUserDAO;
 import wiki.Entities.DAOImplementations.PageDAO;
-import wiki.Entities.DAOImplementations.UtenteDAO;
+import wiki.Entities.DAOImplementations.UserDAO;
 import wiki.GUI.Home;
-import wiki.Models.Utente;
+import wiki.Models.User;
 
 import javax.swing.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class WikiController {
-    private static Utente loggedUser = null;
-    private static final IUtenteDAO utenteDAO = new UtenteDAO();
-    private static Home home = null;
-    private static final PageDAO pageDAO = new PageDAO();
+    private User loggedUser = null;
+    private final IUserDAO utenteDAO = new UserDAO();
+    private final PageDAO pageDAO = new PageDAO();
+
+    private static Home home;
+
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                home = new Home();
-            }
-        });
+        SwingUtilities.invokeLater(() ->
+                home = new Home(new WikiController())
+        );
     }
 
-    private static void setLoggedUser(Utente utente) {
+    private void setLoggedUser(User utente) {
         loggedUser = utente;
         home.setLoginStatus(true, utente.getUsername());
     }
 
-    public static void onTryLogin(String username, String password) {
+    public void onTryLogin(String username, String password) {
         if (username.isEmpty() || password.isEmpty()) {
             JOptionPane.showMessageDialog(null, "Compila tutti i campi", "Errore", JOptionPane.ERROR_MESSAGE);
             return;
@@ -40,7 +40,7 @@ public class WikiController {
         }
 
         try {
-            if (!utenteDAO.esisteUtente(username)) {
+            if (!utenteDAO.doesUserExist(username)) {
                 JOptionPane.showMessageDialog(null, "Nome utente non esistente", "Errore", JOptionPane.ERROR_MESSAGE);
                 return;
             }
@@ -56,34 +56,34 @@ public class WikiController {
                 JOptionPane.showMessageDialog(null, "Password errata", "Errore", JOptionPane.ERROR_MESSAGE);
             } else {
                 JOptionPane.showMessageDialog(null, "Login effettuato", "Successo", JOptionPane.INFORMATION_MESSAGE);
-                Utente utente = new Utente(username, password);
+                User utente = new User(username, password);
                 setLoggedUser(utente);
             }
-        } catch (SQLException e) {
+        }
+        catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Errore durante il caricamento dell'utente", "Errore", JOptionPane.ERROR_MESSAGE);
-            return;
         }
     }
 
-
-    public static void disconnectUser() {
+    public void disconnectUser() {
         loggedUser = null;
         home.setLoginStatus(false, null);
         JOptionPane.showConfirmDialog(null, "Disconnessione effetuata", "Successo", JOptionPane.DEFAULT_OPTION);
     }
 
-    public static boolean isUserLogged() {
+    public boolean isUserLogged() {
         return loggedUser != null;
     }
 
-    public static Utente getLoggedUser() {
+    public User getLoggedUser() {
         return loggedUser;
     }
 
-    public static void createPage(String title, ArrayList<String> content) {
+    public void createPage(String title, ArrayList<String> content) {
         try {
             pageDAO.insertPage(title, content, loggedUser);
-        } catch (SQLException e) {
+        }
+        catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Errore durante la creazione della pagina", "Errore", JOptionPane.ERROR_MESSAGE);
         }
     }

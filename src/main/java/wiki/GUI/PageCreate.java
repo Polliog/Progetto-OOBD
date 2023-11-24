@@ -7,13 +7,18 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class PageCreate extends JPanel {
+    private WikiController wikiController;
     private JLabel creationLabel;
     private JPanel pageCreatePanel;
     private JTextField pageTitle;
     private JTextArea pageContent;
     private JButton createPageButton;
 
-    public PageCreate() {
+
+    public PageCreate(WikiController wikiController) {
+        // dependency injection
+        this.wikiController = wikiController;
+
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS)); // Imposta un layout manager
         add(pageCreatePanel); // Aggiungi un componente al pannello
 
@@ -47,13 +52,11 @@ public class PageCreate extends JPanel {
         String content = pageContent.getText();
         ArrayList<String> lines = parseText(content);
 
-
-        if (!WikiController.isUserLogged()) {
+        if (!wikiController.isUserLogged()) {
             JOptionPane.showMessageDialog(null, "Devi essere loggato per creare una pagina", "Errore", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-
-        WikiController.createPage(title, lines);
+        wikiController.createPage(title, lines);
     }
 }

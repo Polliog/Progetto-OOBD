@@ -1,19 +1,17 @@
 package wiki.Models;
 
 public class Page {
-    //titolo e contenuto
+    //attributi
     private String titolo;
     private String contenuto;
 
     //costruttore
-
     public Page(String titolo, String contenuto) {
         this.titolo = titolo;
         this.contenuto = contenuto;
     }
 
     //metodi
-
     public String getTitolo() {
         return titolo;
     }
@@ -29,5 +27,4 @@ public class Page {
     public void setContenuto(String contenuto) {
         this.contenuto = contenuto;
     }
-
 }
