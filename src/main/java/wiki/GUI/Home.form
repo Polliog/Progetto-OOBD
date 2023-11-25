@@ -42,7 +42,7 @@
               <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
           </hspacer>
-          <component id="1d126" class="javax.swing.JButton" binding="registratiButton" default-binding="true">
+          <component id="1d126" class="javax.swing.JButton" binding="registerButton">
             <constraints>
               <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
@@ -50,7 +50,7 @@
               <text value="Registrati"/>
             </properties>
           </component>
-          <component id="1a6a5" class="javax.swing.JButton" binding="accediButton" default-binding="true">
+          <component id="1a6a5" class="javax.swing.JButton" binding="loginButton">
             <constraints>
               <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
@@ -58,7 +58,7 @@
               <text value="Accedi"/>
             </properties>
           </component>
-          <component id="14231" class="javax.swing.JButton" binding="disconnettitiButton" default-binding="true">
+          <component id="14231" class="javax.swing.JButton" binding="logoutButton">
             <constraints>
               <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>

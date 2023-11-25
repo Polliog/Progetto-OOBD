@@ -1,10 +1,12 @@
 package wiki.Entities.DAO;
 
+import wiki.Models.Page;
 import wiki.Models.User;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 
 public interface IPageDAO {
-    void insertPage(String title, ArrayList<String> content, User utente) throws SQLException;
+    void insertPage(String title, ArrayList<String> content, User user) throws SQLException;
+    Page fetchPage(int id) throws SQLException;
 }

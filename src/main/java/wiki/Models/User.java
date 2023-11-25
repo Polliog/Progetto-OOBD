@@ -1,12 +1,11 @@
 package wiki.Models;
 
 public class User {
-    //unsername e password
+    //attributes
     private String username;
     private String password;
 
-    //costruttore
-
+    //constructor
     public User(String username, String password) {
         this.username = username;
         this.password = password;

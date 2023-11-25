@@ -7,7 +7,6 @@ public class PageContentString {
     public String content;
     public int order_num;
     public String link;
-
     public String author;
 
     public PageContentString(int id, String content, int order_num, String link, String author) {

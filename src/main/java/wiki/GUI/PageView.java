@@ -41,7 +41,7 @@ public class PageView extends JPanel {
             return;
         }
 
-        this.page = WikiController.fetchPage(Integer.parseInt(textIdField.getText()));
+        this.page = wikiController.fetchPage(Integer.parseInt(textIdField.getText()));
 
         if (this.page == null) {
             JOptionPane.showMessageDialog(null, "Pagina non trovata", "Errore", JOptionPane.ERROR_MESSAGE);

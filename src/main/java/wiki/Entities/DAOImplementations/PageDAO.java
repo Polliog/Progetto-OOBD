@@ -15,14 +15,14 @@ import javax.swing.*;
 
 
 public class PageDAO implements IPageDAO {
-    public void insertPage(String title, ArrayList<String> content, User utente) throws SQLException {
+    public void insertPage(String title, ArrayList<String> content, User user) throws SQLException {
         Connection conn = DatabaseConnection.getConnection();
         conn.setAutoCommit(false);
         try {
             // Insert page
             var pstmt = conn.prepareStatement("INSERT INTO Page (title, author, creation) VALUES (?, ?, ?)");
             pstmt.setString(1, title);
-            pstmt.setString(2, utente.getUsername());
+            pstmt.setString(2, user.getUsername());
             pstmt.setTimestamp(3, new java.sql.Timestamp(System.currentTimeMillis()));
 
             // Execute query and get id
@@ -43,7 +43,7 @@ public class PageDAO implements IPageDAO {
                 pstmt.setInt(1, i);
                 pstmt.setString(2, content.get(i));
                 pstmt.setInt(3, pageId);
-                pstmt.setString(4, utente.getUsername());
+                pstmt.setString(4, user.getUsername());
                 pstmt.executeUpdate();
 
 
@@ -93,7 +93,6 @@ public class PageDAO implements IPageDAO {
         }
     }
 
-
     public Page fetchPage(int id) throws SQLException {
         Connection conn = DatabaseConnection.getConnection();
         try {
@@ -110,7 +109,6 @@ public class PageDAO implements IPageDAO {
             java.sql.Timestamp creation = rs.getTimestamp("creation");
 
             Page page = new Page(id, title, author, creation);
-
 
             //get text and links if present
             pstmt = conn.prepareStatement("SELECT * FROM PageText WHERE page_id = ? ORDER BY order_num");
@@ -133,10 +131,9 @@ public class PageDAO implements IPageDAO {
                 } else
                     page.addContent(new PageContentString(textId, text,order,"", textAuthor));
             }
-
-
             return page;
-        } catch (SQLException e) {
+        }
+        catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Errore durante il caricamento della pagina", "Errore", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
             throw e;

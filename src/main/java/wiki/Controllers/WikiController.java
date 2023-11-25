@@ -3,7 +3,9 @@ package wiki.Controllers;
 import wiki.Entities.DAO.IUserDAO;
 import wiki.Entities.DAOImplementations.PageDAO;
 import wiki.Entities.DAOImplementations.UserDAO;
+import wiki.GUI.Accesso;
 import wiki.GUI.Home;
+import wiki.GUI.Registrazione;
 import wiki.Models.Page;
 import wiki.Models.User;
 
@@ -12,10 +14,15 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class WikiController {
-    private User loggedUser = null;
-    private final IUserDAO utenteDAO = new UserDAO();
-    private static final PageDAO pageDAO = new PageDAO();
+    // DAOs references
+    private final IUserDAO userDAO = new UserDAO();
+    private final PageDAO pageDAO = new PageDAO();
 
+    // Attributes
+    private User loggedUser = null;
+
+    // TODO
+    // Bisogna gestire meglio le GUI
     private static Home home;
 
     public static void main(String[] args) {
@@ -24,9 +31,9 @@ public class WikiController {
         );
     }
 
-    private void setLoggedUser(User utente) {
-        loggedUser = utente;
-        home.setLoginStatus(true, utente.getUsername());
+    private void setLoggedUser(User user) {
+        loggedUser = user;
+        home.setLoginStatus(true, user.getUsername());
     }
 
     public void onTryLogin(String username, String password) {
@@ -41,24 +48,25 @@ public class WikiController {
         }
 
         try {
-            if (!utenteDAO.doesUserExist(username)) {
+            if (!userDAO.doesUserExist(username)) {
                 JOptionPane.showMessageDialog(null, "Nome utente non esistente", "Errore", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-        } catch (SQLException e) {
+        }
+        catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Errore durante il controllo dell'esistenza dell'utente", "Errore", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         try {
-            boolean loginResult = utenteDAO.login(username, password);
+            boolean loginResult = userDAO.login(username, password);
 
             if (!loginResult) {
                 JOptionPane.showMessageDialog(null, "Password errata", "Errore", JOptionPane.ERROR_MESSAGE);
-            } else {
+            }
+            else {
                 JOptionPane.showMessageDialog(null, "Login effettuato", "Successo", JOptionPane.INFORMATION_MESSAGE);
-                User utente = new User(username, password);
-                setLoggedUser(utente);
+                setLoggedUser(new User(username, password));
             }
         }
         catch (SQLException e) {
@@ -69,7 +77,7 @@ public class WikiController {
     public void disconnectUser() {
         loggedUser = null;
         home.setLoginStatus(false, null);
-        JOptionPane.showConfirmDialog(null, "Disconnessione effetuata", "Successo", JOptionPane.DEFAULT_OPTION);
+        JOptionPane.showConfirmDialog(null, "Disconnessione effettuata", "Successo", JOptionPane.DEFAULT_OPTION);
     }
 
     public boolean isUserLogged() {
@@ -89,10 +97,11 @@ public class WikiController {
         }
     }
 
-    public static Page fetchPage(int id) {
+    public Page fetchPage(int id) {
         try {
             return pageDAO.fetchPage(id);
-        } catch (SQLException e) {
+        }
+        catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Errore durante il caricamento della pagina", "Errore", JOptionPane.ERROR_MESSAGE);
             return null;
         }
