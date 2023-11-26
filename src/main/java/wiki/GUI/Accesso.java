@@ -5,15 +5,18 @@ import wiki.Controllers.WikiController;
 
 public class Accesso extends JPanel {
     private WikiController wikiController;
+    private Home homeGUI;
     private JPanel loginPanel;
     private JTextField loginName;
     private JPasswordField loginPassword;
     private JButton accediButton;
     private JLabel loginLabel;
 
-    public Accesso(WikiController wikiController) {
+
+    public Accesso(WikiController wikiController, Home homeGUI) {
         // dependency injection
         this.wikiController = wikiController;
+        this.homeGUI = homeGUI;
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS)); // Imposta un layout manager
         accediButton.addActionListener(e -> submitLogin());
@@ -38,6 +41,11 @@ public class Accesso extends JPanel {
     }
 
     public void submitLogin() {
-        wikiController.onTryLogin(getLoginName(), getLoginPassword());
+        if (wikiController.onTryLogin(getLoginName(), getLoginPassword())) {
+            homeGUI.setLoginStatus(true, getLoginName());
+        }
+        else {
+            homeGUI.setLoginStatus(false, "");
+        }
     }
 }

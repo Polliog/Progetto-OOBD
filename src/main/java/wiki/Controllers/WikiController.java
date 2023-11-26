@@ -21,41 +21,37 @@ public class WikiController {
     // Attributes
     private User loggedUser = null;
 
-    // TODO
-    // Bisogna gestire meglio le GUI
-    private static Home home;
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() ->
-                home = new Home(new WikiController())
+                new Home(new WikiController())
         );
     }
 
     private void setLoggedUser(User user) {
         loggedUser = user;
-        home.setLoginStatus(true, user.getUsername());
     }
 
-    public void onTryLogin(String username, String password) {
+    public boolean onTryLogin(String username, String password) {
         if (username.isEmpty() || password.isEmpty()) {
             JOptionPane.showMessageDialog(null, "Compila tutti i campi", "Errore", JOptionPane.ERROR_MESSAGE);
-            return;
+            return false;
         }
 
         if (username.contains(" ") || password.contains(" ")) {
             JOptionPane.showMessageDialog(null, "Nome utente e password non possono contenere spazi", "Errore", JOptionPane.ERROR_MESSAGE);
-            return;
+            return false;
         }
 
         try {
             if (!userDAO.doesUserExist(username)) {
                 JOptionPane.showMessageDialog(null, "Nome utente non esistente", "Errore", JOptionPane.ERROR_MESSAGE);
-                return;
+                return false;
             }
         }
         catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Errore durante il controllo dell'esistenza dell'utente", "Errore", JOptionPane.ERROR_MESSAGE);
-            return;
+            return false;
         }
 
         try {
@@ -68,15 +64,18 @@ public class WikiController {
                 JOptionPane.showMessageDialog(null, "Login effettuato", "Successo", JOptionPane.INFORMATION_MESSAGE);
                 setLoggedUser(new User(username, password));
             }
+
+            return loginResult;
         }
         catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Errore durante il caricamento dell'utente", "Errore", JOptionPane.ERROR_MESSAGE);
         }
+
+        return false;
     }
 
     public void disconnectUser() {
         loggedUser = null;
-        home.setLoginStatus(false, null);
         JOptionPane.showConfirmDialog(null, "Disconnessione effettuata", "Successo", JOptionPane.DEFAULT_OPTION);
     }
 

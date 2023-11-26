@@ -23,7 +23,7 @@ public class Home {
         // Qui il tabbedPane non va bene per la complessita' del codice e la memoria utilizzata
         // (pag.209 slide Java - tramontana)
         tabbedPane.add("Registrazione",     new Registrazione(wikiController));
-        tabbedPane.add("Accesso",           new Accesso(wikiController));
+        tabbedPane.add("Accesso",           new Accesso(wikiController, this));
         tabbedPane.add("Crea pagina",       new PageCreate(wikiController));
         tabbedPane.add("Visualizza pagina", new PageView(wikiController));
 
@@ -62,5 +62,7 @@ public class Home {
 
     private void logout() {
         wikiController.disconnectUser();
+
+        setLoginStatus(false, "");
     }
 }
