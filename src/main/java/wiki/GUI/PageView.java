@@ -11,13 +11,15 @@ public class PageView extends JPanel {
     private JPanel PageViewPanel;
     private JLabel PageViewTitleLabel;
     private JScrollPane PageViewContentPanel;
-    private JTextField textIdField;
+
     private JLabel AuthorLabel;
     private JLabel CreatedLabel;
+    private JButton backBtn;
 
     private Page page = null;
 
     private WikiController wikiController;
+
 
 
     public PageView(WikiController wikiController) {
@@ -27,10 +29,16 @@ public class PageView extends JPanel {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS)); // Imposta un layout manager
         add(PageViewPanel); // Aggiungi un componente al pannello
 
-        textIdField.addActionListener(e -> fetchData());
+        //textIdField.addActionListener(e -> fetchData());
 
         //set at the label a bigger font
         PageViewTitleLabel.setFont(PageViewTitleLabel.getFont().deriveFont(20.0f));
+
+
+        backBtn.addActionListener(e -> {
+            JTabbedPane tabbedPane = (JTabbedPane) getParent();
+            tabbedPane.setSelectedIndex(4);
+        });
 
         setVisible(true);
     }
@@ -41,16 +49,16 @@ public class PageView extends JPanel {
             return;
         }
 
-        this.page = wikiController.fetchPage(Integer.parseInt(textIdField.getText()));
+       this.page = wikiController.fetchPage(id);
 
-        if (this.page == null) {
-            JOptionPane.showMessageDialog(null, "Pagina non trovata", "Errore", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+       if (this.page == null) {
+           JOptionPane.showMessageDialog(null, "Pagina non trovata", "Errore", JOptionPane.ERROR_MESSAGE);
+           return;
+       }
 
 
-        PageViewTitleLabel.setText(this.page.getTitle());
-        AuthorLabel.setText("Autore: " + this.page.getAuthor());
+       PageViewTitleLabel.setText(this.page.getTitle());
+       AuthorLabel.setText("Autore: " + this.page.getAuthor());
         //created label is formatted as "Creato il: dd/MM/yyyy"
         CreatedLabel.setText("Creato il: " + this.page.getCreation().toString().substring(0, 10));
         createUIComponents();
@@ -89,8 +97,8 @@ public class PageView extends JPanel {
                                     Desktop.getDesktop().browse(java.net.URI.create(content.link));
                                 }
                             } else {
-                                PageView.this.textIdField.setText(content.link);
-                                PageView.this.fetchData();
+                                PageView.this.fetchData(page.getId());
+
                             }
                         } catch (java.io.IOException e) {
                             JOptionPane.showMessageDialog(null, "Errore durante l'apertura del link", "Errore", JOptionPane.ERROR_MESSAGE);

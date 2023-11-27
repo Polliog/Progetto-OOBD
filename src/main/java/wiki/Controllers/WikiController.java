@@ -7,6 +7,7 @@ import wiki.GUI.Accesso;
 import wiki.GUI.Home;
 import wiki.GUI.Registrazione;
 import wiki.Models.Page;
+import wiki.Models.PaginationPage;
 import wiki.Models.User;
 
 import javax.swing.*;
@@ -102,6 +103,16 @@ public class WikiController {
         }
         catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Errore durante il caricamento della pagina", "Errore", JOptionPane.ERROR_MESSAGE);
+            return null;
+        }
+    }
+
+    public PaginationPage fetchPages(String q, int page, int limit) {
+        try {
+            return pageDAO.fetchPages(q,page,limit);
+        }
+        catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Errore durante il caricamento delle pagine", "Errore", JOptionPane.ERROR_MESSAGE);
             return null;
         }
     }

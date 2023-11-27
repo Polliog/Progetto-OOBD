@@ -1,6 +1,7 @@
 package wiki.Entities.DAOImplementations;
 
 import wiki.Entities.DAO.IPageDAO;
+import wiki.Models.PaginationPage;
 import wiki.Models.User;
 import wiki.Models.Page;
 import wiki.Models.PageContentString;
@@ -135,6 +136,37 @@ public class PageDAO implements IPageDAO {
         }
         catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Errore durante il caricamento della pagina", "Errore", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    public PaginationPage fetchPages(String q, int page, int limit) throws SQLException {
+        Connection conn = DatabaseConnection.getConnection();
+        try {
+            var pstmt = conn.prepareStatement("SELECT COUNT(*) AS count FROM Page WHERE title LIKE ?");
+            pstmt.setString(1, "%" + q + "%");
+            var rs = pstmt.executeQuery();
+            rs.next();
+
+            int count = rs.getInt("count");
+
+            pstmt = conn.prepareStatement("SELECT * FROM Page WHERE title LIKE ? ORDER BY creation DESC LIMIT ? OFFSET ?");
+            pstmt.setString(1, "%" + q + "%");
+            pstmt.setInt(2, limit);
+            pstmt.setInt(3, (page - 1) * limit);
+            rs = pstmt.executeQuery();
+
+            ArrayList<Page> pages = new ArrayList<>();
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                pages.add(fetchPage(id));
+            }
+
+            return new PaginationPage(pages, count, page, limit);
+        }
+        catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Errore durante il caricamento delle pagine", "Errore", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
             throw e;
         }
