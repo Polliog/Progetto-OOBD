@@ -46,31 +46,6 @@ public class PageDAO implements IPageDAO {
                 pstmt.setInt(3, pageId);
                 pstmt.setString(4, user.getUsername());
                 pstmt.executeUpdate();
-
-
-                for (String word : content.get(i).split(" ")) {
-                    if (word.startsWith("{") && word.endsWith("}")) {
-                        //get text id
-                        var pstmt2 = conn.prepareStatement("SELECT id FROM PageText WHERE text = ? AND page_id = ? AND order_num = ?");
-                        pstmt2.setString(1, content.get(i));
-                        pstmt2.setInt(2, pageId);
-                        pstmt2.setInt(3, i);
-                        rs = pstmt2.executeQuery();
-                        rs.next();
-                        int textId = rs.getInt("id");
-
-                        String link = word.substring(1, word.length() - 1);
-                        //save only the part after the : but if is a link like https://web.telegram.org/k/ it will save the whole link without the text before
-                        if (link.contains(":")) {
-                            link = link.substring(link.indexOf(":") + 1);
-                        }
-                        pstmt2 = conn.prepareStatement("INSERT INTO TextLink (pagetext_id, link) VALUES (?, ?)");
-                        pstmt2.setInt(1, textId);
-                        pstmt2.setString(2, link);
-                        pstmt2.executeUpdate();
-                        pstmt2.close();
-                    }
-                }
             }
             pstmt.close();
             conn.commit();
@@ -122,15 +97,8 @@ public class PageDAO implements IPageDAO {
                 String textAuthor = rs.getString("author");
                 int order = rs.getInt("order_num");
 
-                //get link for the textId if, it's only one for text
-                pstmt = conn.prepareStatement("SELECT * FROM TextLink WHERE pagetext_id = ?");
-                pstmt.setInt(1, textId);
-                var rs2 = pstmt.executeQuery();
-                if (rs2.next()) {
-                    String link = rs2.getString("link");
-                    page.addContent(new PageContentString(textId, text,order, link, textAuthor));
-                } else
-                    page.addContent(new PageContentString(textId, text,order,"", textAuthor));
+                page.addContent(new PageContentString(textId, text,order, textAuthor));
+
             }
             return page;
         }

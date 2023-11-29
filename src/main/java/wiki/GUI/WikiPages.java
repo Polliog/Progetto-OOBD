@@ -100,9 +100,14 @@ public class WikiPages extends JPanel {
                           public void mouseClicked(java.awt.event.MouseEvent evt) {
                               try {
                                   //check if the link is a url or a page id
-                                  if (page.getContent().get(finalI).link.startsWith("http") || page.getContent().get(finalI).link.startsWith(" http")) {
+                                  //get the link from the content {text:link}
+                                  String link = page.getContent().get(finalI).content;
+                                  link = link.substring(link.indexOf(":") + 1, link.length() - 1);
+                                  System.out.println(link);
+
+                                  if (link.startsWith("http") || link.startsWith(" http")) {
                                       if (Desktop.isDesktopSupported()) {
-                                          Desktop.getDesktop().browse(java.net.URI.create(page.getContent().get(finalI1).link));
+                                          Desktop.getDesktop().browse(java.net.URI.create(link));
                                       }
                                   }
                                   else {

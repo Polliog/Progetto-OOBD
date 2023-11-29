@@ -82,7 +82,7 @@ public class PageView extends JPanel {
 
             //label.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
 
-            if (!Objects.equals(content.link, "")) {
+            if (content.content.startsWith("{") && content.content.endsWith("}")) {
                 //the link is formatte as {text:link}
                 //set in the label only the text
                 label.setText(content.content.substring(content.content.indexOf("{") + 1, content.content.indexOf(":")));
@@ -93,10 +93,12 @@ public class PageView extends JPanel {
                 label.addMouseListener(new java.awt.event.MouseAdapter() {
                     public void mouseClicked(java.awt.event.MouseEvent evt) {
                         try {
+                            //get link from the content and remove the { and }
+                            String link = content.content.substring(content.content.indexOf(":") + 1, content.content.indexOf("}"));
                             //check if the link is a url or a page id
-                            if (content.link.startsWith("http") || content.link.startsWith(" http")) {
+                            if (link.startsWith("http") || link.startsWith(" http")) {
                                 if (Desktop.isDesktopSupported()) {
-                                    Desktop.getDesktop().browse(java.net.URI.create(content.link));
+                                    Desktop.getDesktop().browse(java.net.URI.create(link));
                                 }
                             } else {
                                 PageView.this.fetchData(page.getId());
