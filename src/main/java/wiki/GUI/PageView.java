@@ -44,7 +44,6 @@ public class PageView extends JPanel {
     }
 
     // public for testing !!!!!!
-
     public void fetchData(int id) {
         //if (textIdField.getText().isEmpty()) {
         //    JOptionPane.showMessageDialog(null, "Inserisci un id", "Errore", JOptionPane.ERROR_MESSAGE);
