@@ -43,11 +43,13 @@ public class PageView extends JPanel {
         setVisible(true);
     }
 
-    private void fetchData() {
-        if (textIdField.getText().isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Inserisci un id", "Errore", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+    // public for testing !!!!!!
+
+    public void fetchData(int id) {
+        //if (textIdField.getText().isEmpty()) {
+        //    JOptionPane.showMessageDialog(null, "Inserisci un id", "Errore", JOptionPane.ERROR_MESSAGE);
+        //    return;
+        //}
 
        this.page = wikiController.fetchPage(id);
 

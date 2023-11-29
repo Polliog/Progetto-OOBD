@@ -22,11 +22,17 @@ public class Home {
         // Passando il controllo dalla GUI corrente alla prossima
         // Qui il tabbedPane non va bene per la complessita' del codice e la memoria utilizzata
         // (pag.209 slide Java - tramontana)
+
         tabbedPane.add("Registrazione",     new Registrazione(wikiController));
         tabbedPane.add("Accesso",           new Accesso(wikiController, this));
         tabbedPane.add("Crea pagina",       new PageCreate(wikiController));
-        tabbedPane.add("Visualizza pagina", new PageView(wikiController));
 
+        var pageView = new PageView(wikiController);
+        tabbedPane.add("Visualizza pagina", pageView);
+
+        var wikiPages = new WikiPages(wikiController, pageView);
+        tabbedPane.add("Pagine", wikiPages);
+        wikiPages.fetchData();
 
         // Frame Settings
         JFrame frame = new JFrame("Wiki");

@@ -14,6 +14,16 @@ import javax.swing.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+// Cosa da sistemare - OO
+//
+// + Dobbiamo rimuovere il tabbedPane e allocare le GUI in modo migliore
+// + Sistemare le chiamate tra una GUI
+// + Creare una sottoclasse di tutti i JComponent che utilizziamo per gestire meglio le dependency injection con il controller
+// + Ricontrollare le divisioni dei package
+
+//
+
+
 public class WikiController {
     // DAOs references
     private final IUserDAO userDAO = new UserDAO();
