@@ -1,6 +1,6 @@
-package wiki.Entities.DAOImplementations;
+package wiki.DAOImplementations;
 
-import wiki.Entities.DAO.IPageDAO;
+import wiki.DAO.IPageDAO;
 import wiki.Models.PaginationPage;
 import wiki.Models.User;
 import wiki.Models.Page;

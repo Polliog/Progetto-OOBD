@@ -1,4 +1,4 @@
-package wiki.Entities.DAO;
+package wiki.DAO;
 
 import wiki.Models.Page;
 import wiki.Models.User;

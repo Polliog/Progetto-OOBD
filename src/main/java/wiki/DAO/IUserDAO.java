@@ -1,4 +1,4 @@
-package wiki.Entities.DAO;
+package wiki.DAO;
 
 import java.sql.SQLException;
 

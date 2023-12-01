@@ -1,7 +1,7 @@
-package wiki.Entities.DAOImplementations;
+package wiki.DAOImplementations;
 
 import database.DatabaseConnection;
-import wiki.Entities.DAO.IUserDAO;
+import wiki.DAO.IUserDAO;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

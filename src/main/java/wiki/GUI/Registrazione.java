@@ -1,7 +1,7 @@
 package wiki.GUI;
 
 import wiki.Controllers.WikiController;
-import wiki.Entities.DAOImplementations.UserDAO;
+import wiki.DAOImplementations.UserDAO;
 
 import javax.swing.*;
 import java.sql.SQLException;

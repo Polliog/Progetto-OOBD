@@ -1,8 +1,8 @@
 package wiki.Controllers;
 
-import wiki.Entities.DAO.IUserDAO;
-import wiki.Entities.DAOImplementations.PageDAO;
-import wiki.Entities.DAOImplementations.UserDAO;
+import wiki.DAO.IUserDAO;
+import wiki.DAOImplementations.PageDAO;
+import wiki.DAOImplementations.UserDAO;
 import wiki.GUI.Accesso;
 import wiki.GUI.Home;
 import wiki.GUI.Registrazione;
@@ -24,6 +24,13 @@ import java.util.ArrayList;
 //
 
 
+// TODO LIST
+//
+// & lista pagine
+// &
+//
+
+
 public class WikiController {
     // DAOs references
     private final IUserDAO userDAO = new UserDAO();
@@ -31,7 +38,6 @@ public class WikiController {
 
     // Attributes
     private User loggedUser = null;
-
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() ->
