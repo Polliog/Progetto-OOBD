@@ -62,4 +62,15 @@ public class Page {
     public void setCreation(Date creation) {
         this.creation = creation;
     }
+
+    public String getAllContent() {
+        StringBuilder sb = new StringBuilder();
+
+        this.content.forEach(content -> {
+            sb.append(content.content);
+            sb.append("\n");
+        });
+
+        return sb.toString();
+    }
 }

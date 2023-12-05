@@ -34,6 +34,8 @@ public class Home {
         tabbedPane.add("Pagine", wikiPages);
         wikiPages.fetchData();
 
+        tabbedPane.add("Modifica", new PageEdit(wikiController));
+
         // Frame Settings
         JFrame frame = new JFrame("Wiki");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
