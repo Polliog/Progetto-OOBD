@@ -7,39 +7,39 @@ import javax.swing.*;
 import java.sql.SQLException;
 
 
-public class Registrazione extends JPanel {
-    private WikiController wikiController;
+public class RegisterPage extends PageBase {
     private JPanel registerPanel;
-    private JTextField registerName;
-    private JPasswordField registerPassword;
+    private JTextField usernameField;
+    private JPasswordField passwordField;
     private JButton registerBtn;
-    private JLabel registerLabel;
+    private JButton loginBtn;
 
-    public Registrazione(WikiController wikiController) {
-        // dependency injection
-        this.wikiController = wikiController;
+    public RegisterPage(WikiController wikiController, PageBase frame) {
+        super(wikiController, frame);
 
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS)); // Imposta un layout manager
+        initGUI();
+
         add(registerPanel); // Aggiungi un componente al pannello
 
-        //label font size
-        registerLabel.setFont(registerLabel.getFont().deriveFont(20.0f));
-
         registerBtn.addActionListener(e -> registraUtente());
+        loginBtn.addActionListener(e -> {
+            //go on login tab
+            PageBase login = new LoginPage(wikiController, this);
+            this.setVisible(false);
+            this.dispose();
+        });
 
         //event listener for enter key
-        registerName.addActionListener(e -> registraUtente());
-        registerPassword.addActionListener(e -> registraUtente());
-
-        setVisible(true);
+        usernameField.addActionListener(e -> registraUtente());
+        passwordField.addActionListener(e -> registraUtente());
     }
 
     public String getRegisterName() {
-        return registerName.getText();
+        return usernameField.getText();
     }
 
     public String getRegisterPassword() {
-        return registerPassword.getText();
+        return passwordField.getText();
     }
 
     public void registraUtente() {
@@ -76,11 +76,9 @@ public class Registrazione extends JPanel {
 
         JOptionPane.showMessageDialog(null, "Registrazione effettuata con successo, accedi per continuare", "Successo", JOptionPane.INFORMATION_MESSAGE);
 
-        registerName.setText("");
-        registerPassword.setText("");
-
         //go on login tab
-        JTabbedPane tabbedPane = (JTabbedPane) getParent();
-        tabbedPane.setSelectedIndex(1);
+        PageBase login = new LoginPage(wikiController, this);
+        this.setVisible(false);
+        this.dispose();
     }
 }

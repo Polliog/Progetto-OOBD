@@ -3,9 +3,8 @@ package wiki.Controllers;
 import wiki.DAO.IUserDAO;
 import wiki.DAOImplementations.PageDAO;
 import wiki.DAOImplementations.UserDAO;
-import wiki.GUI.Accesso;
 import wiki.GUI.Home;
-import wiki.GUI.Registrazione;
+import wiki.GUI.LoginPage;
 import wiki.Models.Page;
 import wiki.Models.PaginationPage;
 import wiki.Models.User;
@@ -41,7 +40,7 @@ public class WikiController {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() ->
-                new Home(new WikiController())
+                new LoginPage(new WikiController(), null)
         );
     }
 

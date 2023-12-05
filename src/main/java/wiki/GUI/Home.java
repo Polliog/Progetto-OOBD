@@ -14,7 +14,10 @@ public class Home {
     private JButton loginButton;
     private JButton logoutButton;
 
-    public Home(WikiController wikiController) {
+    public Home(WikiController wikiController)
+    {
+
+        /*
         this.wikiController = wikiController;
 
         // TODO
@@ -34,7 +37,7 @@ public class Home {
         tabbedPane.add("Pagine", wikiPages);
         wikiPages.fetchData();
 
-        tabbedPane.add("Modifica", new PageEdit(wikiController));
+        tabbedPane.add("Modifica", new PageEdit(wikiController, 0));
 
         // Frame Settings
         JFrame frame = new JFrame("Wiki");
@@ -51,6 +54,8 @@ public class Home {
 
         frame.setContentPane(viewPanel);
         frame.setVisible(true);
+        */
+
     }
 
     public void setLoginStatus(boolean logged, String username) {

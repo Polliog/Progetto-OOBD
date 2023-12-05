@@ -6,13 +6,9 @@ import wiki.Models.PaginationPage;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
-public class WikiPages extends JPanel {
-    private WikiController wikiController;
-    private PageView pageView;
+public class WikiPages extends PageBase {
     private JPanel WikiPagesView;
     private JTextField searchField;
     private JButton cercaButton;
@@ -20,22 +16,64 @@ public class WikiPages extends JPanel {
     private JButton nextPageBtn;
     private JLabel paginationLabel;
     private JPanel WikiListContent;
-    private JScrollPane wikiListScroll;
+    private JButton logoutBtn;
+    private JButton loginBtn;
+    private JButton registerBtn;
+    private JLabel usernameLabel;
 
     private int currentPage = 1;
     private int totalPages = 0;
 
-    public WikiPages(WikiController wikiController, PageView pageView) {
-        this.wikiController = wikiController;
-        this.pageView = pageView;
 
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS)); // Imposta un layout manager
+
+
+    public WikiPages(WikiController wikiController, PageBase frame) {
+        super(wikiController, frame);
+
+        initGUI(new Dimension(550, 400), false);
+        updateUserTab();
+
+        logoutBtn.addActionListener(e -> {
+            wikiController.disconnectUser();
+            updateUserTab();
+        });
+
+        loginBtn.addActionListener(e -> {
+            PageBase login = new LoginPage(wikiController, this);
+            this.setVisible(false);
+            this.dispose();
+        });
+
+        registerBtn.addActionListener(e -> {
+            PageBase register = new RegisterPage(wikiController, this);
+            this.setVisible(false);
+            this.dispose();
+        });
+
+
+        //setLayout(new BoxLayout(this, BoxLayout.Y_AXIS)); // Imposta un layout manager
+
         add(WikiPagesView); // Aggiungi un componente al pannello
 
         cercaButton.addActionListener(e -> fetchData());
         previousPageBtn.addActionListener(e -> previousPage());
         nextPageBtn.addActionListener(e -> nextPage());
         searchField.addActionListener(e -> fetchData());
+    }
+
+    private void updateUserTab() {
+        if (wikiController.getLoggedUser() == null) {
+            usernameLabel.setText("Utente non loggato");
+            logoutBtn.setVisible(false);
+            loginBtn.setVisible(true);
+            registerBtn.setVisible(true);
+        }
+        else {
+            usernameLabel.setText("Bentornato " + wikiController.getLoggedUser().getUsername());
+            logoutBtn.setVisible(true);
+            loginBtn.setVisible(false);
+            registerBtn.setVisible(false);
+        }
     }
 
 
@@ -54,6 +92,11 @@ public class WikiPages extends JPanel {
         previousPageBtn.setEnabled(currentPage > 1);
         nextPageBtn.setEnabled(currentPage < totalPages);
         paginationLabel.setText("Pagina " + currentPage + " di " + totalPages);
+    }
+
+    private void viewPage(int id) {
+        PageBase pageView = new PageView(wikiController, this, id);
+        this.setVisible(false);
     }
 
     private void updateListView(ArrayList<Page> pages) {
@@ -95,8 +138,9 @@ public class WikiPages extends JPanel {
                       contentLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
                       int finalI = i;
-                      int finalI1 = i;
+
                       contentLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+                          @Override
                           public void mouseClicked(java.awt.event.MouseEvent evt) {
                               try {
                                   //check if the link is a url or a page id
@@ -111,20 +155,19 @@ public class WikiPages extends JPanel {
                                       }
                                   }
                                   else {
-                                      //pageView.textIdField.setText(content.link);
-                                      pageView.fetchData(page.getId());
-
-                                      JTabbedPane tabbedPane = (JTabbedPane) getParent();
-                                      tabbedPane.setSelectedIndex(3);
+                                      // !!!!!!!!!!!
+                                      //pageView.fetchData(page.getId());
+                                      viewPage(page.getId());
                                   }
-                              } catch (java.io.IOException e) {
+                              }
+                              catch (java.io.IOException e) {
                                   JOptionPane.showMessageDialog(null, "Errore durante l'apertura del link", "Errore", JOptionPane.ERROR_MESSAGE);
                               }
                           }
                       });
                   }
 
-                    contentLabel.setText(text);
+                  contentLabel.setText(text);
 
                   pagePanel.add(contentLabel);
             }
@@ -133,21 +176,20 @@ public class WikiPages extends JPanel {
             JButton pageButton = new JButton("Continua a leggere");
             //10 margin top 10 margin left 10 margin bottom 10
             pageButton.addActionListener(e -> {
-                pageView.fetchData(page.getId());
+                // !!!!!!!!!!!!!!!!!!!!
+                //pageView.fetchData(page.getId());
+                viewPage(page.getId());
 
-                JTabbedPane tabbedPane = (JTabbedPane) getParent();
-                tabbedPane.setSelectedIndex(3);
             });
             pagePanel.add(pageButton);
-
             panel.add(pagePanel);
         }
 
         wikiListScroll.setViewportView(panel);
-        WikiListContent.add(wikiListScroll);
+        wikiListScroll.revalidate();
+        wikiListScroll.repaint();
 
-        //wikiListScroll.revalidate();
-        //wikiListScroll.repaint();
+        WikiListContent.add(wikiListScroll);
     }
 
     private void nextPage() {

@@ -7,7 +7,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.Objects;
 
-public class PageView extends JPanel {
+public class PageView extends PageBase {
     private JPanel PageViewPanel;
     private JLabel PageViewTitleLabel;
     private JScrollPane PageViewContentPanel;
@@ -18,37 +18,29 @@ public class PageView extends JPanel {
 
     private Page page = null;
 
-    private WikiController wikiController;
+
+    public PageView(WikiController wikiController, PageBase frame, int id) {
+        super(wikiController, frame);
+        initGUI();
+
+        fetchData(id);
 
 
-
-    public PageView(WikiController wikiController) {
-        // dependency injection
-        this.wikiController = wikiController;
-
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS)); // Imposta un layout manager
-        add(PageViewPanel); // Aggiungi un componente al pannello
-
-        //textIdField.addActionListener(e -> fetchData());
-
-        //set at the label a bigger font
-        PageViewTitleLabel.setFont(PageViewTitleLabel.getFont().deriveFont(20.0f));
-
+        add(PageViewPanel);
 
         backBtn.addActionListener(e -> {
-            JTabbedPane tabbedPane = (JTabbedPane) getParent();
-            tabbedPane.setSelectedIndex(4);
+            // Qui arriviamo sempre da WikiPages
+            frame.setVisible(true);
+            this.dispose();
         });
-
-        setVisible(true);
     }
 
     // public for testing !!!!!!
     public void fetchData(int id) {
-        //if (textIdField.getText().isEmpty()) {
-        //    JOptionPane.showMessageDialog(null, "Inserisci un id", "Errore", JOptionPane.ERROR_MESSAGE);
-        //    return;
-        //}
+        //  if (textIdField.getText().isEmpty()) {
+        //      JOptionPane.showMessageDialog(null, "Inserisci un id", "Errore", JOptionPane.ERROR_MESSAGE);
+        //      return;
+        //  }
 
        this.page = wikiController.fetchPage(id);
 
@@ -99,8 +91,9 @@ public class PageView extends JPanel {
                                 if (Desktop.isDesktopSupported()) {
                                     Desktop.getDesktop().browse(java.net.URI.create(link));
                                 }
-                            } else {
-                                PageView.this.fetchData(page.getId());
+                            }
+                            else {
+                                fetchData(page.getId());
 
                             }
                         } catch (java.io.IOException e) {
