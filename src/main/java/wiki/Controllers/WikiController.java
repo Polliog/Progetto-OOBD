@@ -79,6 +79,11 @@ public class WikiController {
             else {
                 JOptionPane.showMessageDialog(null, "Login effettuato", "Successo", JOptionPane.INFORMATION_MESSAGE);
                 setLoggedUser(new User(username, password));
+                this.loggedUser.setUpdates(userDAO.getUserNotifications(username, 4));
+                System.out.println(this.loggedUser.getUpdates().size());
+                if (this.loggedUser.getUpdates().size() > 0) {
+                    JOptionPane.showMessageDialog(null, "Hai " + this.loggedUser.getUpdates().size() + " notifiche", "Notifiche", JOptionPane.INFORMATION_MESSAGE);
+                }
             }
 
             return loginResult;
@@ -129,6 +134,15 @@ public class WikiController {
         catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Errore durante il caricamento delle pagine", "Errore", JOptionPane.ERROR_MESSAGE);
             return null;
+        }
+    }
+
+    public void compareAndSavePage(Page oldPage, String newText) {
+        try {
+            pageDAO.compareAndSaveEdit(oldPage, newText, loggedUser);
+        }
+        catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Errore durante il salvataggio delle modifiche", "Errore", JOptionPane.ERROR_MESSAGE);
         }
     }
 }

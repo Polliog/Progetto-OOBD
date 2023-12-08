@@ -14,4 +14,8 @@ public class PageContentString {
         this.author = author;
         this.id = id;
     }
+
+    public int getId() {
+        return id;
+    }
 }

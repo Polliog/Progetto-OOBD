@@ -15,6 +15,7 @@ public class PageView extends PageBase {
     private JLabel AuthorLabel;
     private JLabel CreatedLabel;
     private JButton backBtn;
+    private JButton editBtn;
 
     private Page page = null;
 
@@ -33,6 +34,17 @@ public class PageView extends PageBase {
             frame.setVisible(true);
             this.dispose();
         });
+
+        if (wikiController.getLoggedUser() != null) {
+            editBtn.setVisible(true);
+            editBtn.addActionListener(e -> {
+                // Qui arriviamo sempre da WikiPages
+                new PageEdit(wikiController, this, page.getId()).setVisible(true);
+                this.dispose();
+            });
+        } else {
+            editBtn.setVisible(false);
+        }
     }
 
     // public for testing !!!!!!
@@ -43,15 +55,14 @@ public class PageView extends PageBase {
         //  }
 
        this.page = wikiController.fetchPage(id);
-
        if (this.page == null) {
            JOptionPane.showMessageDialog(null, "Pagina non trovata", "Errore", JOptionPane.ERROR_MESSAGE);
            return;
        }
 
 
-       PageViewTitleLabel.setText(this.page.getTitle());
-       AuthorLabel.setText("Autore: " + this.page.getAuthor());
+        PageViewTitleLabel.setText(this.page.getTitle());
+        AuthorLabel.setText("Autore: " + this.page.getAuthor());
         //created label is formatted as "Creato il: dd/MM/yyyy"
         CreatedLabel.setText("Creato il: " + this.page.getCreation().toString().substring(0, 10));
         createUIComponents();
@@ -93,8 +104,7 @@ public class PageView extends PageBase {
                                 }
                             }
                             else {
-                                fetchData(page.getId());
-
+                                fetchData(Integer.parseInt(link));
                             }
                         } catch (java.io.IOException e) {
                             JOptionPane.showMessageDialog(null, "Errore durante l'apertura del link", "Errore", JOptionPane.ERROR_MESSAGE);

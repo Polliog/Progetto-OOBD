@@ -5,29 +5,35 @@ import wiki.Models.Page;
 
 import javax.swing.*;
 
-public class PageEdit extends JPanel {
+public class PageEdit extends PageBase {
     private JPanel PageEditView;
     private JButton BackBtn;
     private JLabel PageTitleLabel;
     private JTextArea PageContent;
     private JButton SaveBtn;
-    private WikiController wikiController;
     private Page page = null;
     private int id;
 
 
-    public PageEdit(WikiController wikiController, int id) {
+    public PageEdit(WikiController wikiController, PageBase frame, int id) {
+        super(wikiController, frame);
+        initGUI();
         // dependency injection
         this.id = id;
-        this.wikiController = wikiController;
-
 
         this.PageTitleLabel.setFont(this.PageTitleLabel.getFont().deriveFont(20.0f));
 
-        fetchData(5);
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS)); // Imposta un layout manager
-        add(PageEditView); // Aggiungi un componente al pannello'
-        setVisible(true);
+        fetchData(this.id);
+        add(PageEditView);
+
+        BackBtn.addActionListener(e -> {
+            frame.setVisible(true);
+            this.dispose();
+        });
+
+        SaveBtn.addActionListener(e -> {
+            confirmSave();
+        });
     }
 
     public void fetchData(int id) {
@@ -40,7 +46,15 @@ public class PageEdit extends JPanel {
 
         PageTitleLabel.setText(this.page.getTitle());
         PageContent.setText(this.page.getAllContent());
+        PageContent.setLineWrap(true);
+        PageContent.setWrapStyleWord(true);
     }
 
-
+    private void confirmSave() {
+        //SHOW A CONFIRMATION DIALOG
+        int dialogResult = JOptionPane.showConfirmDialog (null, "Vuoi salvare le modifiche?","Conferma di salvataggio",JOptionPane.YES_NO_OPTION);
+        if(dialogResult == JOptionPane.YES_OPTION){
+            wikiController.compareAndSavePage(this.page, PageContent.getText());
+        }
+    }
 }

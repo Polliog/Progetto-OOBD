@@ -59,6 +59,8 @@ public class WikiPages extends PageBase {
         previousPageBtn.addActionListener(e -> previousPage());
         nextPageBtn.addActionListener(e -> nextPage());
         searchField.addActionListener(e -> fetchData());
+
+        fetchData();
     }
 
     private void updateUserTab() {
@@ -157,7 +159,7 @@ public class WikiPages extends PageBase {
                                   else {
                                       // !!!!!!!!!!!
                                       //pageView.fetchData(page.getId());
-                                      viewPage(page.getId());
+                                      viewPage(Integer.parseInt(link));
                                   }
                               }
                               catch (java.io.IOException e) {
