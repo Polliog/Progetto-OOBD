@@ -30,6 +30,7 @@ import java.util.ArrayList;
 //
 
 
+
 public class WikiController {
     // DAOs references
     private final IUserDAO userDAO = new UserDAO();
@@ -79,11 +80,7 @@ public class WikiController {
             else {
                 JOptionPane.showMessageDialog(null, "Login effettuato", "Successo", JOptionPane.INFORMATION_MESSAGE);
                 setLoggedUser(new User(username, password));
-                this.loggedUser.setUpdates(userDAO.getUserNotifications(username, 4));
-                System.out.println(this.loggedUser.getUpdates().size());
-                if (this.loggedUser.getUpdates().size() > 0) {
-                    JOptionPane.showMessageDialog(null, "Hai " + this.loggedUser.getUpdates().size() + " notifiche", "Notifiche", JOptionPane.INFORMATION_MESSAGE);
-                }
+                fetchNotifications();
             }
 
             return loginResult;
@@ -93,6 +90,41 @@ public class WikiController {
         }
 
         return false;
+    }
+
+    public void fetchNotifications() {
+        try {
+            this.loggedUser.setUpdates(userDAO.getUserNotifications(this.loggedUser.getUsername(), 4));
+            if (this.loggedUser.getUpdates().size() > 0) {
+                //se ci sono notifiche mostra un dialog con 2 bottoni (visualizza e chiudi)
+                String message = "";
+
+                if (this.loggedUser.getUpdates().size() == 1) {
+                    message = "Hai una nuova notifica";
+                }
+                else {
+                    message = "Hai " + this.loggedUser.getUpdates().size() + " nuove notifiche";
+                }
+
+                Object[] options = {"Visualizza", "Chiudi"};
+                int n = JOptionPane.showOptionDialog(null,
+                        message, // the dialog message
+                        "Notifiche", // the title of the dialog window
+                        JOptionPane.YES_NO_OPTION, // option type
+                        JOptionPane.QUESTION_MESSAGE, // message type
+                        null, // optional icon, use null to use the default icon
+                        options, // options string array, will be made into buttons
+                        options[0] // option that should be made into a default button
+                );
+
+                if (n == JOptionPane.YES_OPTION) {
+                    //apri la pagina delle notifiche
+                    System.out.println("Notifiche");
+                }
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Errore durante il caricamento delle notifiche", "Errore", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     public void disconnectUser() {

@@ -20,6 +20,7 @@ public class WikiPages extends PageBase {
     private JButton loginBtn;
     private JButton registerBtn;
     private JLabel usernameLabel;
+    private JButton createPageBtn;
 
     private int currentPage = 1;
     private int totalPages = 0;
@@ -50,6 +51,11 @@ public class WikiPages extends PageBase {
             this.dispose();
         });
 
+        createPageBtn.addActionListener(e -> {
+            PageBase createPage = new PageCreate(wikiController, this);
+            this.setVisible(false);
+            this.dispose();
+        });
 
         //setLayout(new BoxLayout(this, BoxLayout.Y_AXIS)); // Imposta un layout manager
 
@@ -75,6 +81,7 @@ public class WikiPages extends PageBase {
             logoutBtn.setVisible(true);
             loginBtn.setVisible(false);
             registerBtn.setVisible(false);
+            createPageBtn.setVisible(true);
         }
     }
 

@@ -3,10 +3,11 @@ package wiki.GUI;
 import wiki.Controllers.WikiController;
 
 import javax.swing.*;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class PageCreate extends JPanel {
+public class PageCreate extends PageBase {
     private WikiController wikiController;
     private JLabel creationLabel;
     private JPanel pageCreatePanel;
@@ -15,11 +16,12 @@ public class PageCreate extends JPanel {
     private JButton createPageButton;
 
 
-    public PageCreate(WikiController wikiController) {
+    public PageCreate(WikiController wikiController, PageBase frame) {
+        super(wikiController, frame);
         // dependency injection
         this.wikiController = wikiController;
 
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS)); // Imposta un layout manager
+        initGUI(new Dimension(550, 400), false);
         add(pageCreatePanel); // Aggiungi un componente al pannello
 
         createPageButton.addActionListener(e -> createPage());
