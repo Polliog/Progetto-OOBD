@@ -73,7 +73,7 @@ public class UserDAO implements IUserDAO {
             String pageAuthor = rs.getNString(12);
             java.sql.Timestamp creation = rs.getTimestamp("creation");
             Page page = new Page(pageId, pageTitle, pageAuthor, creation);
-            Update update = new Update(id, page, author, updateStatus == null ? 4 : updateStatus);
+            Update update = new Update(id, page, author, updateStatus);
             updates.add(update);
         }
 
