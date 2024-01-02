@@ -16,8 +16,11 @@ public abstract class PageBase extends JFrame {
     }
 
     public void initGUI(Dimension dimension, boolean isResizable) {
-        this.setSize(dimension);
         this.setResizable(isResizable);
+
+        //set minimum size
+        this.setMinimumSize(dimension);
+        this.setPreferredSize(dimension);
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -26,7 +29,7 @@ public abstract class PageBase extends JFrame {
     }
 
     public void initGUI() {
-        this.initGUI(new Dimension(550, 400), false);
+        this.initGUI(new Dimension(550, 400), true);
     }
 
 }

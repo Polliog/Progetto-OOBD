@@ -21,7 +21,7 @@ public class PageCreate extends PageBase {
         // dependency injection
         this.wikiController = wikiController;
 
-        initGUI(new Dimension(550, 400), false);
+        initGUI(new Dimension(550, 400), true);
         add(pageCreatePanel); // Aggiungi un componente al pannello
 
         createPageButton.addActionListener(e -> createPage());

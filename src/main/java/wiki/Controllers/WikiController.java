@@ -94,7 +94,7 @@ public class WikiController {
 
     public void fetchNotifications() {
         try {
-            this.loggedUser.setUpdates(userDAO.getUserNotifications(this.loggedUser.getUsername(), 4));
+            this.loggedUser.setUpdates(userDAO.getUserNotifications(this.loggedUser.getUsername(), 0));
             if (this.loggedUser.getUpdates().size() > 0) {
                 //se ci sono notifiche mostra un dialog con 2 bottoni (visualizza e chiudi)
                 String message = "";
@@ -123,6 +123,7 @@ public class WikiController {
                 }
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Errore durante il caricamento delle notifiche", "Errore", JOptionPane.ERROR_MESSAGE);
         }
     }

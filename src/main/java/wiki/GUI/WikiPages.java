@@ -31,7 +31,7 @@ public class WikiPages extends PageBase {
     public WikiPages(WikiController wikiController, PageBase frame) {
         super(wikiController, frame);
 
-        initGUI(new Dimension(550, 400), false);
+        initGUI(new Dimension(550, 400), true);
         updateUserTab();
 
         logoutBtn.addActionListener(e -> {
