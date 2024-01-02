@@ -94,16 +94,16 @@ public class WikiController {
 
     public void fetchNotifications() {
         try {
-            this.loggedUser.setUpdates(userDAO.getUserNotifications(this.loggedUser.getUsername(), 0));
-            if (this.loggedUser.getUpdates().size() > 0) {
+            this.loggedUser.setNotifications(userDAO.getUserNotifications(this.loggedUser.getUsername(), 0));
+            if (this.loggedUser.getNotifications().size() > 0) {
                 //se ci sono notifiche mostra un dialog con 2 bottoni (visualizza e chiudi)
                 String message = "";
 
-                if (this.loggedUser.getUpdates().size() == 1) {
+                if (this.loggedUser.getNotifications().size() == 1) {
                     message = "Hai una nuova notifica";
                 }
                 else {
-                    message = "Hai " + this.loggedUser.getUpdates().size() + " nuove notifiche";
+                    message = "Hai " + this.loggedUser.getNotifications().size() + " nuove notifiche";
                 }
 
                 Object[] options = {"Visualizza", "Chiudi"};

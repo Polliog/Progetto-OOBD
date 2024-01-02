@@ -2,6 +2,7 @@ package wiki.DAOImplementations;
 
 import database.DatabaseConnection;
 import wiki.DAO.IUserDAO;
+import wiki.Models.Notification;
 import wiki.Models.Page;
 import wiki.Models.Update;
 
@@ -32,7 +33,7 @@ public class UserDAO implements IUserDAO {
         return pstmt.executeQuery().next();
     }
 
-    public ArrayList<Update> getUserNotifications(String username, int status) throws SQLException {
+    public ArrayList<Notification> getUserNotifications(String username, int status) throws SQLException {
         Connection conn = DatabaseConnection.getConnection();
         String query;
         if (status == -1) {
@@ -55,7 +56,7 @@ public class UserDAO implements IUserDAO {
         ResultSet rs = pstmt.executeQuery();
         ResultSetMetaData rsmd = rs.getMetaData();
         int columnsNumber = rsmd.getColumnCount();
-        ArrayList<Update> updates = new ArrayList<>();
+        ArrayList<Notification> updates = new ArrayList<>();
         while (rs.next()) {
             //for (int i = 1; i <= columnsNumber; i++) {
             //    String columnValue = rs.getString(i);
@@ -68,13 +69,15 @@ public class UserDAO implements IUserDAO {
             int pageId = rs.getInt("page_id");
             //get the second author
             String author = rs.getString("author");
+            int notStatus = rs.getInt("status");
             Integer updateStatus = rs.getObject(8, Integer.class);
             String pageTitle = rs.getString("title");
             String pageAuthor = rs.getNString(12);
             java.sql.Timestamp creation = rs.getTimestamp("creation");
             Page page = new Page(pageId, pageTitle, pageAuthor, creation);
-            Update update = new Update(id, page, author, updateStatus);
-            updates.add(update);
+            Update update = new Update(id, page, author, updateStatus == null ? 2 : updateStatus);
+            Notification notification = new Notification(id, notStatus, update);
+            updates.add(notification);
         }
 
         return updates;

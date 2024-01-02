@@ -4,7 +4,7 @@ public class Update {
     private int id;
     private Page page;
     private String author;
-    private int status; //null = pending, 0 = rejected, 1 = accepted
+    private int status; //2 = pending, 0 = rejected, 1 = accepted
 
     public Update(int id, Page page, String author, int status) {
         this.id = id;

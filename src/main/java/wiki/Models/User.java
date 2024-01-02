@@ -7,7 +7,7 @@ public class User {
     private String username;
     private String password;
 
-    private ArrayList<Update> updates = new ArrayList<>();
+    private ArrayList<Notification> notifications = new ArrayList<>();
 
 
     //constructor
@@ -28,12 +28,12 @@ public class User {
 
     //getter and setter for updates
 
-    public ArrayList<Update> getUpdates() {
-        return updates;
+    public ArrayList<Notification> getNotifications() {
+        return notifications;
     }
 
-    public void setUpdates(ArrayList<Update> updates) {
-        this.updates = updates;
+    public void setNotifications(ArrayList<Notification> notifications) {
+        this.notifications = notifications;
     }
 
 }
