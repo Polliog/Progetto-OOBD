@@ -263,7 +263,10 @@ public class PageDAO implements IPageDAO {
         try {
             var pstmt = conn.prepareStatement("INSERT INTO UpdatedText (update_id, text_id, text, order_num) VALUES (?, ?, ?, ?)");
             pstmt.setInt(1, updateId);
-            pstmt.setInt(2, textId == -1 ? null : textId);
+            if (textId == -1)
+                pstmt.setNull(2, java.sql.Types.INTEGER);
+            else
+                pstmt.setInt(2, textId);
             pstmt.setString(3, text);
             pstmt.setInt(4, orderNum);
             pstmt.executeUpdate();
