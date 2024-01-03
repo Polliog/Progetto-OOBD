@@ -53,15 +53,21 @@ public class LoginPage extends PageBase {
             //homeGUI.setLoginStatus(true, getLoginName());
 
             // -> WikiPages
-            PageBase wikiPages = new WikiPages(wikiController, this);
-            this.setVisible(false);
-            this.dispose();
+
+            if (wikiController.fetchNotifications()) {
+                PageBase notifications = new UserNotifications(wikiController, this);
+                this.setVisible(false);
+                this.dispose();
+            } else {
+                PageBase wikiPages = new WikiPages(wikiController, this);
+                this.setVisible(false);
+                this.dispose();
+            }
+
         }
         // Login Fail
         else {
             //homeGUI.setLoginStatus(false, "");
-
-
         }
     }
 
