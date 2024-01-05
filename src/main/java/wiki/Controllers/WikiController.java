@@ -125,6 +125,7 @@ public class WikiController {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Errore durante il caricamento delle notifiche", "Errore", JOptionPane.ERROR_MESSAGE);
         }
+        return false;
     }
 
     public void disconnectUser() {
