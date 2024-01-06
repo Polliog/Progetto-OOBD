@@ -64,6 +64,23 @@ public class UserNotifications extends PageBase {
             switch (notification.getType()) {
                 case 0:
                     notificationTextArea.setText("Aggiornamento della pagina \"" + notification.getUpdate().getPage().getTitle() + "\" da " + notification.getUpdate().getAuthor() + "");
+
+                    switch (notification.getUpdate().getStatus()) {
+                        case 2:
+                            notificationTextArea.setText(notificationTextArea.getText() + " (in attesa di revisione)");
+                            //color
+                            notificationTextArea.setForeground(Color.BLUE);
+                            break;
+                        case 1:
+                            notificationTextArea.setText(notificationTextArea.getText() + " (approvato)");
+                            notificationTextArea.setForeground(Color.GREEN);
+                            break;
+                        case 0:
+                            notificationTextArea.setText(notificationTextArea.getText() + " (rifiutato)");
+                            notificationTextArea.setForeground(Color.RED);
+                            break;
+                    }
+
                     break;
                 case 1:
                     notificationTextArea.setText("La tua modifica per la pagina \"" + notification.getUpdate().getPage().getTitle() + "\" e' stata approvata");
@@ -90,14 +107,27 @@ public class UserNotifications extends PageBase {
                 PageBase pageView = null;
                 switch (notification.getType()) {
                     case 0:
+
+                        if (notification.getUpdate().getStatus() != 2) {
+                            pageView = new PageView(wikiController, this, notification.getUpdate().getPage().getId());
+                            this.wikiController.setNotificationStatus(notification.getId(), 1);
+                            this.setVisible(false);
+                            this.dispose();
+                            break;
+                        }
+
                         pageView = new ReviewUpdate(wikiController, this, notification.getUpdate(), true);
+                        //this.wikiController.setNotificationStatus(notification.getId(), 1);
+                        this.setVisible(false);
+                        this.dispose();
                         break;
                     case 1:
                     case 2:
                     default:
-                        System.out.println(notification.getUpdate().getPage().getId());
                         pageView = new PageView(wikiController, this, notification.getUpdate().getPage().getId());
+                        this.wikiController.setNotificationStatus(notification.getId(), 1);
                         this.setVisible(false);
+                        this.dispose();
                         break;
                 }
             });

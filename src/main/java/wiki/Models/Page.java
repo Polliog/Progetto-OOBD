@@ -73,4 +73,34 @@ public class Page {
 
         return sb.toString();
     }
+
+    public String getAllContentHtml() {
+        StringBuilder sb = new StringBuilder();
+
+        this.content.forEach(content -> {
+            sb.append(content.content);
+            sb.append("<br>");
+        });
+
+        return sb.toString();
+    }
+
+    public String getLine(int line) {
+        for (PageContentString content : this.content) {
+            if (content.order_num == line) {
+                return content.content;
+            }
+        }
+        return null;
+    }
+
+    public String toString() {
+        return "Page{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", content=" + content +
+                ", author='" + author + '\'' +
+                ", creation=" + creation +
+                '}';
+    }
 }
