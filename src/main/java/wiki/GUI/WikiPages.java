@@ -96,7 +96,8 @@ public class WikiPages extends PageBase {
     }
 
     private void onNotificationPressed() {
-
+        new UserNotifications(wikiController, this);
+        this.setVisible(false);
     }
 
     private void onCreatePagePressed() {

@@ -330,9 +330,22 @@ public class PageDAO implements IPageDAO {
                     pstmt.setInt(1, i);
                     //check if text type is 0
                     if (update.getContentStrings().get(i).getType() == 0) {
-                        pstmt.setString(2, oldPage.getLine(i));
+                        String text = oldPage.getLine(i);
+                        //check if text is null
+                        if (text == null) {
+                            text = "";
+                        }
+                        pstmt.setString(2, text);
                     } else {
-                        pstmt.setString(2, newText.split("\n")[i]);
+                        String text = newText.split("\n")[i];
+                        //check if text is null
+                        if (text == null) {
+                            text = oldPage.getLine(i);
+                            if (text == null) {
+                                text = "";
+                            }
+                        }
+                        pstmt.setString(2, text);
                     }
                     pstmt.setInt(3, oldPage.getId());
                     pstmt.setString(4, update.getAuthor());

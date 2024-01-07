@@ -18,7 +18,7 @@ public class UserNotifications extends PageBase {
 
     public UserNotifications(WikiController wikiController, PageBase frame) {
         super(wikiController, frame);
-        initGUI(new Dimension(550, 400), true);
+        initGUI( true,new Dimension(550, 400));
         add(notificationsViewPanel);
         setVisible(true);
 
@@ -117,7 +117,7 @@ public class UserNotifications extends PageBase {
                         }
 
                         pageView = new ReviewUpdate(wikiController, this, notification.getUpdate(), true);
-                        //this.wikiController.setNotificationStatus(notification.getId(), 1);
+                        this.wikiController.setNotificationStatus(notification.getId(), 1);
                         this.setVisible(false);
                         this.dispose();
                         break;

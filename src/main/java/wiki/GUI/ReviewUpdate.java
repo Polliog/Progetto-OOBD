@@ -77,7 +77,7 @@ public class ReviewUpdate extends PageBase {
         }
 
 
-        initGUI(new Dimension(550, 400), true);
+        initGUI( true,new Dimension(550, 400));
         add(reviewUpdateView);
         setVisible(true);
 
