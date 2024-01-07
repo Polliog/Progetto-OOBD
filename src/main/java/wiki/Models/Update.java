@@ -45,4 +45,3 @@ public class Update {
         this.status = status;
     }
 }
-

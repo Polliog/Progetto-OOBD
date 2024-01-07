@@ -1,21 +1,20 @@
 package wiki.GUI;
 
 import wiki.Controllers.WikiController;
-import wiki.Models.Page;
 
 import javax.swing.*;
 import java.awt.*;
 
 public abstract class PageBase extends JFrame {
     protected WikiController wikiController;
-    protected PageBase frame;
+    protected PageBase prevPageRef;
 
-    public PageBase(WikiController wikiController, PageBase frame) {
+    public PageBase(WikiController wikiController, PageBase prevPageRef) {
         this.wikiController = wikiController;
-        this.frame = frame;
+        this.prevPageRef = prevPageRef;
     }
 
-    public void initGUI(Dimension dimension, boolean isResizable) {
+    public void initGUI(boolean isResizable, Dimension dimension) {
         this.setResizable(isResizable);
 
         //set minimum size
@@ -28,9 +27,15 @@ public abstract class PageBase extends JFrame {
         setVisible(true);
     }
 
-    public void initGUI() {
-        this.initGUI(new Dimension(550, 400), true);
+    public void initGUI(boolean isResizable) {
+        this.initGUI(isResizable, new Dimension(500, 500));
     }
+
+    public void initGUI() {
+        this.initGUI(true, new Dimension(500, 500));
+    }
+
+
 
 }
 

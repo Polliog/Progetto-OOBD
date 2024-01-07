@@ -1,14 +1,15 @@
 package wiki.Controllers;
 
+import com.formdev.flatlaf.FlatIntelliJLaf;
 import wiki.DAO.IUserDAO;
 import wiki.DAOImplementations.PageDAO;
 import wiki.DAOImplementations.UserDAO;
-import wiki.GUI.Home;
 import wiki.GUI.LoginPage;
 import wiki.Models.Page;
 import wiki.Models.PaginationPage;
 import wiki.Models.User;
 
+import javax.print.DocFlavor;
 import javax.swing.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -39,7 +40,10 @@ public class WikiController {
     // Attributes
     private User loggedUser = null;
 
+
     public static void main(String[] args) {
+        FlatIntelliJLaf.setup();
+
         SwingUtilities.invokeLater(() ->
                 new LoginPage(new WikiController(), null)
         );
@@ -92,6 +96,42 @@ public class WikiController {
         return false;
     }
 
+    public boolean onTryRegister(String username, String password) {
+        if (username.equals("") || password.equals("")) {
+            JOptionPane.showMessageDialog(null, "Compila tutti i campi", "Errore", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        if (username.contains(" ") || password.contains(" ")) {
+            JOptionPane.showMessageDialog(null, "Nome utente e password non possono contenere spazi", "Errore", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        try {
+            if (userDAO.doesUserExist(username)) {
+                JOptionPane.showMessageDialog(null, "Nome utente già esistente", "Errore", JOptionPane.ERROR_MESSAGE);
+                return false;
+            }
+        }
+        catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Errore durante il controllo dell'esistenza dell'utente", "Errore", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+            return false;
+        }
+
+        try {
+            UserDAO utente = new UserDAO();
+            utente.insertUser(username, password);
+        }
+        catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Errore durante la registrazione dell'utente", "Errore", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        JOptionPane.showMessageDialog(null, "Registrazione effettuata con successo, accedi per continuare", "Successo", JOptionPane.INFORMATION_MESSAGE);
+        return true;
+    }
+
     public void fetchNotifications() {
         try {
             this.loggedUser.setNotifications(userDAO.getUserNotifications(this.loggedUser.getUsername(), 0));
@@ -141,13 +181,32 @@ public class WikiController {
         return loggedUser;
     }
 
-    public void createPage(String title, ArrayList<String> content) {
+    public boolean createPage(String title, String content) {
+        if (title.isEmpty() || content.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Compila tutti i campi", "Errore", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        ArrayList<String> lines = new ArrayList<>();
+        String[] split = content.split("\n");
+
+        for (String line : split)
+            lines.add(line);
+
+        if (!isUserLogged()) {
+            JOptionPane.showMessageDialog(null, "Devi essere loggato per creare una pagina", "Errore", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
         try {
-            pageDAO.insertPage(title, content, loggedUser);
+            pageDAO.insertPage(title, lines, loggedUser);
         }
         catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Errore durante la creazione della pagina", "Errore", JOptionPane.ERROR_MESSAGE);
+            return false;
         }
+
+        return true;
     }
 
     public Page fetchPage(int id) {

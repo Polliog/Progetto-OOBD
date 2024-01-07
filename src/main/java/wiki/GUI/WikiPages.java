@@ -3,90 +3,78 @@ package wiki.GUI;
 import wiki.Controllers.WikiController;
 import wiki.Models.Page;
 import wiki.Models.PaginationPage;
+import wiki.Models.User;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 
+// TODO
+//  rinominare come MainMenu
+
 public class WikiPages extends PageBase {
     private JPanel WikiPagesView;
     private JTextField searchField;
-    private JButton cercaButton;
+    private JButton searchPageBtn;
     private JButton previousPageBtn;
     private JButton nextPageBtn;
     private JLabel paginationLabel;
     private JPanel WikiListContent;
     private JButton logoutBtn;
     private JButton loginBtn;
-    private JButton registerBtn;
     private JLabel usernameLabel;
     private JButton createPageBtn;
+    private JButton notificationBtn;
 
     private int currentPage = 1;
     private int totalPages = 0;
 
 
 
+    public WikiPages(WikiController wikiController, PageBase prevPageRef) {
+        super(wikiController, prevPageRef);
+        add(WikiPagesView);
+        initGUI(true, new Dimension(650, 500));
 
-    public WikiPages(WikiController wikiController, PageBase frame) {
-        super(wikiController, frame);
-
-        initGUI(new Dimension(550, 400), true);
-        updateUserTab();
-
-        logoutBtn.addActionListener(e -> {
-            wikiController.disconnectUser();
-            updateUserTab();
-        });
-
-        loginBtn.addActionListener(e -> {
-            PageBase login = new LoginPage(wikiController, this);
-            this.setVisible(false);
-            this.dispose();
-        });
-
-        registerBtn.addActionListener(e -> {
-            PageBase register = new RegisterPage(wikiController, this);
-            this.setVisible(false);
-            this.dispose();
-        });
-
-        createPageBtn.addActionListener(e -> {
-            PageBase createPage = new PageCreate(wikiController, this);
-            this.setVisible(false);
-            this.dispose();
-        });
-
-        //setLayout(new BoxLayout(this, BoxLayout.Y_AXIS)); // Imposta un layout manager
-
-        add(WikiPagesView); // Aggiungi un componente al pannello
-
-        cercaButton.addActionListener(e -> fetchData());
+        // Buttons Action listeners
+        loginBtn.addActionListener(e -> onLoginPressed());
+        logoutBtn.addActionListener(e -> onLogoutPressed());
+        createPageBtn.addActionListener(e -> onCreatePagePressed());
+        notificationBtn.addActionListener(e -> onNotificationPressed());
+        searchPageBtn.addActionListener(e -> fetchData());
         previousPageBtn.addActionListener(e -> previousPage());
         nextPageBtn.addActionListener(e -> nextPage());
+        // Enter key
         searchField.addActionListener(e -> fetchData());
 
+        updateUserTab();
         fetchData();
     }
 
     private void updateUserTab() {
-        if (wikiController.getLoggedUser() == null) {
+        User loggedUser = wikiController.getLoggedUser();
+
+        if (loggedUser == null) {
             usernameLabel.setText("Utente non loggato");
+
             logoutBtn.setVisible(false);
             loginBtn.setVisible(true);
-            registerBtn.setVisible(true);
+
+            createPageBtn.setVisible(false);
+            notificationBtn.setVisible(false);
         }
         else {
-            usernameLabel.setText("Bentornato " + wikiController.getLoggedUser().getUsername());
+            usernameLabel.setText("Bentornato " + loggedUser.getUsername());
+
             logoutBtn.setVisible(true);
             loginBtn.setVisible(false);
-            registerBtn.setVisible(false);
+
             createPageBtn.setVisible(true);
+            notificationBtn.setVisible(true);
         }
     }
 
-
-    public void fetchData() {
+    private void fetchData() {
         PaginationPage response = this.wikiController.fetchPages(searchField.getText(), currentPage, 3);
 
         if (response == null) return;
@@ -97,16 +85,36 @@ public class WikiPages extends PageBase {
         this.updateListView(response.pages);
     }
 
+    private void onLoginPressed() {
+        new LoginPage(wikiController, this);
+        this.setVisible(false);
+    }
+
+    private void onLogoutPressed() {
+        wikiController.disconnectUser();
+        updateUserTab();
+    }
+
+    private void onNotificationPressed() {
+
+    }
+
+    private void onCreatePagePressed() {
+        new PageCreate(wikiController, this);
+        this.setVisible(false);
+    }
+
+    private void viewPage(int id) {
+        new PageView(wikiController, this, id);
+        this.setVisible(false);
+    }
+
     private void updatePaginationUI() {
         previousPageBtn.setEnabled(currentPage > 1);
         nextPageBtn.setEnabled(currentPage < totalPages);
         paginationLabel.setText("Pagina " + currentPage + " di " + totalPages);
     }
 
-    private void viewPage(int id) {
-        PageBase pageView = new PageView(wikiController, this, id);
-        this.setVisible(false);
-    }
 
     private void updateListView(ArrayList<Page> pages) {
         //in the scroll panel add all the pages formatted like:

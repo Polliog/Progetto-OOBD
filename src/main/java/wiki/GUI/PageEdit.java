@@ -15,30 +15,22 @@ public class PageEdit extends PageBase {
     private int id;
 
 
-    public PageEdit(WikiController wikiController, PageBase frame, int id) {
-        super(wikiController, frame);
+    public PageEdit(WikiController wikiController, PageBase prevPageRef, int id) {
+        super(wikiController, prevPageRef);
+        add(PageEditView);
         initGUI();
-        // dependency injection
-        this.id = id;
 
+        fetchData(id);
+
+        this.id = id;
         this.PageTitleLabel.setFont(this.PageTitleLabel.getFont().deriveFont(20.0f));
 
-        fetchData(this.id);
-        add(PageEditView);
-
-        BackBtn.addActionListener(e -> {
-            frame.setVisible(true);
-            this.dispose();
-        });
-
-        SaveBtn.addActionListener(e -> {
-            confirmSave();
-        });
+        BackBtn.addActionListener(e -> onBackPressed());
+        SaveBtn.addActionListener(e -> onSavePressed());
     }
 
     public void fetchData(int id) {
         this.page = wikiController.fetchPage(id);
-
         if (this.page == null) {
             JOptionPane.showMessageDialog(null, "Pagina non trovata", "Errore", JOptionPane.ERROR_MESSAGE);
             return;
@@ -48,6 +40,15 @@ public class PageEdit extends PageBase {
         PageContent.setText(this.page.getAllContent());
         PageContent.setLineWrap(true);
         PageContent.setWrapStyleWord(true);
+    }
+
+    private void onBackPressed() {
+        prevPageRef.setVisible(true);
+        this.dispose();
+    }
+
+    private void onSavePressed() {
+        confirmSave();
     }
 
     private void confirmSave() {

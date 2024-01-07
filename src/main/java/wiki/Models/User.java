@@ -32,6 +32,10 @@ public class User {
         return notifications;
     }
 
+    public int getNotificationCount() {
+        return notifications.size();
+    }
+
     public void setNotifications(ArrayList<Notification> notifications) {
         this.notifications = notifications;
     }

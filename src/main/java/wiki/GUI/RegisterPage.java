@@ -1,10 +1,8 @@
 package wiki.GUI;
 
 import wiki.Controllers.WikiController;
-import wiki.DAOImplementations.UserDAO;
 
 import javax.swing.*;
-import java.sql.SQLException;
 
 
 public class RegisterPage extends PageBase {
@@ -14,70 +12,40 @@ public class RegisterPage extends PageBase {
     private JButton registerBtn;
     private JButton loginBtn;
 
-    public RegisterPage(WikiController wikiController, PageBase frame) {
-        super(wikiController, frame);
-
+    public RegisterPage(WikiController wikiController, PageBase prevPageRef) {
+        super(wikiController, prevPageRef);
+        add(registerPanel);
         initGUI();
 
-        add(registerPanel); // Aggiungi un componente al pannello
-
-        registerBtn.addActionListener(e -> registraUtente());
-        loginBtn.addActionListener(e -> {
-            //go on login tab
-            PageBase login = new LoginPage(wikiController, this);
-            this.setVisible(false);
-            this.dispose();
-        });
+        // Listeners
+        registerBtn.addActionListener(e -> onRegisterPressed());
+        loginBtn.addActionListener(e -> onLoginPressed());
 
         //event listener for enter key
-        usernameField.addActionListener(e -> registraUtente());
-        passwordField.addActionListener(e -> registraUtente());
+        usernameField.addActionListener(e -> onRegisterPressed());
+        passwordField.addActionListener(e -> onRegisterPressed());
     }
 
-    public String getRegisterName() {
+    private String getRegisterName() {
         return usernameField.getText();
     }
 
-    public String getRegisterPassword() {
+    private String getRegisterPassword() {
         return passwordField.getText();
     }
 
-    public void registraUtente() {
-
-        if (getRegisterName().equals("") || getRegisterPassword().equals("")) {
-            JOptionPane.showMessageDialog(null, "Compila tutti i campi", "Errore", JOptionPane.ERROR_MESSAGE);
-            return;
+    private void onRegisterPressed() {
+        // -> Goes back to Login Page on Register Success
+        if (wikiController.onTryRegister(getRegisterName(), getRegisterPassword())) {
+            prevPageRef.setVisible(true);
+            this.setVisible(false);
+            this.dispose();
         }
+    }
 
-        if (getRegisterName().contains(" ") || getRegisterPassword().contains(" ")) {
-            JOptionPane.showMessageDialog(null, "Nome utente e password non possono contenere spazi", "Errore", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        try {
-            UserDAO utente = new UserDAO();
-            if (utente.doesUserExist(getRegisterName())) {
-                JOptionPane.showMessageDialog(null, "Nome utente già esistente", "Errore", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Errore durante il controllo dell'esistenza dell'utente", "Errore", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
-            return;
-        }
-
-        try {
-            UserDAO utente = new UserDAO();
-            utente.insertUser(getRegisterName(), getRegisterPassword());
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Errore durante la registrazione dell'utente", "Errore", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        JOptionPane.showMessageDialog(null, "Registrazione effettuata con successo, accedi per continuare", "Successo", JOptionPane.INFORMATION_MESSAGE);
-
-        //go on login tab
-        PageBase login = new LoginPage(wikiController, this);
+    private void onLoginPressed() {
+        // -> Goes back to Login Page
+        prevPageRef.setVisible(true);
         this.setVisible(false);
         this.dispose();
     }

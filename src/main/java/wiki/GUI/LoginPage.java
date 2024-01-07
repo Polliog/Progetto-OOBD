@@ -1,80 +1,51 @@
 package wiki.GUI;
 
 import javax.swing.*;
-import wiki.Controllers.WikiController;
 
-import java.awt.*;
+import wiki.Controllers.WikiController;
 
 public class LoginPage extends PageBase {
     private JPanel loginPanel;
     private JTextField usernameField;
     private JPasswordField passwordField;
     private JButton loginBtn;
-
-    private JButton guestBtn;
     private JButton registerBtn;
 
-
-    public LoginPage(WikiController wikiController, PageBase frame) {
-        super(wikiController, frame);
-
+    public LoginPage(WikiController wikiController, PageBase nextPageRef) {
+        super(wikiController, nextPageRef);
+        add(loginPanel);
         initGUI();
-        //setLayout(new BoxLayout(this, BoxLayout.Y_AXIS)); // Imposta un layout manager
 
-        loginBtn.addActionListener(e -> onSubmitLogin());
-        registerBtn.addActionListener(e -> onRegisterLogin());
-        guestBtn.addActionListener(e -> onGuestLogin());
-
-        add(loginPanel); // Aggiungi un componente al pannello
-
-        //event listener for enter key
-        passwordField.addActionListener(e -> onSubmitLogin());
-        usernameField.addActionListener(e -> onSubmitLogin());
-
+        // event listeners for buttons
+        loginBtn.addActionListener(e -> onLoginPressed());
+        registerBtn.addActionListener(e -> onRegisterPressed());
+        // event listener for enter key
+        passwordField.addActionListener(e -> onLoginPressed());
+        usernameField.addActionListener(e -> onLoginPressed());
     }
 
-    public String getLoginName() {
+
+    private String getLoginName() {
         return usernameField.getText();
     }
-
-    public String getLoginPassword() {
+    private String getLoginPassword() {
         return passwordField.getText();
     }
 
-    private void onRegisterLogin() {
-        // -> WikiPages
-        PageBase register = new RegisterPage(wikiController, this);
+    private void onRegisterPressed() {
+        // -> Goes to RegisterPage
+        // From that point you can only come back to the LoginPage
+        // so there is no dispose needed
+        new RegisterPage(wikiController, this);
         this.setVisible(false);
     }
 
-    private void onSubmitLogin() {
-        // Login Success
+    private void onLoginPressed() {
+        // -> Goes to MainMenu on Login Success
         if (wikiController.onTryLogin(getLoginName(), getLoginPassword())) {
-            //homeGUI.setLoginStatus(true, getLoginName());
-
-            // -> WikiPages
-            PageBase wikiPages = new WikiPages(wikiController, this);
+            new WikiPages(wikiController, this);
             this.setVisible(false);
             this.dispose();
         }
-        // Login Fail
-        else {
-            //homeGUI.setLoginStatus(false, "");
-
-
-        }
-    }
-
-    private void onGuestLogin() {
-        // -> WikiPages
-        PageBase wikiPages = new WikiPages(wikiController, this);
-        this.setVisible(false);
-        this.dispose();
-    }
-
-
-
-    private void createUIComponents() {
-        // TODO: place custom component creation code here
     }
 }

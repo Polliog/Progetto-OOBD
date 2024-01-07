@@ -20,52 +20,40 @@ public class PageView extends PageBase {
     private Page page = null;
 
 
-    public PageView(WikiController wikiController, PageBase frame, int id) {
-        super(wikiController, frame);
+    public PageView(WikiController wikiController, PageBase prevPageRef, int id) {
+        super(wikiController, prevPageRef);
+        add(PageViewPanel);
         initGUI();
 
         fetchData(id);
 
+        backBtn.addActionListener(e -> onBackPressed());
+        editBtn.addActionListener(e -> onEditPressed());
 
-        add(PageViewPanel);
-
-        backBtn.addActionListener(e -> {
-            // Qui arriviamo sempre da WikiPages
-            frame.setVisible(true);
-            this.dispose();
-        });
-
-        if (wikiController.getLoggedUser() != null) {
-            editBtn.setVisible(true);
-            editBtn.addActionListener(e -> {
-                // Qui arriviamo sempre da WikiPages
-                new PageEdit(wikiController, this, page.getId()).setVisible(true);
-                this.dispose();
-            });
-        } else {
-            editBtn.setVisible(false);
-        }
+        editBtn.setVisible(wikiController.getLoggedUser() != null);
     }
 
-    // public for testing !!!!!!
-    public void fetchData(int id) {
-        //  if (textIdField.getText().isEmpty()) {
-        //      JOptionPane.showMessageDialog(null, "Inserisci un id", "Errore", JOptionPane.ERROR_MESSAGE);
-        //      return;
-        //  }
+    private void fetchData(int id) {
+        page = wikiController.fetchPage(id);
+        if (page == null) {
+            JOptionPane.showMessageDialog(null, "Pagina non trovata", "Errore", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
-       this.page = wikiController.fetchPage(id);
-       if (this.page == null) {
-           JOptionPane.showMessageDialog(null, "Pagina non trovata", "Errore", JOptionPane.ERROR_MESSAGE);
-           return;
-       }
-
-
-        PageViewTitleLabel.setText(this.page.getTitle());
-        AuthorLabel.setText("Autore: " + this.page.getAuthor());
-        //created label is formatted as "Creato il: dd/MM/yyyy"
-        CreatedLabel.setText("Creato il: " + this.page.getCreation().toString().substring(0, 10));
+        PageViewTitleLabel.setText(page.getTitle());
+        AuthorLabel.setText("Autore: " + page.getAuthor());
+        CreatedLabel.setText("Creato il: " + page.getCreation().toString().substring(0, 10));
         createUIComponents();
+    }
+
+    private void onBackPressed() {
+        prevPageRef.setVisible(true);
+        this.dispose();
+    }
+
+    private void onEditPressed() {
+        new PageEdit(wikiController, this, page.getId()).setVisible(true);
+        this.dispose();
     }
 
     private void createUIComponents() {
@@ -74,7 +62,7 @@ public class PageView extends PageBase {
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
 
         // Add a label for each content
-        this.page.getContent().forEach(content -> {
+        page.getContent().forEach(content -> {
 
             JLabel label = new JLabel(content.content);
             //if content is empty set the label as empty
