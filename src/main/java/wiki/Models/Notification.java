@@ -3,14 +3,15 @@ package wiki.Models;
 
 public class Notification {
     private int id;
-
+    private int type; //0 = updateCreated, 1 = updateAccepted, 2 = updateRejected
     private int status; //0 = non letta, 1 = letta
     private Update update;
 
-    public Notification(int id, int status, Update update) {
+    public Notification(int id, int status, Update update, int type) {
         this.id = id;
         this.status = status;
         this.update = update;
+        this.type = type;
     }
 
     public int getId() {
@@ -19,6 +20,10 @@ public class Notification {
 
     public int getStatus() {
         return status;
+    }
+
+    public int getType() {
+        return type;
     }
 
     public Update getUpdate() {

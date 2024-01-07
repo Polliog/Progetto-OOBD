@@ -28,8 +28,20 @@ public class User {
 
     //getter and setter for updates
 
-    public ArrayList<Notification> getNotifications() {
-        return notifications;
+    public ArrayList<Notification> getNotifications(int status) {
+        if (status == -1) {
+            return this.notifications;
+        } else {
+            ArrayList<Notification> notifications = new ArrayList<>();
+
+            for (Notification notification : this.notifications) {
+                if (notification.getStatus() == status) {
+                    notifications.add(notification);
+                }
+            }
+
+            return notifications;
+        }
     }
 
     public int getNotificationCount() {

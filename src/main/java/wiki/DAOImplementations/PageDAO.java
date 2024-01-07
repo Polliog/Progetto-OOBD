@@ -1,16 +1,14 @@
 package wiki.DAOImplementations;
 
 import wiki.DAO.IPageDAO;
-import wiki.Models.PaginationPage;
-import wiki.Models.User;
-import wiki.Models.Page;
-import wiki.Models.PageContentString;
+import wiki.Models.*;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.sql.Statement;
+import java.util.Objects;
 
 import database.DatabaseConnection;
 
@@ -193,36 +191,29 @@ public class PageDAO implements IPageDAO {
             // Create a new record in the Update table
             int updateId = insertUpdate(oldPage.getId(), user.getUsername(), null);
 
-            // Iterate over each line in the new text
-            for (int i = 0; i < newLines.length; i++) {
-                // If the line exists in the old text and is different, save it
-                if (i < oldLines.length && !oldLines[i].equals(newLines[i])) {
-                    System.out.println("Modified line " + (i + 1) + ": " + newLines[i]);
-                    // Save the modified line in the database
-                    insertUpdatedText(updateId, oldPage.getContent().get(i).getId(), newLines[i], i);
-                }
-                // If the line does not exist in the old text (i.e., it's a new line), save it
-                else if (i >= oldLines.length) {
-                    System.out.println("New line " + (i + 1) + ": " + newLines[i]);
-                    // Save the new line in the database
-                    insertUpdatedText(updateId, -1, newLines[i], i);
-                }
-            }
+            // Iterate over each line in the new text and compare it with the old text to find the differences
+            // if the line is equal to the old one save with type 0
+            // if the line is new save with type 1
+            // if the line is modified save with type 2
+            // if the line is deleted save with type 3
 
-            // Check for lines that have been moved up or down
-            for (int i = 0; i < oldLines.length; i++) {
-                // If the line exists in the new text and is different, save it
-                if (i < newLines.length && !oldLines[i].equals(newLines[i])) {
-                    // Check the previous and next lines
-                    if (i > 0 && oldLines[i].equals(newLines[i - 1])) {
-                        System.out.println("Line " + (i + 1) + " moved up: " + oldLines[i]);
-                        // Save the moved line in the database
-                        insertUpdatedText(updateId, oldPage.getContent().get(i).getId(), oldLines[i], i);
-                    } else if (i < oldLines.length - 1 && i + 1 < newLines.length && oldLines[i].equals(newLines[i + 1])) {
-                        System.out.println("Line " + (i + 1) + " moved down: " + oldLines[i]);
-                        // Save the moved line in the database
-                        insertUpdatedText(updateId, oldPage.getContent().get(i).getId(), oldLines[i], i);
+            //use insertUpdatedText(updateId, line, i, type) to insert the new record
+            //type is an integer
+
+            for (int i = 0; i < newLines.length; i++) {
+                String line = newLines[i];
+                if (i < oldLines.length) {
+                    // Check if the line is equal to the old one
+                    if (line.equals(oldLines[i])) {
+                        // Save with type 0
+                        insertUpdatedText(updateId, line, i, 0);
+                    } else {
+                        // Save with type 2
+                        insertUpdatedText(updateId, line, i, 2);
                     }
+                } else {
+                    // Save with type 1
+                    insertUpdatedText(updateId, line, i, 1);
                 }
             }
         }
@@ -257,18 +248,15 @@ public class PageDAO implements IPageDAO {
         return updateId;
     }
 
-    private void insertUpdatedText(int updateId, int textId, String text, int orderNum) throws SQLException {
+    private void insertUpdatedText(int updateId, String text, int orderNum, int type) throws SQLException {
         Connection conn = DatabaseConnection.getConnection();
         conn.setAutoCommit(false);
         try {
-            var pstmt = conn.prepareStatement("INSERT INTO UpdatedText (update_id, text_id, text, order_num) VALUES (?, ?, ?, ?)");
+            var pstmt = conn.prepareStatement("INSERT INTO UpdatedText (update_id, text, order_num, type) VALUES (?, ?, ?, ?)");
             pstmt.setInt(1, updateId);
-            if (textId == -1)
-                pstmt.setNull(2, java.sql.Types.INTEGER);
-            else
-                pstmt.setInt(2, textId);
-            pstmt.setString(3, text);
-            pstmt.setInt(4, orderNum);
+            pstmt.setString(2, text);
+            pstmt.setInt(3, orderNum);
+            pstmt.setInt(4, type);
             pstmt.executeUpdate();
             pstmt.close();
         }
@@ -281,6 +269,231 @@ public class PageDAO implements IPageDAO {
         finally {
             conn.setAutoCommit(true);
         }
+    }
 
+    public void approveChanges(Update update, User user) throws SQLException {
+        // Update the page with the new text and save the old text in the oldText table
+        // Set the status of the update to 1
+
+        if (!Objects.equals(user.getUsername(), update.getPage().getAuthor())) {
+            JOptionPane.showMessageDialog(null, "Non sei l'autore della pagina", "Errore", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Get the old page
+        int oldPageId = update.getPage().getId();
+        Page oldPage = fetchPage(oldPageId);
+        // Get the new text
+        String newText = update.getAllContentStrings();
+        // Get the old text
+        String oldText = oldPage.getAllContent();
+
+
+        // Save the old text in the oldText table
+        try {
+            Connection conn = DatabaseConnection.getConnection();
+            conn.setAutoCommit(false);
+            try {
+                var pstmt = conn.prepareStatement("INSERT INTO OldText (text, update_id) VALUES (?, ?)");
+                pstmt.setString(1, oldText);
+                pstmt.setInt(2,update.getId());
+                pstmt.executeUpdate();
+                pstmt.close();
+                conn.commit();
+            }
+            catch (SQLException e) {
+                conn.rollback();
+                JOptionPane.showMessageDialog(null, "Errore durante il salvataggio del vecchio testo", "Errore", JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+                throw e;
+            }
+            finally {
+                conn.setAutoCommit(true);
+            }
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        // Update the page with the new text
+        try {
+            Connection conn = DatabaseConnection.getConnection();
+            conn.setAutoCommit(false);
+            try {
+                var pstmt = conn.prepareStatement("DELETE FROM PageText WHERE page_id = ?");
+                pstmt.setInt(1, oldPage.getId());
+                pstmt.executeUpdate();
+                pstmt.close();
+
+                for (int i = 0; i < newText.split("\n").length; i++) {
+                    pstmt = conn.prepareStatement("INSERT INTO PageText (order_num, text, page_id, author) VALUES (?, ?, ?, ?)");
+                    pstmt.setInt(1, i);
+                    //check if text type is 0
+                    if (update.getContentStrings().get(i).getType() == 0) {
+                        pstmt.setString(2, oldPage.getLine(i));
+                    } else {
+                        pstmt.setString(2, newText.split("\n")[i]);
+                    }
+                    pstmt.setInt(3, oldPage.getId());
+                    pstmt.setString(4, update.getAuthor());
+                    pstmt.executeUpdate();
+                    pstmt.close();
+                }
+
+                conn.commit();
+            }
+            catch (SQLException e) {
+                conn.rollback();
+                JOptionPane.showMessageDialog(null, "Errore durante il salvataggio delle modifiche", "Errore", JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+                throw e;
+            }
+            catch (Exception e) {
+                conn.rollback();
+                JOptionPane.showMessageDialog(null, "Errore durante il salvataggio delle modifiche", "Errore", JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+                throw e;
+            } finally {
+                conn.setAutoCommit(true);
+            }
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        // Set the status of the update to 1
+        try {
+            Connection conn = DatabaseConnection.getConnection();
+            conn.setAutoCommit(false);
+            try {
+                var pstmt = conn.prepareStatement("UPDATE `update` SET status = 1 WHERE id = ?");
+                pstmt.setInt(1, update.getId());
+                pstmt.executeUpdate();
+                pstmt.close();
+                conn.commit();
+            }
+            catch (SQLException e) {
+                conn.rollback();
+                JOptionPane.showMessageDialog(null, "Errore durante il salvataggio dello stato dell'aggiornamento", "Errore", JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+                throw e;
+            }
+            finally {
+                conn.setAutoCommit(true);
+            }
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        //for every notification with update_id = update.getId() set status to 1
+        try {
+            Connection conn = DatabaseConnection.getConnection();
+            conn.setAutoCommit(false);
+            try {
+                var pstmt = conn.prepareStatement("UPDATE notifications SET status = 1 WHERE update_id = ? AND type = 0 AND user = ?");
+                pstmt.setInt(1, update.getId());
+                pstmt.setString(2, user.getUsername());
+                pstmt.executeUpdate();
+                pstmt.close();
+                conn.commit();
+            }
+            catch (SQLException e) {
+                conn.rollback();
+                JOptionPane.showMessageDialog(null, "Errore durante il salvataggio dello stato della notifica", "Errore", JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+                throw e;
+            }
+            finally {
+                conn.setAutoCommit(true);
+            }
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void refuseChanges(Update update, User user) throws SQLException {
+        if (!Objects.equals(user.getUsername(), update.getPage().getAuthor())) {
+            JOptionPane.showMessageDialog(null, "Non sei l'autore della pagina", "Errore", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Get the old page
+        int oldPageId = update.getPage().getId();
+        Page oldPage = fetchPage(oldPageId);
+        String oldText = oldPage.getAllContent();
+
+        try {
+            Connection conn = DatabaseConnection.getConnection();
+            conn.setAutoCommit(false);
+            try {
+                var pstmt = conn.prepareStatement("INSERT INTO OldText (text, update_id) VALUES (?, ?)");
+                pstmt.setString(1, oldText);
+                pstmt.setInt(2, update.getId());
+                pstmt.executeUpdate();
+                pstmt.close();
+                conn.commit();
+            } catch (SQLException e) {
+                conn.rollback();
+                JOptionPane.showMessageDialog(null, "Errore durante il salvataggio del vecchio testo", "Errore", JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+                throw e;
+            } finally {
+                conn.setAutoCommit(true);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        // Set the status of the update to 0
+        try {
+            Connection conn = DatabaseConnection.getConnection();
+            conn.setAutoCommit(false);
+            try {
+                var pstmt = conn.prepareStatement("UPDATE `update` SET status = 0 WHERE id = ?");
+                pstmt.setInt(1, update.getId());
+                pstmt.executeUpdate();
+                pstmt.close();
+                conn.commit();
+            }
+            catch (SQLException e) {
+                conn.rollback();
+                JOptionPane.showMessageDialog(null, "Errore durante il salvataggio dello stato dell'aggiornamento", "Errore", JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+                throw e;
+            }
+            finally {
+                conn.setAutoCommit(true);
+            }
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            Connection conn = DatabaseConnection.getConnection();
+            conn.setAutoCommit(false);
+            try {
+                var pstmt = conn.prepareStatement("UPDATE notifications SET status = 1 WHERE update_id = ? AND type = 0 AND user = ?");
+                pstmt.setInt(1, update.getId());
+                pstmt.setString(2, user.getUsername());
+                pstmt.executeUpdate();
+                pstmt.close();
+                conn.commit();
+            }
+            catch (SQLException e) {
+                conn.rollback();
+                JOptionPane.showMessageDialog(null, "Errore durante il salvataggio dello stato della notifica", "Errore", JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+                throw e;
+            }
+            finally {
+                conn.setAutoCommit(true);
+            }
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

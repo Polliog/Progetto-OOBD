@@ -10,4 +10,6 @@ public interface IUserDAO {
     boolean doesUserExist(String username) throws SQLException;
     boolean login(String username, String password) throws SQLException;
     ArrayList<Notification> getUserNotifications(String username, int status) throws SQLException;
+    void setNotificationStatus(int notificationId, int status, String username) throws SQLException;
+    void deleteNotification(Notification notification, String username) throws SQLException;
 }
