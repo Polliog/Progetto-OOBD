@@ -75,6 +75,14 @@ public class Update {
         return oldText;
     }
 
+    public String getOldTextFormatted() {
+        return oldText.replaceAll("\n", "<br>");
+    }
+
+    public String getOldTextLine(int index) {
+        return oldText.split("\n")[index];
+    }
+
     public void setOldText(String oldText) {
         this.oldText = oldText;
     }

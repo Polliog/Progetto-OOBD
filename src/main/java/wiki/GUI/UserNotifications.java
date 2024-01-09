@@ -114,7 +114,7 @@ public class UserNotifications extends PageBase {
                             break;
                         }
 
-                        pageView = new ReviewUpdate(wikiController, this, notification.getUpdate(), true);
+                        pageView = new ReviewUpdate(wikiController, this, notification.getUpdate());
                         this.wikiController.setNotificationStatus(notification.getId(), 1);
                         this.setVisible(false);
                         this.dispose();

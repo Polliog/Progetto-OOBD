@@ -102,6 +102,51 @@ public class PageDAO implements IPageDAO {
                 page.addContent(new PageContentString(textId, text,order, textAuthor));
 
             }
+
+            ArrayList<Update> updates = new ArrayList<>();
+
+            //fetch all updates for the page with old text and updated text
+            pstmt = conn.prepareStatement("SELECT * FROM `update` WHERE page_id = ? ORDER BY creation DESC");
+            pstmt.setInt(1, id);
+            rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                int updateId = rs.getInt("id");
+                String updateAuthor = rs.getString("author");
+                java.sql.Timestamp updateCreation = rs.getTimestamp("creation");
+                Integer updateStatus = rs.getInt("status");
+
+                //fetch updated text
+                pstmt = conn.prepareStatement("SELECT * FROM UpdatedText WHERE update_id = ? ORDER BY order_num");
+                pstmt.setInt(1, updateId);
+
+                var rs2 = pstmt.executeQuery();
+
+                ArrayList<UpdateContentString> contentStrings = new ArrayList<>();
+
+                rs2 = pstmt.executeQuery();
+                while (rs2.next()) {
+                    int updatedTextId = rs2.getInt("id");
+                    String updatedText = rs2.getString("text");
+                    int order = rs2.getInt("order_num");
+                    int type = rs2.getInt("type");
+                    contentStrings.add(new UpdateContentString(updatedTextId, updatedText, order, type));
+                }
+
+                Update update = new Update(updateId, page, updateAuthor, updateStatus, contentStrings, updateCreation);
+
+                //fetch old text
+                pstmt = conn.prepareStatement("SELECT * FROM OldText WHERE update_id = ?");
+                pstmt.setInt(1, updateId);
+                var rs3 = pstmt.executeQuery();
+                if (rs3.next()) {
+                    String oldText = rs3.getString("text");
+                    update.setOldText(oldText);
+                    updates.add(update);
+                }
+            }
+
+            page.setUpdates(updates);
             return page;
         }
         catch (SQLException e) {
@@ -509,6 +554,33 @@ public class PageDAO implements IPageDAO {
         }
         catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void deletePage(Page page, User user) throws SQLException {
+        if (!Objects.equals(user.getUsername(), page.getAuthor())) {
+            JOptionPane.showMessageDialog(null, "Non sei l'autore della pagina", "Errore", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        Connection conn = DatabaseConnection.getConnection();
+        conn.setAutoCommit(false);
+
+        try {
+            var pstmt = conn.prepareStatement("DELETE FROM Page WHERE id = ?");
+            pstmt.setInt(1, page.getId());
+            pstmt.executeUpdate();
+            pstmt.close();
+            conn.commit();
+        }
+        catch (SQLException e) {
+            conn.rollback();
+            JOptionPane.showMessageDialog(null, "Errore durante l'eliminazione della pagina", "Errore", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+            throw e;
+        }
+        finally {
+            conn.setAutoCommit(true);
         }
     }
 }

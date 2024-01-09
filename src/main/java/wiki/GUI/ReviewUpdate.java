@@ -28,7 +28,7 @@ public class ReviewUpdate extends PageBase {
 
     Page actualPage;
 
-    public ReviewUpdate(WikiController wikiController, PageBase frame, Update update, boolean updatable) {
+    public ReviewUpdate(WikiController wikiController, PageBase frame, Update update) {
         super(wikiController, frame);
 
 

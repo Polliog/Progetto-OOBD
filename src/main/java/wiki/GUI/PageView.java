@@ -16,6 +16,8 @@ public class PageView extends PageBase {
     private JLabel CreatedLabel;
     private JButton backBtn;
     private JButton editBtn;
+    private JButton deleteBtn;
+    private JButton historyBtn;
 
     private Page page = null;
 
@@ -31,6 +33,28 @@ public class PageView extends PageBase {
         editBtn.addActionListener(e -> onEditPressed());
 
         editBtn.setVisible(wikiController.getLoggedUser() != null);
+
+        if (wikiController.getLoggedUser() != null && page != null && wikiController.getLoggedUser().getUsername().equals(page.getAuthor())) {
+            deleteBtn.setVisible(true);
+
+            deleteBtn.addActionListener(e -> {
+                Boolean result = wikiController.deletePage(page);
+
+                if (result) {
+                    prevPageRef.setVisible(true);
+                    this.dispose();
+                }
+            });
+        }
+
+        historyBtn.addActionListener(e -> {
+            new PageHistory(wikiController, this, page);
+            this.setVisible(false);
+        });
+
+        if (page.getUpdates().isEmpty()) {
+            historyBtn.setEnabled(false);
+        }
     }
 
     private void fetchData(int id) {

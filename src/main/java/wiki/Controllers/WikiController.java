@@ -294,4 +294,19 @@ public class WikiController {
         }
         return false;
     }
+
+    public boolean deletePage(Page page) {
+        try {
+            int n = JOptionPane.showConfirmDialog(null, "Sei sicuro di voler eliminare la pagina?", "Elimina pagina", JOptionPane.YES_NO_OPTION);
+            if (n == JOptionPane.YES_OPTION) {
+                pageDAO.deletePage(page, loggedUser);
+                JOptionPane.showMessageDialog(null, "Pagina eliminata con successo", "Pagina eliminata", JOptionPane.INFORMATION_MESSAGE);
+                return true;
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Errore durante l'eliminazione della pagina", "Errore", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        return false;
+    }
 }

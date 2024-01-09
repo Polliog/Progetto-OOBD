@@ -10,6 +10,8 @@ public class Page {
     private String author;
     private Date creation;
 
+    private ArrayList<Update> updates = new ArrayList<>();
+
     public Page(int id, String title, String author, Date creation) {
         this.id = id;
         this.title = title;
@@ -100,7 +102,20 @@ public class Page {
                 ", title='" + title + '\'' +
                 ", content=" + content +
                 ", author='" + author + '\'' +
-                ", creation=" + creation +
+                ", creation=" + creation + '\'' +
+                ", updates=" + updates +
                 '}';
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public ArrayList<Update> getUpdates() {
+        return updates;
+    }
+
+    public void setUpdates(ArrayList<Update> updates) {
+        this.updates = updates;
     }
 }
