@@ -1,5 +1,6 @@
 package wiki.Controllers;
 
+
 import com.formdev.flatlaf.FlatIntelliJLaf;
 import wiki.DAO.IUserDAO;
 import wiki.DAOImplementations.PageDAO;
@@ -7,11 +8,9 @@ import wiki.DAOImplementations.UserDAO;
 import wiki.GUI.LoginPage;
 import wiki.Models.*;
 
-import javax.print.DocFlavor;
 import javax.swing.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 
 public class WikiController {

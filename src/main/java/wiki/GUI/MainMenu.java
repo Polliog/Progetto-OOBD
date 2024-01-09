@@ -7,6 +7,7 @@ import wiki.Models.User;
 
 import javax.swing.*;
 import java.awt.*;
+import java.security.PrivateKey;
 import java.util.ArrayList;
 
 // TODO
@@ -25,6 +26,9 @@ public class MainMenu extends PageBase {
     private JLabel usernameLabel;
     private JButton createPageBtn;
     private JButton notificationBtn;
+
+    private final int PAGINATION_COUNT = 5;
+    private final int MAX_CHARACTER_INTRO_DISPLAY = 50;
 
     private int currentPage = 1;
     private int totalPages = 0;
@@ -75,7 +79,7 @@ public class MainMenu extends PageBase {
     }
 
     private void fetchData() {
-        PaginationPage response = wikiController.fetchPages(searchField.getText(), currentPage, 3);
+        PaginationPage response = wikiController.fetchPages(searchField.getText(), currentPage, PAGINATION_COUNT);
 
         if (response == null) return;
 
@@ -118,99 +122,29 @@ public class MainMenu extends PageBase {
 
 
     private void updateListView(ArrayList<Page> pages) {
-        //in the scroll panel add all the pages formatted like:
-        //label that contain the title
-        //another label that contain 3 lines of the content
-        //a button that link to the page
-        //wikiListScroll.removeAll();
-
         WikiListContent.removeAll();
         WikiListContent.setLayout(new BoxLayout(WikiListContent, BoxLayout.Y_AXIS));
 
         JScrollPane wikiListScroll = new JScrollPane();
 
-
-
-        // Codice Semplificato
-        /*
-        for (Page page : pages) {
-            JPanel pagePanel = new JPanel();
-            pagePanel.setLayout(new BoxLayout(pagePanel, BoxLayout.Y_AXIS));
-            pagePanel.setVisible(true);
-
-            JLabel titleLabel = new JLabel(page.getTitle());
-            titleLabel.setFont(titleLabel.getFont().deriveFont(20.0f));
-            titleLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 5, 0));
-            pagePanel.add(titleLabel);
-
-
-            for (int i = 0; i < page.getContent().size() && i < 3; i++) {
-                  JLabel contentLabel = new JLabel();
-                  //margin top 5 margin left 10
-                  contentLabel.setBorder(BorderFactory.createEmptyBorder(0, 15, 2, 0));
-                  String text = page.getContent().get(i).content;
-
-                  if (text.startsWith("{") && text.endsWith("}")) {
-                      text = text.substring(1, text.length() - 1);
-                      text = text.split(":")[0];
-                      contentLabel.setForeground(Color.BLUE.darker());
-                      contentLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-                      int finalI = i;
-
-                      contentLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-                          @Override
-                          public void mouseClicked(java.awt.event.MouseEvent evt) {
-                              try {
-                                  //check if the link is a url or a page id
-                                  //get the link from the content {text:link}
-                                  String link = page.getContent().get(finalI).content;
-                                  link = link.substring(link.indexOf(":") + 1, link.length() - 1);
-                                  System.out.println(link);
-
-                                  if (link.startsWith("http") || link.startsWith(" http")) {
-                                      if (Desktop.isDesktopSupported()) {
-                                          Desktop.getDesktop().browse(java.net.URI.create(link));
-                                      }
-                                  }
-                                  else {
-                                      // !!!!!!!!!!!
-                                      //pageView.fetchData(page.getId());
-                                      viewPage(Integer.parseInt(link));
-                                  }
-                              }
-                              catch (java.io.IOException e) {
-                                  JOptionPane.showMessageDialog(null, "Errore durante l'apertura del link", "Errore", JOptionPane.ERROR_MESSAGE);
-                              }
-                          }
-                      });
-                  }
-
-                  contentLabel.setText(text);
-
-                  pagePanel.add(contentLabel);
-            }
-
-
-            JButton pageButton = new JButton("Continua a leggere");
-            //10 margin top 10 margin left 10 margin bottom 10
-            pageButton.addActionListener(e -> {
-                // !!!!!!!!!!!!!!!!!!!!
-                //pageView.fetchData(page.getId());
-                viewPage(page.getId());
-
-            });
-            pagePanel.add(pageButton);
-            panel.add(pagePanel);
-        }
-         */
-
-
-
         JPanel panel = new JPanel();
+
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        for (int i = 1; i <= 10; i++) {
-            panel.add(new WikiSearchRenderer("Titolo " + i, "introoo"));
+        for (Page page : pages) {
+            StringBuilder intro = new StringBuilder(page.getAllContent().replaceAll("\n", " "));
+
+            // Tronca i primi 50 caratteri
+            if (intro.length() > MAX_CHARACTER_INTRO_DISPLAY)
+                intro = new StringBuilder(intro.substring(0, MAX_CHARACTER_INTRO_DISPLAY));
+
+            intro.append("...");
+
+            panel.add(new WikiPageSearchDisplay(
+                    page.getTitle(),
+                    intro.toString(),
+                    page.getAuthor(),
+                    page.getCreation().toString().substring(0, 10),
+                    () -> viewPage(page.getId())));
         }
 
         wikiListScroll.setViewportView(panel);
@@ -219,6 +153,7 @@ public class MainMenu extends PageBase {
 
         WikiListContent.add(wikiListScroll);
     }
+
 
     private void nextPage() {
         currentPage++;
