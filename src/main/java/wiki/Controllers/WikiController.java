@@ -11,24 +11,8 @@ import javax.print.DocFlavor;
 import javax.swing.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
-
-// Cosa da sistemare - OO
-//
-// + Dobbiamo rimuovere il tabbedPane e allocare le GUI in modo migliore
-// + Sistemare le chiamate tra una GUI
-// + Creare una sottoclasse di tutti i JComponent che utilizziamo per gestire meglio le dependency injection con il controller
-// + Ricontrollare le divisioni dei package
-
-//
-
-
-// TODO LIST
-//
-// & lista pagine
-// &
-//
-
-
+import java.util.Collection;
+import java.util.Collections;
 
 public class WikiController {
     // DAOs references
@@ -94,7 +78,7 @@ public class WikiController {
     }
 
     public boolean onTryRegister(String username, String password) {
-        if (username.equals("") || password.equals("")) {
+        if (username.isEmpty() || password.isEmpty()) {
             JOptionPane.showMessageDialog(null, "Compila tutti i campi", "Errore", JOptionPane.ERROR_MESSAGE);
             return false;
         }
@@ -117,8 +101,7 @@ public class WikiController {
         }
 
         try {
-            UserDAO utente = new UserDAO();
-            utente.insertUser(username, password);
+            userDAO.insertUser(username, password);
         }
         catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Errore durante la registrazione dell'utente", "Errore", JOptionPane.ERROR_MESSAGE);
@@ -129,53 +112,48 @@ public class WikiController {
         return true;
     }
 
+    public void disconnectUser() {
+        loggedUser = null;
+        JOptionPane.showConfirmDialog(null, "Disconnessione effettuata", "Successo", JOptionPane.DEFAULT_OPTION);
+    }
+
     public boolean fetchNotifications() {
+        if (!isUserLogged())
+            return false;
+
         try {
-            ArrayList<Notification> notifications = userDAO.getUserNotifications(this.loggedUser.getUsername(), -1);
-            //reverse notifications
-            for (int i = 0; i < notifications.size() / 2; i++) {
-                Notification temp = notifications.get(i);
-                notifications.set(i, notifications.get(notifications.size() - i - 1));
-                notifications.set(notifications.size() - i - 1, temp);
-            }
+            ArrayList<Notification> notifications = userDAO.getUserNotifications(loggedUser.getUsername(), -1);
 
-            this.loggedUser.setNotifications(notifications);
-            if (this.loggedUser.getNotifications(0).size() > 0) {
-                //se ci sono notifiche mostra un dialog con 2 bottoni (visualizza e chiudi)
-                String message = "";
+            // Reverse notifications
+            Collections.reverse(notifications);
 
-                if (this.loggedUser.getNotifications(0).size() == 1) {
-                    message = "Hai una nuova notifica";
-                }
-                else {
-                    message = "Hai " + this.loggedUser.getNotifications(0).size() + " nuove notifiche";
-                }
+            loggedUser.setNotifications(notifications);
 
+            // Shows 'new notification' dialog if there are any non read notifications
+            if (!loggedUser.getNotifications(0).isEmpty()) {
+                String message = "Hai (" + loggedUser.getNotifications(0).size() + ") nuove notifiche";
                 Object[] options = {"Visualizza", "Chiudi"};
-                int n = JOptionPane.showOptionDialog(null,
-                        message, // the dialog message
-                        "Notifiche", // the title of the dialog window
-                        JOptionPane.YES_NO_OPTION, // option type
-                        JOptionPane.QUESTION_MESSAGE, // message type
-                        null, // optional icon, use null to use the default icon
-                        options, // options string array, will be made into buttons
-                        options[0] // option that should be made into a default button
-                );
 
+                int n = JOptionPane.showOptionDialog(null,
+                        message,        // the dialog message
+                        "Notifiche",    // the title of the dialog window
+                        JOptionPane.YES_NO_OPTION,      // option type
+                        JOptionPane.QUESTION_MESSAGE,   // message type
+                        null,       // optional icon, use null to use the default icon
+                        options,    // options string array, will be made into buttons
+                        options[0]  // option that should be made into a default button
+                );
+                System.out.println(n);
                 return n == JOptionPane.YES_OPTION;
-            } else {
-                return false;
             }
-        } catch (SQLException e) {
+            else
+                return false;
+        }
+        catch (SQLException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Errore durante il caricamento delle notifiche", "Errore", JOptionPane.ERROR_MESSAGE);
         }
         return false;
-    }
-
-    public void disconnectUser() {
-        loggedUser = null;
-        JOptionPane.showConfirmDialog(null, "Disconnessione effettuata", "Successo", JOptionPane.DEFAULT_OPTION);
     }
 
     public boolean isUserLogged() {
@@ -192,19 +170,13 @@ public class WikiController {
             return false;
         }
 
-        ArrayList<String> lines = new ArrayList<>();
-        String[] split = content.split("\n");
-
-        for (String line : split)
-            lines.add(line);
-
         if (!isUserLogged()) {
             JOptionPane.showMessageDialog(null, "Devi essere loggato per creare una pagina", "Errore", JOptionPane.ERROR_MESSAGE);
             return false;
         }
 
         try {
-            pageDAO.insertPage(title, lines, loggedUser);
+            pageDAO.insertPage(title, content, loggedUser);
         }
         catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Errore durante la creazione della pagina", "Errore", JOptionPane.ERROR_MESSAGE);
@@ -224,9 +196,9 @@ public class WikiController {
         }
     }
 
-    public PaginationPage fetchPages(String q, int page, int limit) {
+    public PaginationPage fetchPages(String search, int page, int limit) {
         try {
-            return pageDAO.fetchPages(q,page,limit);
+            return pageDAO.fetchPages(search, page, limit);
         }
         catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Errore durante il caricamento delle pagine", "Errore", JOptionPane.ERROR_MESSAGE);

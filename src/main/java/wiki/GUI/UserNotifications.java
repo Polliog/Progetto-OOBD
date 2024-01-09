@@ -16,15 +16,14 @@ public class UserNotifications extends PageBase {
     private JScrollPane notificationScrollPanel;
 
 
-    public UserNotifications(WikiController wikiController, PageBase frame) {
-        super(wikiController, frame);
+    public UserNotifications(WikiController wikiController, PageBase prevPageRef) {
+        super(wikiController, prevPageRef);
         initGUI( true,new Dimension(550, 400));
         add(notificationsViewPanel);
-        setVisible(true);
 
         //auth guard
         if (!wikiController.isUserLogged()) {
-            PageBase wikiPages = new WikiPages(wikiController, this);
+            PageBase wikiPages = new MainMenu(wikiController, this);
             this.setVisible(false);
             this.dispose();
         }
@@ -37,8 +36,7 @@ public class UserNotifications extends PageBase {
     }
 
     private void onIndietro() {
-        PageBase wikiPages = new WikiPages(wikiController, this);
-        this.setVisible(false);
+        prevPageRef.setVisible(true);
         this.dispose();
     }
 

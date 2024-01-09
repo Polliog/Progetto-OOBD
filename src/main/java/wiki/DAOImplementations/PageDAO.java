@@ -3,11 +3,13 @@ package wiki.DAOImplementations;
 import wiki.DAO.IPageDAO;
 import wiki.Models.*;
 
+import java.sql.Timestamp;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.sql.Statement;
+import java.util.Collections;
 import java.util.Objects;
 
 import database.DatabaseConnection;
@@ -16,15 +18,21 @@ import javax.swing.*;
 
 
 public class PageDAO implements IPageDAO {
-    public void insertPage(String title, ArrayList<String> content, User user) throws SQLException {
+
+    public void insertPage(String pageTitle, String pageContent, User user) throws SQLException {
         Connection conn = DatabaseConnection.getConnection();
         conn.setAutoCommit(false);
+
         try {
+            // Create ArrayList of the pageContent text lines
+            ArrayList<String> text = new ArrayList<>();
+            Collections.addAll(text, pageContent.split("\n"));
+
             // Insert page
             var pstmt = conn.prepareStatement("INSERT INTO Page (title, author, creation) VALUES (?, ?, ?)");
-            pstmt.setString(1, title);
+            pstmt.setString(1, pageTitle);
             pstmt.setString(2, user.getUsername());
-            pstmt.setTimestamp(3, new java.sql.Timestamp(System.currentTimeMillis()));
+            pstmt.setTimestamp(3, new Timestamp(System.currentTimeMillis()));
 
             // Execute query and get id
             pstmt.executeUpdate();
@@ -32,7 +40,7 @@ public class PageDAO implements IPageDAO {
 
             // Get id
             pstmt = conn.prepareStatement("SELECT id FROM Page WHERE title = ?");
-            pstmt.setString(1, title);
+            pstmt.setString(1, pageTitle);
             var rs = pstmt.executeQuery();
             rs.next();
 
@@ -40,9 +48,9 @@ public class PageDAO implements IPageDAO {
 
             // Insert content
             pstmt = conn.prepareStatement("INSERT INTO PageText (order_num, text, page_id, author) VALUES (?, ?, ?, ?)");
-            for (int i = 0; i < content.size(); i++) {
+            for (int i = 0; i < text.size(); i++) {
                 pstmt.setInt(1, i);
-                pstmt.setString(2, content.get(i));
+                pstmt.setString(2, text.get(i));
                 pstmt.setInt(3, pageId);
                 pstmt.setString(4, user.getUsername());
                 pstmt.executeUpdate();
@@ -51,7 +59,6 @@ public class PageDAO implements IPageDAO {
             conn.commit();
 
             JOptionPane.showMessageDialog(null, "Pagina creata con successo", "Successo", JOptionPane.INFORMATION_MESSAGE);
-
         }
         catch (SQLException e) {
             conn.rollback();
@@ -59,12 +66,7 @@ public class PageDAO implements IPageDAO {
             e.printStackTrace();
             throw e;
         }
-        catch (Exception e) {
-            conn.rollback();
-            JOptionPane.showMessageDialog(null, "Errore durante la creazione della pagina", "Errore", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
-            throw e;
-        } finally {
+        finally {
             conn.setAutoCommit(true);
         }
     }

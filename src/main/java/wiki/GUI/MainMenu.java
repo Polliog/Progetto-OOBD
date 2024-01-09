@@ -12,7 +12,7 @@ import java.util.ArrayList;
 // TODO
 //  rinominare come MainMenu
 
-public class WikiPages extends PageBase {
+public class MainMenu extends PageBase {
     private JPanel WikiPagesView;
     private JTextField searchField;
     private JButton searchPageBtn;
@@ -31,7 +31,7 @@ public class WikiPages extends PageBase {
 
 
 
-    public WikiPages(WikiController wikiController, PageBase prevPageRef) {
+    public MainMenu(WikiController wikiController, PageBase prevPageRef) {
         super(wikiController, prevPageRef);
         add(WikiPagesView);
         initGUI(true, new Dimension(650, 500));
@@ -75,14 +75,14 @@ public class WikiPages extends PageBase {
     }
 
     private void fetchData() {
-        PaginationPage response = this.wikiController.fetchPages(searchField.getText(), currentPage, 3);
+        PaginationPage response = wikiController.fetchPages(searchField.getText(), currentPage, 3);
 
         if (response == null) return;
 
-        this.totalPages = response.totalPages;
-        this.currentPage = response.currentPage;
-        this.updatePaginationUI();
-        this.updateListView(response.pages);
+        totalPages = response.totalPages;
+        currentPage = response.currentPage;
+        updatePaginationUI();
+        updateListView(response.pages);
     }
 
     private void onLoginPressed() {
@@ -128,9 +128,11 @@ public class WikiPages extends PageBase {
         WikiListContent.setLayout(new BoxLayout(WikiListContent, BoxLayout.Y_AXIS));
 
         JScrollPane wikiListScroll = new JScrollPane();
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
+
+
+        // Codice Semplificato
+        /*
         for (Page page : pages) {
             JPanel pagePanel = new JPanel();
             pagePanel.setLayout(new BoxLayout(pagePanel, BoxLayout.Y_AXIS));
@@ -138,7 +140,6 @@ public class WikiPages extends PageBase {
 
             JLabel titleLabel = new JLabel(page.getTitle());
             titleLabel.setFont(titleLabel.getFont().deriveFont(20.0f));
-            //margin 10 to top
             titleLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 5, 0));
             pagePanel.add(titleLabel);
 
@@ -201,6 +202,15 @@ public class WikiPages extends PageBase {
             });
             pagePanel.add(pageButton);
             panel.add(pagePanel);
+        }
+         */
+
+
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        for (int i = 1; i <= 10; i++) {
+            panel.add(new WikiSearchRenderer("Titolo " + i, "introoo"));
         }
 
         wikiListScroll.setViewportView(panel);

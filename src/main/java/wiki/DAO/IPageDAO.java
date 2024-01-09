@@ -8,7 +8,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 public interface IPageDAO {
-    void insertPage(String title, ArrayList<String> content, User user) throws SQLException;
+    void insertPage(String pageTitle, String pageContent, User user) throws SQLException;
     Page fetchPage(int id) throws SQLException;
 
     void approveChanges(Update update, User loggedUser) throws SQLException;
