@@ -19,7 +19,7 @@ public class WikiPageSearchDisplay extends JPanel {
         internalPanel.setBackground(Color.white);
 
         JLabel titleLabel = new JLabel(title);
-        titleLabel.setFont(titleLabel.getFont().deriveFont(20.0f));
+        titleLabel.setFont(new Font(titleLabel.getFont().getFontName(), Font.BOLD, 18));
         titleLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 5, 0));
 
         JLabel contentPreviewLabel = new JLabel(contentPreview);
@@ -41,7 +41,6 @@ public class WikiPageSearchDisplay extends JPanel {
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                // Azioni da eseguire quando il pannello viene cliccato
                 action.performAction();
             }
             @Override

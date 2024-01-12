@@ -22,8 +22,10 @@ public class LoginPage extends PageBase {
         // event listener for enter key
         passwordField.addActionListener(e -> onLoginPressed());
         usernameField.addActionListener(e -> onLoginPressed());
-    }
 
+        usernameField.requestFocusInWindow();
+        // on back (?)
+    }
 
     private String getLoginName() {
         return usernameField.getText();

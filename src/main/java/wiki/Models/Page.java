@@ -8,15 +8,15 @@ public class Page {
     private String title;
     private ArrayList<PageContentString> content = new ArrayList<>();
     private String author;
-    private Date creation;
+    private Date date;
 
     private ArrayList<Update> updates = new ArrayList<>();
 
-    public Page(int id, String title, String author, Date creation) {
+    public Page(int id, String title, String author, Date date) {
         this.id = id;
         this.title = title;
         this.author = author;
-        this.creation = creation;
+        this.date = date;
     }
 
     public int getId() {
@@ -26,15 +26,11 @@ public class Page {
         return title;
     }
 
-    public ArrayList<PageContentString> getContent() {
-        return content;
-    }
-    public String getAuthor() {
+    public String getAuthorName() {
         return author;
     }
-
-    public Date getCreation() {
-        return creation;
+    public String getDateString() {
+        return date.toString().substring(0, 16);
     }
 
     public void setContent(ArrayList<PageContentString> content) {
@@ -61,8 +57,8 @@ public class Page {
         this.author = author;
     }
 
-    public void setCreation(Date creation) {
-        this.creation = creation;
+    public void setDate(Date date) {
+        this.date = date;
     }
 
     public String getAllContent() {
@@ -102,7 +98,7 @@ public class Page {
                 ", title='" + title + '\'' +
                 ", content=" + content +
                 ", author='" + author + '\'' +
-                ", creation=" + creation + '\'' +
+                ", creation=" + date + '\'' +
                 ", updates=" + updates +
                 '}';
     }

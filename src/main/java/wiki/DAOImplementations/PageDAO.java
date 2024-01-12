@@ -190,7 +190,7 @@ public class PageDAO implements IPageDAO {
     public void compareAndSaveEdit(Page oldPage, String newText, User user) throws SQLException {
 
         //se l'autore e' uguale all'ultimo autore a chi ha modificato la pagina
-        if (oldPage.getAuthor().equals(user.getUsername())) {
+        if (oldPage.getAuthorName().equals(user.getUsername())) {
             //aggiorna direttamente il testo
 
             Connection conn = DatabaseConnection.getConnection();
@@ -322,7 +322,7 @@ public class PageDAO implements IPageDAO {
         // Update the page with the new text and save the old text in the oldText table
         // Set the status of the update to 1
 
-        if (!Objects.equals(user.getUsername(), update.getPage().getAuthor())) {
+        if (!Objects.equals(user.getUsername(), update.getPage().getAuthorName())) {
             JOptionPane.showMessageDialog(null, "Non sei l'autore della pagina", "Errore", JOptionPane.ERROR_MESSAGE);
             return;
         }
@@ -474,7 +474,7 @@ public class PageDAO implements IPageDAO {
     }
 
     public void refuseChanges(Update update, User user) throws SQLException {
-        if (!Objects.equals(user.getUsername(), update.getPage().getAuthor())) {
+        if (!Objects.equals(user.getUsername(), update.getPage().getAuthorName())) {
             JOptionPane.showMessageDialog(null, "Non sei l'autore della pagina", "Errore", JOptionPane.ERROR_MESSAGE);
             return;
         }
@@ -558,7 +558,7 @@ public class PageDAO implements IPageDAO {
     }
 
     public void deletePage(Page page, User user) throws SQLException {
-        if (!Objects.equals(user.getUsername(), page.getAuthor())) {
+        if (!Objects.equals(user.getUsername(), page.getAuthorName())) {
             JOptionPane.showMessageDialog(null, "Non sei l'autore della pagina", "Errore", JOptionPane.ERROR_MESSAGE);
             return;
         }

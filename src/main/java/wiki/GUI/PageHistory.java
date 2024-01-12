@@ -10,10 +10,7 @@ import java.awt.*;
 import java.util.ArrayList;
 
 public class PageHistory extends PageBase {
-    private int index = 0;
-
-    private Page page = null;
-    private JPanel pageHistoryView;
+    private JPanel mainPanel;
     private JButton backBtn;
     private JLabel infoLabel;
     private JLabel paginationLabel;
@@ -21,28 +18,46 @@ public class PageHistory extends PageBase {
     private JButton nextBtn;
     private JButton previousBtn;
 
-    public PageHistory(WikiController wikiController, PageBase frame, Page page) {
-        super(wikiController, frame);
+    private int index = 0;
+    private Page page = null;
+
+    public PageHistory(WikiController wikiController, PageBase prevPageRef, Page page) {
+        super(wikiController, prevPageRef);
         initGUI(true,new Dimension(550, 400));
-        add(pageHistoryView);
-        setVisible(true);
+        add(mainPanel);
 
         this.page = page;
-        backBtn.addActionListener(e -> {
-            this.setVisible(false);
-            this.dispose();
-            frame.setVisible(true);
-        });
+
 
         updatePaginationLabel();
         updateInfoLabel();
         createUIComponents();
 
-        previousBtn.addActionListener(e -> previousPage());
-        nextBtn.addActionListener(e -> nextPage());
+        backBtn.addActionListener(e -> onBackPressed());
+        nextBtn.addActionListener(e -> onNextPressed());
+        previousBtn.addActionListener(e -> onPreviousPressed());
+
+        if (page.getUpdates().size() <= 1) {
+            previousBtn.setEnabled(false);
+            nextBtn.setEnabled(false);
+        }
     }
 
-    private void previousPage() {
+    private void onBackPressed() {
+        prevPageRef.setVisible(true);
+        this.dispose();
+    }
+
+    private void onNextPressed() {
+        if (index < page.getUpdates().size() - 1) {
+            index++;
+            updatePaginationLabel();
+            updateInfoLabel();
+            createUIComponents();
+        }
+    }
+
+    private void onPreviousPressed() {
         if (index > 0) {
             index--;
             updatePaginationLabel();
@@ -51,14 +66,6 @@ public class PageHistory extends PageBase {
         }
     }
 
-    private void nextPage() {
-        if (index < page.getUpdates().size() - 1) {
-            index++;
-            updatePaginationLabel();
-            updateInfoLabel();
-            createUIComponents();
-        }
-    }
 
     private void updatePaginationLabel() {
         paginationLabel.setText("Pagina " + (index + 1) + " di " + page.getUpdates().size());

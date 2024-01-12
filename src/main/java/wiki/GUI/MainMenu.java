@@ -7,11 +7,8 @@ import wiki.Models.User;
 
 import javax.swing.*;
 import java.awt.*;
-import java.security.PrivateKey;
 import java.util.ArrayList;
 
-// TODO
-//  rinominare come MainMenu
 
 public class MainMenu extends PageBase {
     private JPanel WikiPagesView;
@@ -28,7 +25,7 @@ public class MainMenu extends PageBase {
     private JButton notificationBtn;
 
     private final int PAGINATION_COUNT = 5;
-    private final int MAX_CHARACTER_INTRO_DISPLAY = 50;
+    private final int MAX_CHARACTER_INTRO_DISPLAY = 75;
 
     private int currentPage = 1;
     private int totalPages = 0;
@@ -51,11 +48,11 @@ public class MainMenu extends PageBase {
         // Enter key
         searchField.addActionListener(e -> fetchData());
 
-        updateUserTab();
+        updateUserLabel();
         fetchData();
     }
 
-    private void updateUserTab() {
+    private void updateUserLabel() {
         User loggedUser = wikiController.getLoggedUser();
 
         if (loggedUser == null) {
@@ -63,16 +60,14 @@ public class MainMenu extends PageBase {
 
             logoutBtn.setVisible(false);
             loginBtn.setVisible(true);
-
             createPageBtn.setVisible(false);
             notificationBtn.setVisible(false);
         }
         else {
-            usernameLabel.setText("Bentornato " + loggedUser.getUsername());
+            usernameLabel.setText(String.format("<html>Bentornato <b>%s</b></html>", loggedUser.getUsername()));
 
             logoutBtn.setVisible(true);
             loginBtn.setVisible(false);
-
             createPageBtn.setVisible(true);
             notificationBtn.setVisible(true);
         }
@@ -96,7 +91,7 @@ public class MainMenu extends PageBase {
 
     private void onLogoutPressed() {
         wikiController.disconnectUser();
-        updateUserTab();
+        updateUserLabel();
     }
 
     private void onNotificationPressed() {
@@ -131,19 +126,22 @@ public class MainMenu extends PageBase {
 
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         for (Page page : pages) {
-            StringBuilder intro = new StringBuilder(page.getAllContent().replaceAll("\n", " "));
+            String intro = page.getAllContent()
+                    .replaceAll("\n", " ")
+                    .replaceAll("\\<.*?\\>", "")
+                    .replaceAll("\\s+", " ");
 
-            // Tronca i primi 50 caratteri
+            intro.trim();
+
+            // Truncate first MAX_CHARACTER_INTRO_DISPLAY characters
             if (intro.length() > MAX_CHARACTER_INTRO_DISPLAY)
-                intro = new StringBuilder(intro.substring(0, MAX_CHARACTER_INTRO_DISPLAY));
-
-            intro.append("...");
+                intro = intro.substring(0, MAX_CHARACTER_INTRO_DISPLAY) + "...";
 
             panel.add(new WikiPageSearchDisplay(
                     page.getTitle(),
-                    intro.toString(),
-                    page.getAuthor(),
-                    page.getCreation().toString().substring(0, 10),
+                    intro,
+                    page.getAuthorName(),
+                    page.getDateString(),
                     () -> viewPage(page.getId())));
         }
 
@@ -153,7 +151,6 @@ public class MainMenu extends PageBase {
 
         WikiListContent.add(wikiListScroll);
     }
-
 
     private void nextPage() {
         currentPage++;

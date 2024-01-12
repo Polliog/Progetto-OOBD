@@ -24,6 +24,8 @@ public class RegisterPage extends PageBase {
         //event listener for enter key
         usernameField.addActionListener(e -> onRegisterPressed());
         passwordField.addActionListener(e -> onRegisterPressed());
+
+        usernameField.requestFocusInWindow();
     }
 
     private String getRegisterName() {

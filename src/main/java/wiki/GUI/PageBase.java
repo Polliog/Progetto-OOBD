@@ -28,7 +28,16 @@ public abstract class PageBase extends JFrame {
     }
 
     public void initGUI(boolean isResizable) {
-        this.initGUI(isResizable, new Dimension(500, 500));
+        this.setResizable(isResizable);
+
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+
+        Dimension dimension = new Dimension(600, 600);
+        this.setMinimumSize(dimension);
+        this.setPreferredSize(dimension);
+
+        setVisible(true);
     }
 
     public void initGUI() {

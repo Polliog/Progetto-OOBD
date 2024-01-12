@@ -13,6 +13,55 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 
+// TODO
+//  colorbox del page creation, deve essere dimensionato correttamente
+//  Bottone accedi nel login, deve essere dimensionato correttamente
+//  Titoli colorati (?)
+//  data e ora nel db
+//  !GRAVE Dimensionamento dei form
+//     Exception in thread "AWT-EventQueue-0" java.lang.NullPointerException: Cannot invoke "wiki.Models.Page.getUpdates()" because "this.page" is null
+//  da risolvere quando la pagina che si apre è buona
+//  !GRAVE Premere il bottone cerca nel main menu due volte blocca l'applicazione
+//  !GRAVE appena modificata la pagina o cancellata la pageview deve immediatamente refresharsi, e anche la ricerca
+//  Inseire le ricerche per autore, per data
+//  Inserire una visualizzazione solo dei propri lavori
+//  !GRAVE Aggiustare un BUG riguardante "le tue modifiche sono state accettate", il tasto visualizza apre una page view e fa perdere il riferimento al main menu, in questo modo resti bloccato
+//  creare una classe di utils per i dialog Si/No
+//  (on back?) nella pagina di login e register il primo text field deve essere sempre il primo in focus
+//  aggiungere un icona all app
+//  aggiungere icone nelle notifiche per indicarne lo stato
+//  sistemare la gui delle notifiche
+//  Inserire i bottoni la tab bold italic ecc anche nella modifica di un testo
+
+/*
+// TODO
+//  colorbox del page creation, deve essere dimensionato correttamente
+//  Bottone accedi nel login, deve essere dimensionato correttamente
+//  Titoli colorati (?)
+//  FATTO - ID della pagine nella visualizzazione della pagine
+//  FATTO - Data e ora nella visualizzazione della pagina
+//  FATTO - e ora in tutte le visualizzazioni
+//  data e ora nel db
+//  !GRAVE Dimensionamento dei form
+//     Exception in thread "AWT-EventQueue-0" java.lang.NullPointerException: Cannot invoke "wiki.Models.Page.getUpdates()" because "this.page" is null
+//  da risolvere quando la pagina che si apre è buona
+//  FATTO - mettere una combobox per cambiare la grandezza del font visualizzato
+//  FATTO - mettere una combobox per inserire una grandezza diversa (paragrafo, titolo, sottotitolo)
+//  !GRAVE Premere il bottone cerca nel main menu due volte blocca l'applicazione
+//  !GRAVE appena modificata la pagina o cancellata la pageview deve immediatamente refresharsi, e anche la ricerca
+//  Inseire le ricerche per autore, per data
+//  Inserire una visualizzazione solo dei propri lavori
+//  !GRAVE Aggiustare un BUG riguardante "le tue modifiche sono state accettate", il tasto visualizza apre una page view e fa perdere il riferimento al main menu, in questo modo resti bloccato
+//  creare una classe di utils per i dialog Si/No
+//  FATTO - nello storico della pagina i tasti prossimo e precedende non devono essere cliccabili se la pagina ha una sola modifica
+//  (on back?) nella pagina di login e register il primo text field deve essere sempre il primo in focus
+//  FATTO - migliore messaggio di benvenuto nel menu principale
+//  aggiungere un icona all app
+//  aggiungere icone nelle notifiche per indicarne lo stato
+//  sistemare la gui delle notifiche
+//  Inserire i bottoni la tab bold italic ecc anche nella modifica di un testo
+ */
+
 public class WikiController {
     // DAOs references
     private final IUserDAO userDAO = new UserDAO();

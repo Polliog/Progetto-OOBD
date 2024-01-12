@@ -6,7 +6,7 @@ import wiki.Models.Page;
 import javax.swing.*;
 
 public class PageEdit extends PageBase {
-    private JPanel PageEditView;
+    private JPanel mainPanel;
     private JButton BackBtn;
     private JLabel PageTitleLabel;
     private JTextArea PageContent;
@@ -17,7 +17,7 @@ public class PageEdit extends PageBase {
 
     public PageEdit(WikiController wikiController, PageBase prevPageRef, int id) {
         super(wikiController, prevPageRef);
-        add(PageEditView);
+        add(mainPanel);
         initGUI();
 
         fetchData(id);
