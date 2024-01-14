@@ -37,6 +37,14 @@ public class PageHistory extends PageBase {
         nextBtn.addActionListener(e -> onNextPressed());
         previousBtn.addActionListener(e -> onPreviousPressed());
 
+        if (page == null) {
+            JOptionPane.showMessageDialog(null, "Pagina non trovata", "Errore", JOptionPane.ERROR_MESSAGE);
+
+            prevPageRef.setVisible(true);
+            this.dispose();
+            return;
+        }
+
         if (page.getUpdates().size() <= 1) {
             previousBtn.setEnabled(false);
             nextBtn.setEnabled(false);

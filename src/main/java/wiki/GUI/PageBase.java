@@ -12,6 +12,10 @@ public abstract class PageBase extends JFrame {
     public PageBase(WikiController wikiController, PageBase prevPageRef) {
         this.wikiController = wikiController;
         this.prevPageRef = prevPageRef;
+
+        // set the icon
+        ImageIcon img = new ImageIcon("src/main/resources/icon.jpeg");
+        this.setIconImage(img.getImage());
     }
 
     public void initGUI(boolean isResizable, Dimension dimension) {

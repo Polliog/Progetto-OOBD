@@ -76,9 +76,9 @@ public class UserDAO implements IUserDAO {
             int notStatus = rs.getInt("status");
             Integer updateStatus = rs.getObject(9, Integer.class);
             String pageTitle = rs.getString("title");
-            String pageAuthor = rs.getNString(14);
+            String pageAuthor = rs.getNString(15);
             java.sql.Timestamp updateCreation = rs.getTimestamp("creation");
-            java.sql.Timestamp creation = rs.getTimestamp(13);
+            java.sql.Timestamp creation = rs.getTimestamp(14);
             Page page = new Page(pageId, pageTitle, pageAuthor, creation);
 
             //get update text

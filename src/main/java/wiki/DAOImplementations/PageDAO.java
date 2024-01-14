@@ -113,6 +113,7 @@ public class PageDAO implements IPageDAO {
             while (rs.next()) {
                 int updateId = rs.getInt("id");
                 String updateAuthor = rs.getString("author");
+                String oldText = rs.getString("old_text");
                 java.sql.Timestamp updateCreation = rs.getTimestamp("creation");
                 Integer updateStatus = rs.getInt("status");
 
@@ -135,12 +136,7 @@ public class PageDAO implements IPageDAO {
 
                 Update update = new Update(updateId, page, updateAuthor, updateStatus, contentStrings, updateCreation);
 
-                //fetch old text
-                pstmt = conn.prepareStatement("SELECT * FROM OldText WHERE update_id = ?");
-                pstmt.setInt(1, updateId);
-                var rs3 = pstmt.executeQuery();
-                if (rs3.next()) {
-                    String oldText = rs3.getString("text");
+                if (oldText != null) {
                     update.setOldText(oldText);
                     updates.add(update);
                 }
@@ -156,17 +152,30 @@ public class PageDAO implements IPageDAO {
         }
     }
 
-    public PaginationPage fetchPages(String q, int page, int limit) throws SQLException {
+    public PaginationPage fetchPages(String q, int page, int limit, int type) throws SQLException {
         Connection conn = DatabaseConnection.getConnection();
         try {
-            var pstmt = conn.prepareStatement("SELECT COUNT(*) AS count FROM Page WHERE title LIKE ?");
+            java.sql.PreparedStatement pstmt;
+
+            if (type == 0) {
+                pstmt = conn.prepareStatement("SELECT COUNT(*) AS count FROM Page WHERE title LIKE ?");
+            } else {
+                pstmt = conn.prepareStatement("SELECT COUNT(*) AS count FROM Page WHERE author LIKE ?");
+            }
+
+
             pstmt.setString(1, "%" + q + "%");
             var rs = pstmt.executeQuery();
             rs.next();
 
             int count = rs.getInt("count");
 
-            pstmt = conn.prepareStatement("SELECT * FROM Page WHERE title LIKE ? ORDER BY creation DESC LIMIT ? OFFSET ?");
+            if (type == 0) {
+                pstmt = conn.prepareStatement("SELECT * FROM Page WHERE title LIKE ? ORDER BY creation DESC LIMIT ? OFFSET ?");
+            } else {
+                pstmt = conn.prepareStatement("SELECT * FROM Page WHERE author LIKE ? ORDER BY creation DESC LIMIT ? OFFSET ?");
+            }
+
             pstmt.setString(1, "%" + q + "%");
             pstmt.setInt(2, limit);
             pstmt.setInt(3, (page - 1) * limit);
@@ -336,32 +345,6 @@ public class PageDAO implements IPageDAO {
         String oldText = oldPage.getAllContent();
 
 
-        // Save the old text in the oldText table
-        try {
-            Connection conn = DatabaseConnection.getConnection();
-            conn.setAutoCommit(false);
-            try {
-                var pstmt = conn.prepareStatement("INSERT INTO OldText (text, update_id) VALUES (?, ?)");
-                pstmt.setString(1, oldText);
-                pstmt.setInt(2,update.getId());
-                pstmt.executeUpdate();
-                pstmt.close();
-                conn.commit();
-            }
-            catch (SQLException e) {
-                conn.rollback();
-                JOptionPane.showMessageDialog(null, "Errore durante il salvataggio del vecchio testo", "Errore", JOptionPane.ERROR_MESSAGE);
-                e.printStackTrace();
-                throw e;
-            }
-            finally {
-                conn.setAutoCommit(true);
-            }
-        }
-        catch (SQLException e) {
-            e.printStackTrace();
-        }
-
         // Update the page with the new text
         try {
             Connection conn = DatabaseConnection.getConnection();
@@ -421,21 +404,22 @@ public class PageDAO implements IPageDAO {
             e.printStackTrace();
         }
 
-        // Set the status of the update to 1
+        // Set the status of the update to 1 and save the oldtext in old_text column
         try {
             Connection conn = DatabaseConnection.getConnection();
             conn.setAutoCommit(false);
             try {
-                var pstmt = conn.prepareStatement("UPDATE `update` SET status = 1 WHERE id = ?");
-                pstmt.setInt(1, update.getId());
+                var pstmt = conn.prepareStatement("UPDATE `update` SET status = 1, old_text = ? WHERE id = ?");
+                pstmt.setString(1, oldText);
+                pstmt.setInt(2, update.getId());
                 pstmt.executeUpdate();
                 pstmt.close();
                 conn.commit();
             }
             catch (SQLException e) {
+                e.printStackTrace();
                 conn.rollback();
                 JOptionPane.showMessageDialog(null, "Errore durante il salvataggio dello stato dell'aggiornamento", "Errore", JOptionPane.ERROR_MESSAGE);
-                e.printStackTrace();
                 throw e;
             }
             finally {
@@ -484,35 +468,15 @@ public class PageDAO implements IPageDAO {
         Page oldPage = fetchPage(oldPageId);
         String oldText = oldPage.getAllContent();
 
+
+        // Set the status of the update to 0 and save the oldtext in old_text column
         try {
             Connection conn = DatabaseConnection.getConnection();
             conn.setAutoCommit(false);
             try {
-                var pstmt = conn.prepareStatement("INSERT INTO OldText (text, update_id) VALUES (?, ?)");
+                var pstmt = conn.prepareStatement("UPDATE `update` SET status = 0, old_text = ? WHERE id = ?");
                 pstmt.setString(1, oldText);
                 pstmt.setInt(2, update.getId());
-                pstmt.executeUpdate();
-                pstmt.close();
-                conn.commit();
-            } catch (SQLException e) {
-                conn.rollback();
-                JOptionPane.showMessageDialog(null, "Errore durante il salvataggio del vecchio testo", "Errore", JOptionPane.ERROR_MESSAGE);
-                e.printStackTrace();
-                throw e;
-            } finally {
-                conn.setAutoCommit(true);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        // Set the status of the update to 0
-        try {
-            Connection conn = DatabaseConnection.getConnection();
-            conn.setAutoCommit(false);
-            try {
-                var pstmt = conn.prepareStatement("UPDATE `update` SET status = 0 WHERE id = ?");
-                pstmt.setInt(1, update.getId());
                 pstmt.executeUpdate();
                 pstmt.close();
                 conn.commit();

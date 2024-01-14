@@ -23,6 +23,8 @@ public class MainMenu extends PageBase {
     private JLabel usernameLabel;
     private JButton createPageBtn;
     private JButton notificationBtn;
+    private JRadioButton authorRadio;
+    private JRadioButton titleRadio;
 
     private final int PAGINATION_COUNT = 5;
     private final int MAX_CHARACTER_INTRO_DISPLAY = 75;
@@ -47,6 +49,11 @@ public class MainMenu extends PageBase {
         nextPageBtn.addActionListener(e -> nextPage());
         // Enter key
         searchField.addActionListener(e -> fetchData());
+
+
+        ButtonGroup group = new ButtonGroup();
+        group.add(authorRadio);
+        group.add(titleRadio);
 
         updateUserLabel();
         fetchData();
@@ -74,7 +81,9 @@ public class MainMenu extends PageBase {
     }
 
     private void fetchData() {
-        PaginationPage response = wikiController.fetchPages(searchField.getText(), currentPage, PAGINATION_COUNT);
+        int type = authorRadio.isSelected() ? 1 : 0;
+
+        PaginationPage response = wikiController.fetchPages(searchField.getText(), currentPage, PAGINATION_COUNT, type);
 
         if (response == null) return;
 
@@ -117,39 +126,52 @@ public class MainMenu extends PageBase {
 
 
     private void updateListView(ArrayList<Page> pages) {
-        WikiListContent.removeAll();
-        WikiListContent.setLayout(new BoxLayout(WikiListContent, BoxLayout.Y_AXIS));
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() {
+                WikiListContent.removeAll();
+                WikiListContent.setLayout(new BoxLayout(WikiListContent, BoxLayout.Y_AXIS));
 
-        JScrollPane wikiListScroll = new JScrollPane();
+                JScrollPane wikiListScroll = new JScrollPane();
 
-        JPanel panel = new JPanel();
+                JPanel panel = new JPanel();
 
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        for (Page page : pages) {
-            String intro = page.getAllContent()
-                    .replaceAll("\n", " ")
-                    .replaceAll("\\<.*?\\>", "")
-                    .replaceAll("\\s+", " ");
+                panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+                for (Page page : pages) {
+                    String intro = page.getAllContent()
+                            .replaceAll("\n", " ")
+                            .replaceAll("\\<.*?\\>", "")
+                            .replaceAll("\\s+", " ");
 
-            intro.trim();
+                    intro.trim();
 
-            // Truncate first MAX_CHARACTER_INTRO_DISPLAY characters
-            if (intro.length() > MAX_CHARACTER_INTRO_DISPLAY)
-                intro = intro.substring(0, MAX_CHARACTER_INTRO_DISPLAY) + "...";
+                    // Truncate first MAX_CHARACTER_INTRO_DISPLAY characters
+                    if (intro.length() > MAX_CHARACTER_INTRO_DISPLAY)
+                        intro = intro.substring(0, MAX_CHARACTER_INTRO_DISPLAY) + "...";
 
-            panel.add(new WikiPageSearchDisplay(
-                    page.getTitle(),
-                    intro,
-                    page.getAuthorName(),
-                    page.getDateString(),
-                    () -> viewPage(page.getId())));
-        }
+                    panel.add(new WikiPageSearchDisplay(
+                            page.getTitle(),
+                            intro,
+                            page.getAuthorName(),
+                            page.getDateString(),
+                            () -> viewPage(page.getId())));
+                }
 
-        wikiListScroll.setViewportView(panel);
-        wikiListScroll.revalidate();
-        wikiListScroll.repaint();
+                wikiListScroll.setViewportView(panel);
 
-        WikiListContent.add(wikiListScroll);
+                WikiListContent.add(wikiListScroll);
+
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                WikiListContent.revalidate();
+                WikiListContent.repaint();
+            }
+        };
+
+        worker.execute();
     }
 
     private void nextPage() {
@@ -161,4 +183,6 @@ public class MainMenu extends PageBase {
         currentPage--;
         fetchData();
     }
+
+
 }

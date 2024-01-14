@@ -16,19 +16,10 @@ import java.util.Collections;
 // TODO
 //  colorbox del page creation, deve essere dimensionato correttamente
 //  Bottone accedi nel login, deve essere dimensionato correttamente
-//  Titoli colorati (?)
-//  data e ora nel db
-//  !GRAVE Dimensionamento dei form
-//     Exception in thread "AWT-EventQueue-0" java.lang.NullPointerException: Cannot invoke "wiki.Models.Page.getUpdates()" because "this.page" is null
-//  da risolvere quando la pagina che si apre è buona
-//  !GRAVE Premere il bottone cerca nel main menu due volte blocca l'applicazione
 //  !GRAVE appena modificata la pagina o cancellata la pageview deve immediatamente refresharsi, e anche la ricerca
-//  Inseire le ricerche per autore, per data
-//  Inserire una visualizzazione solo dei propri lavori
 //  !GRAVE Aggiustare un BUG riguardante "le tue modifiche sono state accettate", il tasto visualizza apre una page view e fa perdere il riferimento al main menu, in questo modo resti bloccato
 //  creare una classe di utils per i dialog Si/No
 //  (on back?) nella pagina di login e register il primo text field deve essere sempre il primo in focus
-//  aggiungere un icona all app
 //  aggiungere icone nelle notifiche per indicarne lo stato
 //  sistemare la gui delle notifiche
 //  Inserire i bottoni la tab bold italic ecc anche nella modifica di un testo
@@ -77,6 +68,7 @@ public class WikiController {
         SwingUtilities.invokeLater(() ->
                 new LoginPage(new WikiController(), null)
         );
+
     }
 
     private void setLoggedUser(User user) {
@@ -191,7 +183,6 @@ public class WikiController {
                         options,    // options string array, will be made into buttons
                         options[0]  // option that should be made into a default button
                 );
-                System.out.println(n);
                 return n == JOptionPane.YES_OPTION;
             }
             else
@@ -244,9 +235,10 @@ public class WikiController {
         }
     }
 
-    public PaginationPage fetchPages(String search, int page, int limit) {
+    //type 0 = titolo, type 1 = autore
+    public PaginationPage fetchPages(String search, int page, int limit, int type) {
         try {
-            return pageDAO.fetchPages(search, page, limit);
+            return pageDAO.fetchPages(search, page, limit, type);
         }
         catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Errore durante il caricamento delle pagine", "Errore", JOptionPane.ERROR_MESSAGE);
