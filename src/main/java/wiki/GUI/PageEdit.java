@@ -7,40 +7,47 @@ import javax.swing.*;
 
 public class PageEdit extends PageBase {
     private JPanel mainPanel;
-    private JButton BackBtn;
-    private JLabel PageTitleLabel;
-    private JTextArea PageContent;
-    private JButton SaveBtn;
-    private Page page = null;
-    private int id;
+    private JButton backBtn;
+    private JLabel titleLabel;
+    private JTextArea pageContentArea;
+    private JButton saveBtn;
+    private FontSizeComboBox fontSizeComboBox1;
+    private ContentShortcutsPanel contentShortcutsPanel1;
 
+    private Page page;
+    private final int id;
 
     public PageEdit(WikiController wikiController, PageBase prevPageRef, int id) {
         super(wikiController, prevPageRef);
         add(mainPanel);
-        initGUI();
-
-        fetchData(id);
 
         this.id = id;
-        this.PageTitleLabel.setFont(this.PageTitleLabel.getFont().deriveFont(20.0f));
 
-        BackBtn.addActionListener(e -> onBackPressed());
-        SaveBtn.addActionListener(e -> onSavePressed());
+        fontSizeComboBox1.init(pageContentArea);
+        contentShortcutsPanel1.init(pageContentArea);
+
+        backBtn.addActionListener(e -> onBackPressed());
+        saveBtn.addActionListener(e -> onSavePressed());
+
+        frameStart();
     }
 
-    public void fetchData(int id) {
-        this.page = wikiController.fetchPage(id);
-        if (this.page == null) {
+    @Override
+    protected void frameStart() {
+        fetchData(id);
+    }
+
+    private void fetchData(int id) {
+        page = wikiController.fetchPage(id);
+        if (page == null) {
             JOptionPane.showMessageDialog(null, "Pagina non trovata", "Errore", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        PageTitleLabel.setText(this.page.getTitle());
-        PageContent.setText(this.page.getAllContent());
-        PageContent.setLineWrap(true);
-        PageContent.setWrapStyleWord(true);
+        titleLabel.setText(page.getTitle());
+        pageContentArea.setText(page.getAllContent());
     }
+
 
     private void onBackPressed() {
         prevPageRef.setVisible(true);
@@ -52,10 +59,16 @@ public class PageEdit extends PageBase {
     }
 
     private void confirmSave() {
-        //SHOW A CONFIRMATION DIALOG
-        int dialogResult = JOptionPane.showConfirmDialog (null, "Vuoi salvare le modifiche?","Conferma di salvataggio",JOptionPane.YES_NO_OPTION);
-        if(dialogResult == JOptionPane.YES_OPTION){
-            wikiController.compareAndSavePage(this.page, PageContent.getText());
+        // Confirmation dialog
+        int dialogResult = JOptionPane.showConfirmDialog (null, "Vuoi salvare le modifiche?","Conferma di salvataggio", JOptionPane.YES_NO_OPTION);
+        if (dialogResult == JOptionPane.YES_OPTION){
+            wikiController.compareAndSavePage(page, pageContentArea.getText());
         }
+    }
+
+    // Custom components
+    private void createUIComponents() {
+        fontSizeComboBox1 = new FontSizeComboBox();
+        contentShortcutsPanel1 = new ContentShortcutsPanel();
     }
 }

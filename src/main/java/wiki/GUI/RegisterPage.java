@@ -6,7 +6,7 @@ import javax.swing.*;
 
 
 public class RegisterPage extends PageBase {
-    private JPanel registerPanel;
+    private JPanel mainPanel;
     private JTextField usernameField;
     private JPasswordField passwordField;
     private JButton registerBtn;
@@ -14,8 +14,7 @@ public class RegisterPage extends PageBase {
 
     public RegisterPage(WikiController wikiController, PageBase prevPageRef) {
         super(wikiController, prevPageRef);
-        add(registerPanel);
-        initGUI();
+        add(mainPanel);
 
         // Listeners
         registerBtn.addActionListener(e -> onRegisterPressed());
@@ -26,6 +25,11 @@ public class RegisterPage extends PageBase {
         passwordField.addActionListener(e -> onRegisterPressed());
 
         usernameField.requestFocusInWindow();
+    }
+
+    @Override
+    protected void frameStart() {
+
     }
 
     private String getRegisterName() {

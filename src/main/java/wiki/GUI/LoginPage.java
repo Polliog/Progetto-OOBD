@@ -5,7 +5,7 @@ import javax.swing.*;
 import wiki.Controllers.WikiController;
 
 public class LoginPage extends PageBase {
-    private JPanel loginPanel;
+    private JPanel mainPanel;
     private JTextField usernameField;
     private JPasswordField passwordField;
     private JButton loginBtn;
@@ -13,8 +13,7 @@ public class LoginPage extends PageBase {
 
     public LoginPage(WikiController wikiController, PageBase nextPageRef) {
         super(wikiController, nextPageRef);
-        add(loginPanel);
-        initGUI();
+        add(mainPanel);
 
         // event listeners for buttons
         loginBtn.addActionListener(e -> onLoginPressed());
@@ -25,6 +24,11 @@ public class LoginPage extends PageBase {
 
         usernameField.requestFocusInWindow();
         // on back (?)
+    }
+
+    @Override
+    protected void frameStart() {
+
     }
 
     private String getLoginName() {

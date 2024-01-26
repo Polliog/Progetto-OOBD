@@ -11,13 +11,13 @@ import java.util.ArrayList;
 
 
 public class MainMenu extends PageBase {
-    private JPanel WikiPagesView;
+    private JPanel mainPanel;
     private JTextField searchField;
     private JButton searchPageBtn;
     private JButton previousPageBtn;
     private JButton nextPageBtn;
     private JLabel paginationLabel;
-    private JPanel WikiListContent;
+    private JPanel wikiSearchResultListPanel;
     private JButton logoutBtn;
     private JButton loginBtn;
     private JLabel usernameLabel;
@@ -36,8 +36,8 @@ public class MainMenu extends PageBase {
 
     public MainMenu(WikiController wikiController, PageBase prevPageRef) {
         super(wikiController, prevPageRef);
-        add(WikiPagesView);
-        initGUI(true, new Dimension(650, 500));
+        add(mainPanel);
+
 
         // Buttons Action listeners
         loginBtn.addActionListener(e -> onLoginPressed());
@@ -57,6 +57,11 @@ public class MainMenu extends PageBase {
 
         updateUserLabel();
         fetchData();
+    }
+
+    @Override
+    protected void frameStart() {
+
     }
 
     private void updateUserLabel() {
@@ -124,16 +129,14 @@ public class MainMenu extends PageBase {
         paginationLabel.setText("Pagina " + currentPage + " di " + totalPages);
     }
 
-
     private void updateListView(ArrayList<Page> pages) {
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
             @Override
             protected Void doInBackground() {
-                WikiListContent.removeAll();
-                WikiListContent.setLayout(new BoxLayout(WikiListContent, BoxLayout.Y_AXIS));
+                wikiSearchResultListPanel.removeAll();
+                wikiSearchResultListPanel.setLayout(new BoxLayout(wikiSearchResultListPanel, BoxLayout.Y_AXIS));
 
                 JScrollPane wikiListScroll = new JScrollPane();
-
                 JPanel panel = new JPanel();
 
                 panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -142,8 +145,6 @@ public class MainMenu extends PageBase {
                             .replaceAll("\n", " ")
                             .replaceAll("\\<.*?\\>", "")
                             .replaceAll("\\s+", " ");
-
-                    intro.trim();
 
                     // Truncate first MAX_CHARACTER_INTRO_DISPLAY characters
                     if (intro.length() > MAX_CHARACTER_INTRO_DISPLAY)
@@ -158,16 +159,15 @@ public class MainMenu extends PageBase {
                 }
 
                 wikiListScroll.setViewportView(panel);
-
-                WikiListContent.add(wikiListScroll);
+                wikiSearchResultListPanel.add(wikiListScroll);
 
                 return null;
             }
 
             @Override
             protected void done() {
-                WikiListContent.revalidate();
-                WikiListContent.repaint();
+                wikiSearchResultListPanel.revalidate();
+                wikiSearchResultListPanel.repaint();
             }
         };
 

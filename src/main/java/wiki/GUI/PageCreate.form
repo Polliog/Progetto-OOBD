@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="wiki.GUI.PageCreate">
-  <grid id="27dc6" binding="pageCreatePanel" layout-manager="GridLayoutManager" row-count="8" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+  <grid id="27dc6" binding="mainPanel" layout-manager="GridLayoutManager" row-count="8" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="10" left="10" bottom="10" right="10"/>
     <constraints>
-      <xy x="20" y="20" width="566" height="400"/>
+      <xy x="20" y="20" width="447" height="400"/>
     </constraints>
     <properties/>
     <border type="none"/>
@@ -94,52 +94,11 @@
           </component>
         </children>
       </grid>
-      <grid id="25f01" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
+      <component id="5945f" class="wiki.GUI.ContentShortcutsPanel" binding="contentShortcutsPanel1" custom-create="true" default-binding="true">
         <constraints>
-          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
-        <properties/>
-        <border type="none"/>
-        <children>
-          <component id="f2e4a" class="javax.swing.JButton" binding="linkBtn">
-            <constraints/>
-            <properties>
-              <foreground color="-14313794"/>
-              <text value="Link"/>
-            </properties>
-          </component>
-          <component id="aeb2f" class="javax.swing.JButton" binding="underlineBtn">
-            <constraints/>
-            <properties>
-              <borderPainted value="true"/>
-              <selected value="false"/>
-              <text value="&lt;html&gt;&lt;u&gt;Underline&lt;/u&gt;&lt;/html&gt;"/>
-            </properties>
-          </component>
-          <component id="d3b2b" class="javax.swing.JButton" binding="italicBtn">
-            <constraints/>
-            <properties>
-              <font style="2"/>
-              <text value="Italic"/>
-            </properties>
-          </component>
-          <component id="59378" class="javax.swing.JButton" binding="boldBtn">
-            <constraints/>
-            <properties>
-              <font style="1"/>
-              <text value="Bold"/>
-            </properties>
-          </component>
-          <component id="330fc" class="javax.swing.JComboBox" binding="colorBox">
-            <constraints/>
-            <properties/>
-          </component>
-          <component id="ee738" class="javax.swing.JComboBox" binding="fontTypeBox">
-            <constraints/>
-            <properties/>
-          </component>
-        </children>
-      </grid>
+      </component>
     </children>
   </grid>
 </form>

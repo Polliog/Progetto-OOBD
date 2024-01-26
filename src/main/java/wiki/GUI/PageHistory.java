@@ -23,7 +23,6 @@ public class PageHistory extends PageBase {
 
     public PageHistory(WikiController wikiController, PageBase prevPageRef, Page page) {
         super(wikiController, prevPageRef);
-        initGUI(true,new Dimension(550, 400));
         add(mainPanel);
 
         this.page = page;
@@ -163,5 +162,10 @@ public class PageHistory extends PageBase {
         mainPanel.add(textPanel, BorderLayout.CENTER);
 
         historyView.setViewportView(mainPanel);
+    }
+
+    @Override
+    protected void frameStart() {
+
     }
 }

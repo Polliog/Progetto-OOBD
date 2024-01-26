@@ -11,7 +11,7 @@ import java.awt.*;
 import java.util.ArrayList;
 
 public class ReviewUpdate extends PageBase {
-    private JPanel reviewUpdateView;
+    private JPanel mainPanel;
     private JButton backBtn;
     private JLabel titleLabel;
     private JLabel statusLabel;
@@ -32,7 +32,7 @@ public class ReviewUpdate extends PageBase {
         super(wikiController, frame);
 
 
-        backBtn.addActionListener(e -> onBack());
+        backBtn.addActionListener(e -> frameStart());
 
         actualPage = wikiController.fetchPage(update.getPage().getId());
         //check if there are multiple updates for the same page
@@ -77,8 +77,7 @@ public class ReviewUpdate extends PageBase {
         }
 
 
-        initGUI( true,new Dimension(550, 400));
-        add(reviewUpdateView);
+        add(mainPanel);
         setVisible(true);
 
         //reverse updates order
@@ -92,8 +91,8 @@ public class ReviewUpdate extends PageBase {
     }
 
 
-    private void onBack() {
-        PageBase Notifications = new UserNotifications(wikiController, this);
+    public void frameStart() {
+        new UserNotifications(wikiController, this);
         this.setVisible(false);
         this.dispose();
     }

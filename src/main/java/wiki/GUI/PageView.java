@@ -19,14 +19,15 @@ public class PageView extends PageBase {
     private JLabel pageIdLabel;
     private JEditorPane editorPane;
     private JScrollPane pageContentScrollPane;
-    private JComboBox comboBox1;
+    private FontSizeComboBox fontSizeComboBox1;
     private Page page = null;
 
 
     public PageView(WikiController wikiController, PageBase prevPageRef, int id) {
         super(wikiController, prevPageRef);
         add(mainPanel);
-        initGUI(true);
+
+        fontSizeComboBox1.init(editorPane);
 
         backBtn.addActionListener(e -> onBackPressed());
         editBtn.addActionListener(e -> onEditPressed());
@@ -96,11 +97,6 @@ public class PageView extends PageBase {
 
 
     private void setText() {
-        // Create a new pane to hold the text
-        editorPane.setEditable(false);
-        editorPane.setContentType("text/html");
-        editorPane.setFont(new Font(editorPane.getFont().getFamily(), Font.PLAIN, 1));
-
         // Replace the newline with the HTML correspondent
         String pageContent = page.getAllContent().replace("\n", "<br>");
 
@@ -131,10 +127,19 @@ public class PageView extends PageBase {
             try {
                 id = Integer.parseInt(pageID);
             }
-            catch (NumberFormatException e) {}
+            catch (NumberFormatException ignored) {}
 
             new PageView(wikiController, this, id);
             this.setVisible(false);
         }
+    }
+
+    private void createUIComponents() {
+        fontSizeComboBox1 = new FontSizeComboBox();
+    }
+
+    @Override
+    protected void frameStart() {
+
     }
 }

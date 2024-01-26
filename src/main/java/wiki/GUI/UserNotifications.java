@@ -8,9 +8,8 @@ import java.awt.*;
 import java.util.ArrayList;
 
 public class UserNotifications extends PageBase {
-
     private JButton indietroButton;
-    private JPanel notificationsViewPanel;
+    private JPanel mainPanel;
     private JLabel notificationsLabel;
     private JLabel notificationsCounterLabel;
     private JScrollPane notificationScrollPanel;
@@ -18,8 +17,7 @@ public class UserNotifications extends PageBase {
 
     public UserNotifications(WikiController wikiController, PageBase prevPageRef) {
         super(wikiController, prevPageRef);
-        initGUI( true,new Dimension(550, 400));
-        add(notificationsViewPanel);
+        add(mainPanel);
 
         //auth guard
         if (!wikiController.isUserLogged()) {
@@ -33,6 +31,11 @@ public class UserNotifications extends PageBase {
 
         indietroButton.addActionListener(e -> onIndietro());
         createUIComponents();
+    }
+
+    @Override
+    protected void frameStart() {
+
     }
 
     private void onIndietro() {
