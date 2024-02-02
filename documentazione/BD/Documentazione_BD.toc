@@ -11,15 +11,14 @@
 \contentsline {subsubsection}{\numberline {1.4.3}Eliminazione degli attributi Multivalore o Composti}{6}{}%
 \contentsline {subsubsection}{\numberline {1.4.4}Analisi di Entità e Associazioni}{6}{}%
 \contentsline {subsubsection}{\numberline {1.4.5}Scelta degli Identificatori Primari}{6}{}%
-\contentsline {subsubsection}{\numberline {1.4.6}Diagramma UML Ristrutturato}{7}{}%
-\contentsline {subsubsection}{\numberline {1.4.7}Diagramma ER Ristrutturato}{8}{}%
-\contentsline {section}{\numberline {2}Modello Logico}{9}{}%
-\contentsline {subsection}{\numberline {2.1}Traduzione di Entit\`a e Associazioni}{9}{}%
-\contentsline {subsection}{\numberline {2.2}Relazioni}{9}{}%
-\contentsline {subsection}{\numberline {2.3}User View}{10}{}%
+\contentsline {subsubsection}{\numberline {1.4.6}Diagramma UML Ristrutturato}{8}{}%
+\contentsline {subsubsection}{\numberline {1.4.7}Diagramma ER Ristrutturato}{9}{}%
+\contentsline {section}{\numberline {2}Modello Logico}{10}{}%
+\contentsline {subsection}{\numberline {2.1}Traduzione di Entit\`a e Associazioni}{10}{}%
+\contentsline {subsection}{\numberline {2.2}Relazioni}{10}{}%
 \contentsline {section}{\numberline {3}Modello Fisico}{11}{}%
 \contentsline {subsection}{\numberline {3.1}Domini}{11}{}%
 \contentsline {subsection}{\numberline {3.2}Tabelle}{11}{}%
 \contentsline {subsection}{\numberline {3.3}View}{13}{}%
-\contentsline {subsection}{\numberline {3.4}Operazioni}{17}{}%
+\contentsline {subsection}{\numberline {3.4}Operazioni}{15}{}%
 \contentsline {subsection}{\numberline {3.5}Trigger}{18}{}%
