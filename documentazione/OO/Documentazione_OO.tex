@@ -46,36 +46,35 @@
 	\section{Dominio del problema}
 	\subsection{Introduzione}
 	In questa soluzione, esaminiamo attentamente il problema per identificarne il dominio, con l'intento di sviluppare un diagramma che orienterà le nostre decisioni di progettazione a livello di codice.
-	\subsection{Analisi dei requisiti}
-		In questa sezione si analizza la specifica con lo scopo di definire le funzionalità
-	che la base di dati deve soddisfare. Individueremo le entità e le associazioni
-	del mini-word, e produrremo una prima versione del modello concettuale che
-	sarà poi rielaborato nelle fasi successive della progettazione.\\ \\
-	{\itshape Si sviluppi un sistema informativo, composto da una base di dati relazionale e da un applicativo Java dotato
-		di GUI (Swing o JavaFX), per la gestione del ciclo di vita di una pagina di una wiki}
+\subsection{Analisi dei requisiti}
+In questa sezione si analizza la specifica con lo scopo di definire le funzionalità
+che la base di dati deve soddisfare. Individueremo le entità e le associazioni
+del mini-word, e produrremo una prima versione del modello concettuale che
+sarà poi rielaborato nelle fasi successive della progettazione.\\ \\
+{\itshape Si sviluppi un sistema informativo, composto da una base di dati relazionale e da un applicativo Java dotato
+	di GUI (Swing o JavaFX), per la gestione del ciclo di vita di una pagina di una wiki}
+\vspace{0.5cm}
+\\
+L'introduzione individua il mini-world da rappresentare e una prima entità:
+{\textbf {Page}} avente come attributi {\textbf {title}} e {\textbf {creation}}. Inoltre nel testo della {\textbf {Page}} possiamo individuare un'altra entità associata alla pagina ({\textbf {Page}): {\textbf {PageText}} contenente come attributi la riga di testo ({\textbf {text}}), un collegamento ad un'altra pagina \textbf {link} tramite attributo parziale e una relazione all'entità \textbf{Page}.\\ \\
+	{\itshape Una pagina di una wiki ha un titolo e un testo. Ogni pagina è creata da un determinato autore. Il testo è
+		composto di una sequenza di frasi. Il sistema mantiene traccia anche del giorno e ora nel quale la pagina è
+		stata creata. Una frase può contenere anche un collegamento. Ogni collegamento è caratterizzato da una
+		frase da cui scaturisce il collegamento e da un’altra pagina destinazione del collegamento.}
 	\vspace{0.5cm}
 	\\
-	L'introduzione individua il mini-world da rappresentare e una prima entità:
-	{\textbf {Page}} avente come attributi {\textbf {title}} e {\textbf {creation}}. Inoltre nel testo della {\textbf {Page}} possiamo individuare un'altra entità associata alla {\textbf {Page}: {\textbf {PageText}} contente come attributo oltre che la frase individuata come {\textbf {text}} anche {\textbf {link}} (collegamento) e un collegamento all'entità \textbf{Page}.\\ \\
-		{\itshape Una pagina di una wiki ha un titolo e un testo. Ogni pagina è creata da un determinato autore. Il testo è
-			composto di una sequenza di frasi. Il sistema mantiene traccia anche del giorno e ora nel quale la pagina è
-			stata creata. Una frase può contenere anche un collegamento. Ogni collegamento è caratterizzato da una
-			frase da cui scaturisce il collegamento e da un’altra pagina destinazione del collegamento.}
-		\vspace{0.5cm}
-		\\
-		Dato che le pagine delle wiki saranno publiche oltre che modificabili, sarà necessario tenere traccia degli utenti tramita l'entità {\textbf {User}}, alla quale sarà possibile accederci tramite una {\textbf {password}} e un {\textbf {username}}. Di conseguenza alla {\textbf {Page} viene individuata una nuova caratteristica {\textbf {author}}. Le modifiche del testo di una {\textbf {Page}} saranno salvate tramite le l'entità {\textbf {PageUpdate}} avente attributi {\textbf {status}} e un collegamento ad \textbf{User} che ne rappresenta l'autore ({\textbf {author}}}). Il testo modificato viene individuato tramite l'entità: {\textbf {UpdatedText}} contenente il nuovo testo individutato dall'attributo \textbf{text}, un eventuale \textbf{link} (collegamento) e un collegamento all'entità \textbf{PageUpdate}, quando una modifica viene inoltrata all'autore esso invece deve essere avvisato tramite una notifica individuata dall'entità {\textbf {Notification}} avente come attributi {\textbf {status}} (stato di lettura), {\textbf {type}}, un collegamento a {\textbf{User}} per individuare il proprietario della notifica e un collegamento a \textbf{PageUpdate}. \\ \\
-		{\itshape La modifica proposta verrà notificata all’autore del testo originale la prossima volta che utilizzerà il sistema.
-			L’autore potrà vedere la sua versione originale e la modifica proposta. Egli potrà accettare la modifica (in
-			quel caso la pagina originale diventerà ora quella con la modifica apportata), rifiutare la modifica (la pagina
-			originale rimarrà invariata). La modifica proposta dall’autore verrà memorizzata nel sistema e diventerà
-			subito parte della versione corrente del testo. Il sistema mantiene memoria delle modifiche proposte e anche
-			delle decisioni dell’autore (accettazione o rifiuto).}
-		\vspace{0.5cm}
-		\\
-		Viene in aggiunta inserito il nuovo attributo \textbf{order\_num} alle entità {\textbf {PageText}} e {\textbf {UpdatedText}} che rappresenta l'ordinamento all'interno del testo della {\textbf {Page}}.
-		
-		\newpage
-		
+	Dato che le pagine delle wiki saranno publiche oltre che modificabili, sarà necessario tenere traccia degli utenti tramite l'entità {\textbf {User}}, alla quale sarà possibile accederci tramite una {\textbf {password}} e un {\textbf {username}}. Di conseguenza all'entità {\textbf {Page} viene inserito individuato l'autore della pagina tramite il campo {\textbf {author}}. Le modifiche del testo di una pagina ({\textbf {Page}}) saranno salvate tramite le l'entità {\textbf {PageUpdate}} avente attributi {\textbf {status}} che indica lo stato della modifica e un collegamento ad \textbf{User} che rappresenta l'autore della modifica ({\textbf {author}}}). Il testo modificato viene individuato tramite l'entità {\textbf {UpdatedText}} contenente il "nuovo testo" individutato dall'attributo \textbf{text}, un eventuale \textbf{link} (collegamento) tramite attributo parziale e un collegamento all'entità \textbf{PageUpdate}, quando una modifica viene inoltrata all'autore esso invece deve essere avvisato tramite una notifica individuata dall'entità {\textbf {Notification}} avente come attributi {\textbf {status}} (stato di lettura), {\textbf {type}}, un collegamento a {\textbf{User}} per individuare il proprietario della notifica e un collegamento a \textbf{PageUpdate}. \\ \\
+	{\itshape La modifica proposta verrà notificata all’autore del testo originale la prossima volta che utilizzerà il sistema.
+		L’autore potrà vedere la sua versione originale e la modifica proposta. Egli potrà accettare la modifica (in
+		quel caso la pagina originale diventerà ora quella con la modifica apportata), rifiutare la modifica (la pagina
+		originale rimarrà invariata). La modifica proposta dall’autore verrà memorizzata nel sistema e diventerà
+		subito parte della versione corrente del testo. Il sistema mantiene memoria delle modifiche proposte e anche
+		delle decisioni dell’autore (accettazione o rifiuto).}
+	\vspace{0.5cm}
+	\\
+	Viene in aggiunta inserito il nuovo attributo \textbf{order\_num} alle entità {\textbf {PageText}} e {\textbf {UpdatedText}} che rappresenta l'ordinamento all'interno del testo della {\textbf {Page}}. Inoltre si far\`a la distinzione tra un \text{Utente (User)} e \text{Amministratore (Admin)} tramite specializzazione parziale.
+	
+	\newpage
 		
 		\subsection{Diagramma del Dominio del Problema}
 		In seguito alle considerazioni espresse nella sezione precedente, si è prodotto il seguente class diagram del dominio del problema:
@@ -199,8 +198,68 @@
 			 \\\\
 			 L'Entity è implementata nel package \textbf{Models}.
 			 
-			 \item \textbf{Database}: 
+			 \item \textbf{Database}:  \\\\
+			 Costituisce la sorgente esterna di dati a lungo termine nell'ambito del nostro sistema. In questo contesto specifico, si tratta di un database Postgres. La connessione a tale database è implementata nel nostro codice attraverso due package: \textbf{DAO} e \textbf{Database}. Per un'analisi più dettagliata del pattern DAO, si rimanda alla sezione apposita.
 		\end{itemize}
+		
+		\subsection{Controller}
+		
+		\newpage
+		
+		\section{Overview dell'Applicazione}
+		Dopo aver esaminato l'implementazione dell'applicazione, procediamo ora alla discussione dell'applicazione stessa. Questa sezione offre una panoramica, finestra per finestra, dell'applicazione e delle sue funzionalità.
+		
+		\subsubsection{LoginPage}
+		
+		L'applicazione ha come sua view iniziale la \textbf{LoginPage}. Qui l'utente pu\`o decidere se continuare col proprio account, inserendo i propri dati, registrarsi aprendo la view \textbf{RegisterPage} e infine accedere alla wiki come ospite.
+		
+		\subsubsection{RegisterPage}
+		
+		In questa pagina \`e possibile creare un nuovo utente oppure tornare indietro al login (\textbf{LoginPage})
+		
+		Il primo utente ad iscriversi riceve un account col ruolo di {\itshape {Amministratore}}.
+		
+		
+		\subsubsection{MainMenu}
+		
+		Questa \`e la pagina principale della wiki, da qui \`e possibile:
+		
+		\begin{itemize}
+			\item Leggere le proprie notifiche (se l'utente \`e loggato altrimenti accedere/registrarsi).
+			\item Cercare le pagine per testo o per autore.
+			\item Accedere a tutte le pagine presenti sulle wiki.
+			\item Creare una nuova pagina.
+		\end{itemize}
+		
+		\subsubsection{PageView}
+		
+		Da qui \`e possibile visualizzare e compiere alcune azioni per una pagina presente sulla wiki.
+		\\\\
+		\`E possibile eseguire azioni del tipo:
+		
+		\begin{itemize}
+			\item Avviare una richiesta di modifica la pagina (oppure modificarla direttamente se si \`e amministratori o proprietari della pagina)
+			\item Eliminare la pagina se si \`e amministratori o proprietari della pagina
+		\end{itemize}
+		
+		\subsubsection{PageCreate}
+		
+		Qui l'utente pu\`o creare nuove pagine attraverso l'editor testuale.
+		
+		\subsubsection{PageEdit}
+		
+	    Qui l'utente pu\`o modificare una pagina tramite l'editor testuale.
+		
+		\subsubsection{PageHistory}
+		Pagina in cui \`e possibile visualizzare la storia delle modifiche di una pagina
+		
+		\subsubsection{UserNotifications}
+		Da questa pagina \`e possibile visualizzare le proprie notifiche e accedere alla pagina del confronto modifiche
+		
+		\subsubsection{ReviewUpdate}
+		L'utente da questa pagina pu\`o confrontare le modifiche proposte ad una pagina e decidere se rifiutarle o meno
+		
+		
 		
 
 \end{document}
