@@ -1,5 +1,6 @@
 package wiki.Models;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -8,11 +9,11 @@ public class Page {
     private String title;
     private ArrayList<PageContentString> content = new ArrayList<>();
     private String author;
-    private Date date;
+    private Timestamp date;
 
     private ArrayList<Update> updates = new ArrayList<>();
 
-    public Page(int id, String title, String author, Date date) {
+    public Page(int id, String title, String author, Timestamp date) {
         this.id = id;
         this.title = title;
         this.author = author;
@@ -29,6 +30,7 @@ public class Page {
     public String getAuthorName() {
         return author;
     }
+
     public String getDateString() {
         return date.toString().substring(0, 16);
     }
@@ -57,9 +59,6 @@ public class Page {
         this.author = author;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
-    }
 
     public String getAllContent() {
         StringBuilder sb = new StringBuilder();

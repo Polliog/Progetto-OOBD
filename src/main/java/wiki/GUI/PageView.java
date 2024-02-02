@@ -5,9 +5,10 @@ import wiki.Models.Page;
 
 import javax.swing.*;
 import javax.swing.event.HyperlinkEvent;
-import java.awt.*;
 
-public class PageView extends PageBase {
+public class PageView extends PageBase implements IUpdatable {
+    private final int id;
+
     private JPanel mainPanel;
     private JLabel titleLabel;
     private JLabel authorLabel;
@@ -20,6 +21,7 @@ public class PageView extends PageBase {
     private JEditorPane editorPane;
     private JScrollPane pageContentScrollPane;
     private FontSizeComboBox fontSizeComboBox1;
+
     private Page page = null;
 
 
@@ -27,66 +29,72 @@ public class PageView extends PageBase {
         super(wikiController, prevPageRef);
         add(mainPanel);
 
+        this.id = id;
+
         fontSizeComboBox1.init(editorPane);
 
-        backBtn.addActionListener(e -> onBackPressed());
-        editBtn.addActionListener(e -> onEditPressed());
-        historyBtn.addActionListener(e -> onHistoryPressed());
-        deleteBtn.addActionListener(e -> onDeletePressed());
+        backBtn.addActionListener(e -> onBackButtonPressed());
+        editBtn.addActionListener(e -> onEditButtonPressed());
+        historyBtn.addActionListener(e -> onPageHistoryButtonPressed());
+        deleteBtn.addActionListener(e -> onDeleteButtonPressed());
 
-        // Fetch the page data
-        fetchData(id);
+        editorPane.addHyperlinkListener(this::onHyperlinkPressed);
 
-        boolean isLoggedUserAuthor =
-                wikiController.getLoggedUser() != null &&
-                page != null &&
-                wikiController.getLoggedUser().getUsername().equals(page.getAuthorName());
-
-        editBtn.setText(isLoggedUserAuthor ? "Modifica": "Proponi modifica");
-
-        // Visibility
-        historyBtn.setEnabled(!page.getUpdates().isEmpty());
-        editBtn.setVisible(wikiController.getLoggedUser() != null);
-        deleteBtn.setVisible(isLoggedUserAuthor);
+        updateGUI();
     }
 
+    @Override
+    public void updateGUI() {
+        fetchData(id);
+    }
 
     private void fetchData(int id) {
         page = wikiController.fetchPage(id);
         if (page == null) {
             JOptionPane.showMessageDialog(null, "Pagina non trovata", "Errore", JOptionPane.ERROR_MESSAGE);
 
-            prevPageRef.setVisible(true);
-            this.dispose();
-            return;
+            System.out.println("dio cane");
+
+            super.goBackToPrevPage();
         }
+        else {
+            boolean isLoggedUserAuthor =
+                    wikiController.getLoggedUser() != null &&
+                            page != null &&
+                            wikiController.getLoggedUser().getUsername().equals(page.getAuthorName());
 
-        titleLabel.setText(page.getTitle());
-        authorLabel.setText("<html>Autore: <b>" + page.getAuthorName() + "</b></html>");
-        dateLabel.setText("Creato il: " + page.getDateString());
-        pageIdLabel.setText("ID Pagina: " + page.getId());
-        setText();
+            // Buttons Visibility
+            historyBtn.setEnabled(!page.getUpdates().isEmpty());
+            editBtn.setVisible(wikiController.getLoggedUser() != null);
+            deleteBtn.setVisible(isLoggedUserAuthor);
+
+            editBtn.setText(isLoggedUserAuthor ? "Modifica": "Proponi modifica");
+
+            // Page Text
+            titleLabel.setText(page.getTitle());
+            authorLabel.setText("<html>Autore: <b>" + page.getAuthorName() + "</b></html>");
+            dateLabel.setText("Creato il: " + page.getDateString());
+            pageIdLabel.setText("ID Pagina: " + page.getId());
+
+            setPageContentText();
+        }
     }
 
-    private void onBackPressed() {
-        prevPageRef.setVisible(true);
-        this.dispose();
+    private void onBackButtonPressed() {
+        goBackToPrevPage();
     }
 
-    private void onEditPressed() {
-        new PageEdit(wikiController, this, page.getId()).setVisible(true);
-        this.dispose();
+    private void onEditButtonPressed() {
+        new PageEdit(wikiController, this, page);
     }
 
-    private void onHistoryPressed() {
+    private void onPageHistoryButtonPressed() {
         new PageHistory(wikiController, this, page);
-        this.setVisible(false);
     }
 
-    private void onDeletePressed() {
+    private void onDeleteButtonPressed() {
         if (wikiController.deletePage(page)) {
-            prevPageRef.setVisible(true);
-            this.dispose();
+            goBackToPrevPage();
         }
     }
 
@@ -95,16 +103,12 @@ public class PageView extends PageBase {
             openHyperlink(e.getDescription());
     }
 
-
-    private void setText() {
+    private void setPageContentText() {
         // Replace the newline with the HTML correspondent
         String pageContent = page.getAllContent().replace("\n", "<br>");
 
         // Imposta il testo formattato nella JEditorPane
         editorPane.setText(pageContent);
-
-        // Aggiungi un gestore di eventi per gestire i clic sui link
-        editorPane.addHyperlinkListener(e -> onHyperlinkPressed(e));
 
         pageContentScrollPane.setViewportView(editorPane);
     }
@@ -130,16 +134,10 @@ public class PageView extends PageBase {
             catch (NumberFormatException ignored) {}
 
             new PageView(wikiController, this, id);
-            this.setVisible(false);
         }
     }
 
     private void createUIComponents() {
         fontSizeComboBox1 = new FontSizeComboBox();
-    }
-
-    @Override
-    protected void frameStart() {
-
     }
 }

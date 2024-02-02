@@ -29,10 +29,9 @@ public class PageDAO implements IPageDAO {
             Collections.addAll(text, pageContent.split("\n"));
 
             // Insert page
-            var pstmt = conn.prepareStatement("INSERT INTO Page (title, author, creation) VALUES (?, ?, ?)");
+            var pstmt = conn.prepareStatement("INSERT INTO Page (title, author) VALUES (?, ?)");
             pstmt.setString(1, pageTitle);
             pstmt.setString(2, user.getUsername());
-            pstmt.setTimestamp(3, new Timestamp(System.currentTimeMillis()));
 
             // Execute query and get id
             pstmt.executeUpdate();
@@ -134,7 +133,7 @@ public class PageDAO implements IPageDAO {
                     contentStrings.add(new UpdateContentString(updatedTextId, updatedText, order, type));
                 }
 
-                Update update = new Update(updateId, page, updateAuthor, updateStatus, contentStrings, updateCreation);
+                Update update = new Update(updateId, page, updateAuthor, updateStatus, updateCreation, oldText, contentStrings);
 
                 if (oldText != null) {
                     update.setOldText(oldText);
@@ -196,7 +195,61 @@ public class PageDAO implements IPageDAO {
         }
     }
 
-    public void compareAndSaveEdit(Page oldPage, String newText, User user) throws SQLException {
+    public ArrayList<Update> fetchPendingUpdates(int pageId) throws SQLException {
+        Connection conn = DatabaseConnection.getConnection();
+
+        // do a select of updates where page_id equals pageId and status equals 2 and returns the arrayList of updates
+        try {
+            var pstmt = conn.prepareStatement("SELECT * FROM `Update` WHERE page_id = ? AND status = -1 ORDER BY creation DESC");
+            pstmt.setInt(1, pageId);
+            var rs = pstmt.executeQuery();
+
+            ArrayList<Update> updates = new ArrayList<>();
+
+            while (rs.next()) {
+                int updateId = rs.getInt("id");
+                String updateAuthor = rs.getString("author");
+                int updateStatus = rs.getInt("status");
+                Timestamp updateCreation = rs.getTimestamp("creation");
+                String updateOldText = rs.getString("old_text");
+
+                //fetch updated text
+                pstmt = conn.prepareStatement("SELECT * FROM UpdatedText WHERE update_id = ? ORDER BY order_num");
+                pstmt.setInt(1, updateId);
+
+                var rs2 = pstmt.executeQuery();
+
+                ArrayList<UpdateContentString> contentStrings = new ArrayList<>();
+
+                rs2 = pstmt.executeQuery();
+                while (rs2.next()) {
+                    contentStrings.add(new UpdateContentString(
+                            rs2.getInt("id"),
+                            rs2.getString("text"),
+                            rs2.getInt("order_num"),
+                            rs2.getInt("type")));
+                }
+
+                updates.add(new Update(
+                        updateId,
+                        fetchPage(pageId),
+                        updateAuthor,
+                        updateStatus,
+                        updateCreation,
+                        updateOldText,
+                        contentStrings));
+            }
+
+            return updates;
+        }
+        catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Errore durante il caricamento delle modifiche", "Errore", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    public void savePageUpdate(Page oldPage, String newText, User user) throws SQLException {
 
         //se l'autore e' uguale all'ultimo autore a chi ha modificato la pagina
         if (oldPage.getAuthorName().equals(user.getUsername())) {
@@ -245,7 +298,7 @@ public class PageDAO implements IPageDAO {
             String[] newLines = newText.split("\n");
 
             // Create a new record in the Update table
-            int updateId = insertUpdate(oldPage.getId(), user.getUsername(), null);
+            int updateId = insertUpdate(oldPage.getId(), user.getUsername());
 
             // Iterate over each line in the new text and compare it with the old text to find the differences
             // if the line is equal to the old one save with type 0
@@ -277,15 +330,14 @@ public class PageDAO implements IPageDAO {
         JOptionPane.showMessageDialog(null, "Modifiche salvate", "Successo", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    private int insertUpdate(int pageId, String username, Integer status) throws SQLException {
+    private int insertUpdate(int pageId, String username) throws SQLException {
         Connection conn = DatabaseConnection.getConnection();
         conn.setAutoCommit(false);
         int updateId = -1;
         try {
-            var pstmt = conn.prepareStatement("INSERT INTO `update` (page_id, author, status) VALUES (?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+            var pstmt = conn.prepareStatement("INSERT INTO `Update` (page_id, author) VALUES (?, ?)", Statement.RETURN_GENERATED_KEYS);
             pstmt.setInt(1, pageId);
             pstmt.setString(2, username);
-            pstmt.setObject(3, status); // setObject allows for null values
             pstmt.executeUpdate();
             ResultSet rs = pstmt.getGeneratedKeys();
             if (rs.next()) {
@@ -474,7 +526,7 @@ public class PageDAO implements IPageDAO {
             Connection conn = DatabaseConnection.getConnection();
             conn.setAutoCommit(false);
             try {
-                var pstmt = conn.prepareStatement("UPDATE `update` SET status = 0, old_text = ? WHERE id = ?");
+                var pstmt = conn.prepareStatement("UPDATE `Update` SET status = 0, old_text = ? WHERE id = ?");
                 pstmt.setString(1, oldText);
                 pstmt.setInt(2, update.getId());
                 pstmt.executeUpdate();

@@ -3,15 +3,15 @@ package wiki.Models;
 public class UpdateContentString {
     private int id;
     private String text;
-    private int order_num;
+    private int orderNum;
 
     private int type; //0 = uguali, 1 = diversi, 2 = aggiunto, 3 = rimosso
 
 
-    public UpdateContentString(int id, String text, int order_num, int type) {
+    public UpdateContentString(int id, String text, int orderNum, int type) {
         this.id = id;
         this.text = text;
-        this.order_num = order_num;
+        this.orderNum = orderNum;
         this.type = type;
     }
 
@@ -31,12 +31,12 @@ public class UpdateContentString {
         this.text = text;
     }
 
-    public int getOrder_num() {
-        return order_num;
+    public int getOrderNum() {
+        return orderNum;
     }
 
-    public void setOrder_num(int order_num) {
-        this.order_num = order_num;
+    public void setOrderNum(int orderNum) {
+        this.orderNum = orderNum;
     }
 
     public int getType() {

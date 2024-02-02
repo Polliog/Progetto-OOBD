@@ -1,7 +1,6 @@
 package wiki.GUI;
 
 import wiki.Controllers.WikiController;
-import wiki.Models.Notification;
 import wiki.Models.Page;
 import wiki.Models.Update;
 import wiki.Models.UpdateContentString;
@@ -9,8 +8,9 @@ import wiki.Models.UpdateContentString;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Collections;
 
-public class ReviewUpdate extends PageBase {
+public class ReviewUpdates extends PageBase {
     private JPanel mainPanel;
     private JButton backBtn;
     private JLabel titleLabel;
@@ -24,39 +24,31 @@ public class ReviewUpdate extends PageBase {
     private int updateIndex = 0;
 
     private boolean multipleUpdates = false;
-    ArrayList<Update> updates = new ArrayList<>();
+    ArrayList<Update> updates;
 
-    Page actualPage;
+    // GUI that rewies the pending updates of a page
+    public ReviewUpdates(WikiController wikiController, PageBase prevPage, Page page) {
+        super(wikiController, prevPage);
+        add(mainPanel);
 
-    public ReviewUpdate(WikiController wikiController, PageBase frame, Update update) {
-        super(wikiController, frame);
-
-
-        backBtn.addActionListener(e -> frameStart());
-
-        actualPage = wikiController.fetchPage(update.getPage().getId());
-        //check if there are multiple updates for the same page
-        ArrayList<Notification> notifications = wikiController.getLoggedUser().getNotifications(-1);
-
-        for (Notification notification : notifications) {
-            if (notification.getUpdate().getStatus() != 2) {
-                continue;
-            }
-
-            if (notification.getUpdate().getPage().getId() == update.getPage().getId()) {
-                updates.add(notification.getUpdate());
-
-                if (updates.size() > 1) {
-                    multipleUpdates = true;
-                }
-            }
+        updates = wikiController.fetchPendingPageUpdates(page.getId());
+        if (updates == null) {
+            // error message
+            super.goBackToPrevPage();
         }
+
+        Collections.reverse(updates);
+
+        multipleUpdates = updates.size() > 1;
+
+        backBtn.addActionListener(e -> onBackButtonPressed());
+
+        // ? cambiare testo?
+        titleLabel.setText("Revisione della richiesta di modifica dell'utente " + updates.getFirst().getAuthor() + " alla pagina \"" + page.getTitle() + "\"");
 
 
         if (multipleUpdates) {
             statusLabel.setText("Ci sono " + updates.size() + " modifiche in sospeso per questa pagina.");
-            titleLabel.setText("Revisione delle modifiche alla pagina \"" + update.getPage().getTitle() + "\"");
-
 
             initPagination();
 
@@ -65,10 +57,7 @@ public class ReviewUpdate extends PageBase {
             indietroButton.setVisible(true);
             avantiButton.setVisible(true);
             accettaTuttoButton.setVisible(true);
-            accettaTuttoButton.addActionListener(e -> acceptAllUpdates());
-        } else {
-            titleLabel.setText("Revisione della modifica di " + update.getAuthor() + " alla pagina \"" + update.getPage().getTitle() + "\"");
-            updates.add(update);
+            accettaTuttoButton.addActionListener(e -> onAcceptAllUpdates());
         }
 
         if (multipleUpdates) {
@@ -76,39 +65,17 @@ public class ReviewUpdate extends PageBase {
             JOptionPane.showMessageDialog(null, "Ci sono " + updates.size() + " modifiche in sospeso per questa pagina. Verranno mostrate tutte di seguito.", "Modifiche multiple", JOptionPane.INFORMATION_MESSAGE);
         }
 
-
-        add(mainPanel);
-        setVisible(true);
-
-        //reverse updates order
-        ArrayList<Update> reversedUpdates = new ArrayList<>();
-        for (int i = updates.size() - 1; i >= 0; i--) {
-            reversedUpdates.add(updates.get(i));
-        }
-        updates = reversedUpdates;
-
+        // ???
         createUIComponents(updates.get(updateIndex));
     }
 
-
-    public void frameStart() {
-        new UserNotifications(wikiController, this);
-        this.setVisible(false);
-        this.dispose();
+    public void onBackButtonPressed() {
+        super.goBackToPrevPage();
     }
 
     private void initPagination() {
-        if (updateIndex == 0) {
-            indietroButton.setEnabled(false);
-        } else {
-            indietroButton.setEnabled(true);
-        }
-
-        if (updateIndex == updates.size() - 1) {
-            avantiButton.setEnabled(false);
-        } else {
-            avantiButton.setEnabled(true);
-        }
+        indietroButton.setEnabled(updateIndex != 0);
+        avantiButton.setEnabled(updateIndex != updates.size() - 1);
 
         paginationLabel.setText("Modifica " + (updateIndex + 1) + " di " + updates.size());
     }
@@ -142,7 +109,7 @@ public class ReviewUpdate extends PageBase {
         // Creazione delle aree di testo
         JTextPane currentText = new JTextPane();
         currentText.setContentType("text/html"); // Impostazione del tipo di contenuto su HTML
-        currentText.setText(actualPage.getAllContentHtml()); // Utilizzo del contenuto della pagina come testo attuale
+        currentText.setText(update.getPage().getAllContentHtml()); // Utilizzo del contenuto della pagina come testo attuale
         currentText.setEditable(false);
         currentText.setFont(new Font("Arial", Font.PLAIN, 14)); // Impostazione del font
 
@@ -167,7 +134,7 @@ public class ReviewUpdate extends PageBase {
             String line = contentString.getText();
 
             if (contentString.getType() == 0 || contentString.getType() == 3) {
-                line = actualPage.getLine(contentString.getOrder_num());
+                line = update.getPage().getLine(contentString.getOrderNum());
             }
 
             allContent.append(line).append("<br>");
@@ -203,61 +170,11 @@ public class ReviewUpdate extends PageBase {
         // Creazione dei pulsanti
         JButton acceptButton = new JButton("Accetta");
 
-
-        acceptButton.addActionListener(e -> {
-            boolean result = wikiController.acceptUpdate(update, false);
-
-            if (result) {
-                actualPage = wikiController.fetchPage(update.getPage().getId()); // Aggiornamento della pagina
-                update.setStatus(1);
-                update.setPage(actualPage);
-                if (!multipleUpdates) {
-
-                    PageBase pageView = new UserNotifications(wikiController, this);
-                    this.setVisible(false);
-                    this.dispose();
-                } else {
-
-                    if (updateIndex == updates.size() - 1) {
-                        PageBase pageView = new UserNotifications(wikiController, this);
-                        this.setVisible(false);
-                        this.dispose();
-                    } else {
-                        nextUpdate();
-                    }
-
-                }
-            }
-
-        });
+        acceptButton.addActionListener(e -> onAcceptUpdate(update));
 
         JButton rejectButton = new JButton("Rifiuta");
 
-        rejectButton.addActionListener(e -> {
-            boolean result = wikiController.refuseUpdate(update);
-
-            if (result) {
-                actualPage = wikiController.fetchPage(update.getPage().getId()); // Aggiornamento della pagina
-                update.setStatus(0);
-                update.setPage(actualPage);
-                if (!multipleUpdates) {
-
-                    PageBase pageView = new UserNotifications(wikiController, this);
-                    this.setVisible(false);
-                    this.dispose();
-                } else {
-
-                    if (updateIndex == updates.size() - 1) {
-                        PageBase pageView = new UserNotifications(wikiController, this);
-                        this.setVisible(false);
-                        this.dispose();
-                    } else {
-                        nextUpdate();
-                    }
-
-                }
-            }
-        });
+        rejectButton.addActionListener(e -> onRejectUpdate(update));
 
         // Aggiunta dei pulsanti al pannello dei pulsanti
         buttonPanel.add(acceptButton);
@@ -270,22 +187,29 @@ public class ReviewUpdate extends PageBase {
         updatesView.setViewportView(mainPanel);
     }
 
-    private void acceptAllUpdates() {
-        int n = JOptionPane.showConfirmDialog(null, "Sei sicuro di voler accettare tutte le modifiche?", "Accetta tutte le modifiche", JOptionPane.YES_NO_OPTION);
-        if (n == JOptionPane.YES_OPTION) {
-            for (Update update : updates) {
-                boolean result = wikiController.acceptUpdate(update, true);
+    private void onAcceptAllUpdates() {
+        if (wikiController.acceptAllPageUpdates(updates))
+            super.goBackToPrevPage();
+        // aggiornamento locale degli updates?
+    }
 
-                if (result) {
-                    actualPage = wikiController.fetchPage(update.getPage().getId()); // Aggiornamento della pagina
-                    update.setStatus(1);
-                    update.setPage(actualPage);
-                }
-            }
+    private void onAcceptUpdate(Update update) {
+        if (wikiController.acceptPageUpdate(update)) {
+            if (!multipleUpdates || updateIndex == updates.size() - 1)
+                super.goBackToPrevPage();
+            else
+                nextUpdate();
+        }
+    }
 
-            PageBase pageView = new UserNotifications(wikiController, this);
-            this.setVisible(false);
-            this.dispose();
+    private void onRejectUpdate(Update update) {
+        if (wikiController.rejectPageUpdate(update)) {
+            // local update??
+            // serve davvero?
+            if (!multipleUpdates || updateIndex == updates.size() - 1)
+                super.goBackToPrevPage();
+            else
+                nextUpdate();
         }
     }
 }

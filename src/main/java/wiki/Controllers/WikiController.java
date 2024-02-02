@@ -11,17 +11,11 @@ import wiki.Models.*;
 import javax.swing.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
 
 // TODO
-//  colorbox del page creation, deve essere dimensionato correttamente
-//  Bottone accedi nel login, deve essere dimensionato correttamente
-//  !GRAVE appena modificata la pagina o cancellata la pageview deve immediatamente refresharsi, e anche la ricerca
-//  !GRAVE Aggiustare un BUG riguardante "le tue modifiche sono state accettate", il tasto visualizza apre una page view e fa perdere il riferimento al main menu, in questo modo resti bloccato
-//  creare una classe di utils per i dialog Si/No
-//  (on back?) nella pagina di login e register il primo text field deve essere sempre il primo in focus
-//  aggiungere icone nelle notifiche per indicarne lo stato
-//  sistemare la gui delle notifiche
+//  da correggere tante cose..
+//  ricerca di una notifica, paginazione delle notifiche
+//  bug fix: caricamento pagina
 
 
 public class WikiController {
@@ -39,7 +33,6 @@ public class WikiController {
         SwingUtilities.invokeLater(() ->
                 new LoginPage(new WikiController(), null)
         );
-
     }
 
     private void setLoggedUser(User user) {
@@ -76,7 +69,7 @@ public class WikiController {
             }
             else {
                 JOptionPane.showMessageDialog(null, "Login effettuato", "Successo", JOptionPane.INFORMATION_MESSAGE);
-                setLoggedUser(new User(username, password));
+                setLoggedUser(new User(username));
             }
 
             return loginResult;
@@ -129,42 +122,34 @@ public class WikiController {
     }
 
     public boolean fetchNotifications() {
-        if (!isUserLogged())
+        var notifications = fetchUserNotifications();
+
+        if (notifications == null)
             return false;
 
-        try {
-            ArrayList<Notification> notifications = userDAO.getUserNotifications(loggedUser.getUsername(), -1);
+        // Reverse notifications
+        loggedUser.setNotifications(notifications);
 
-            // Reverse notifications
-            Collections.reverse(notifications);
+        // Shows 'new notification' dialog if there are any non read notifications
+        if (!loggedUser.getNotifications(0).isEmpty()) {
+            String message = "Hai (" + loggedUser.getNotifications(0).size() + ") nuove notifiche";
+            Object[] options = {"Visualizza", "Chiudi"};
 
-            loggedUser.setNotifications(notifications);
-
-            // Shows 'new notification' dialog if there are any non read notifications
-            if (!loggedUser.getNotifications(0).isEmpty()) {
-                String message = "Hai (" + loggedUser.getNotifications(0).size() + ") nuove notifiche";
-                Object[] options = {"Visualizza", "Chiudi"};
-
-                int n = JOptionPane.showOptionDialog(null,
-                        message,        // the dialog message
-                        "Notifiche",    // the title of the dialog window
-                        JOptionPane.YES_NO_OPTION,      // option type
-                        JOptionPane.QUESTION_MESSAGE,   // message type
-                        null,       // optional icon, use null to use the default icon
-                        options,    // options string array, will be made into buttons
-                        options[0]  // option that should be made into a default button
-                );
-                return n == JOptionPane.YES_OPTION;
-            }
-            else
-                return false;
+            int n = JOptionPane.showOptionDialog(null,
+                    message,        // the dialog message
+                    "Notifiche",    // the title of the dialog window
+                    JOptionPane.YES_NO_OPTION,      // option type
+                    JOptionPane.QUESTION_MESSAGE,   // message type
+                    null,       // optional icon, use null to use the default icon
+                    options,    // options string array, will be made into buttons
+                    options[0]  // option that should be made into a default button
+            );
+            return n == JOptionPane.YES_OPTION;
         }
-        catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Errore durante il caricamento delle notifiche", "Errore", JOptionPane.ERROR_MESSAGE);
-        }
-        return false;
+        else
+            return false;
     }
+
 
     public boolean isUserLogged() {
         return loggedUser != null;
@@ -217,42 +202,55 @@ public class WikiController {
         }
     }
 
-    public void compareAndSavePage(Page oldPage, String newText) {
+    public void savePageUpdate(Page oldPage, String newText) {
         try {
-            pageDAO.compareAndSaveEdit(oldPage, newText, loggedUser);
+            pageDAO.savePageUpdate(oldPage, newText, loggedUser);
         }
         catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Errore durante il salvataggio delle modifiche", "Errore", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    public void setNotificationStatus(int notificationId, int status) {
+    public boolean setNotificationViewed(int notificationId) {
         try {
-            userDAO.setNotificationStatus(notificationId, status, this.loggedUser.getUsername());
+            userDAO.setNotificationViewed(notificationId, loggedUser.getUsername());
+
+            // local?
             for (Notification notification : loggedUser.getNotifications(-1)) {
                 if (notification.getId() == notificationId) {
-                    notification.setStatus(status);
+                    //notification.setViewed(true);
                     break;
                 }
             }
+            return true;
         }
         catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Errore durante il salvataggio dello stato della notifica", "Errore", JOptionPane.ERROR_MESSAGE);
         }
+        return false;
+    }
+
+    public ArrayList<Notification> fetchUserNotifications() {
+        try {
+            return userDAO.getUserNotifications(loggedUser.getUsername());
+        }
+        catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Errore durante il caricamento delle notifiche", "Errore", JOptionPane.ERROR_MESSAGE);
+        }
+        return null;
     }
 
     public boolean deleteNotification(Notification notification) {
         try {
-
-            int n;
-            if (notification.getType() == 0 && notification.getUpdate().getStatus() == 2) {
-                n = JOptionPane.showConfirmDialog(null, "Sei sicuro di voler eliminare la notifica? La richiesta verra' rifiutata automaticamente", "Elimina pagina", JOptionPane.YES_NO_OPTION);
+            if (notification.getType() == Notification.TYPE_REQUEST_UPDATE) {
+                int n = JOptionPane.showConfirmDialog(null, "Sei sicuro di voler eliminare la notifica? La richiesta verra' rifiutata automaticamente", "Elimina pagina", JOptionPane.YES_NO_OPTION);
                 if (n == JOptionPane.YES_OPTION) {
                     userDAO.deleteNotification(notification, this.loggedUser.getUsername());
                     loggedUser.getNotifications(-1).remove(notification);
                     return true;
                 }
-            } else {
+            }
+            else {
                 userDAO.deleteNotification(notification, this.loggedUser.getUsername());
                 loggedUser.getNotifications(-1).remove(notification);
                 return true;
@@ -265,45 +263,70 @@ public class WikiController {
         return false;
     }
 
-    public boolean acceptUpdate(Update update, boolean force) {
-        if (force) {
-            try {
-                pageDAO.approveChanges(update, loggedUser);
-                JOptionPane.showMessageDialog(null, "Modifica accettata con successo", "Modifica accettata", JOptionPane.INFORMATION_MESSAGE);
-                return true;
-            } catch (SQLException e) {
-                JOptionPane.showMessageDialog(null, "Errore durante l'accettazione della modifica", "Errore", JOptionPane.ERROR_MESSAGE);
-                return false;
-            }
-        }
-
+    public boolean acceptPageUpdate(Update update) {
         try {
             int n = JOptionPane.showConfirmDialog(null, "Sei sicuro di voler accettare la modifica?", "Accetta modifica", JOptionPane.YES_NO_OPTION);
             if (n == JOptionPane.YES_OPTION) {
                 pageDAO.approveChanges(update, loggedUser);
                 JOptionPane.showMessageDialog(null, "Modifica accettata con successo", "Modifica accettata", JOptionPane.INFORMATION_MESSAGE);
+
+                // ?????
+                update.setStatus(Update.STATUS_ACCEPTED);
+                System.out.println("1: update status: " + update.getStatus());
+
                 return true;
             }
-        } catch (SQLException e) {
+        }
+        catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Errore durante l'accettazione della modifica", "Errore", JOptionPane.ERROR_MESSAGE);
-            return false;
         }
         return false;
     }
 
-    public boolean refuseUpdate(Update update) {
+    public boolean rejectPageUpdate(Update update) {
         try {
             int n = JOptionPane.showConfirmDialog(null, "Sei sicuro di voler rifiutare la modifica?", "Rifiuta modifica", JOptionPane.YES_NO_OPTION);
             if (n == JOptionPane.YES_OPTION) {
                 pageDAO.refuseChanges(update, loggedUser);
                 JOptionPane.showMessageDialog(null, "Modifica rifiutata con successo", "Modifica rifiutata", JOptionPane.INFORMATION_MESSAGE);
+
+                update.setStatus(Update.STATUS_REJECTED);
+
                 return true;
             }
-        } catch (SQLException e) {
+        }
+        catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Errore durante il rifiuto della modifica", "Errore", JOptionPane.ERROR_MESSAGE);
-            return false;
         }
         return false;
+    }
+
+    public boolean acceptAllPageUpdates(ArrayList<Update> updates) {
+        try {
+            int n = JOptionPane.showConfirmDialog(null, "Sei sicuro di voler accettare tutte le modifiche?", "Accetta tutte le modifiche", JOptionPane.YES_NO_OPTION);
+            if (n == JOptionPane.YES_OPTION) {
+                for (Update update : updates) {
+                    pageDAO.approveChanges(update, loggedUser);
+                    update.setStatus(Update.STATUS_ACCEPTED);
+                }
+                JOptionPane.showMessageDialog(null, "Modifiche accettate con successo", "Modifiche accettate", JOptionPane.INFORMATION_MESSAGE);
+                return true;
+            }
+        }
+        catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Errore durante l'accettazione della modifica", "Errore", JOptionPane.ERROR_MESSAGE);
+        }
+        return false;
+    }
+
+    public ArrayList<Update> fetchPendingPageUpdates(int pageId) {
+        try {
+            return pageDAO.fetchPendingUpdates(pageId);
+        }
+        catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Errore durante il caricamento delle modifiche", "Errore", JOptionPane.ERROR_MESSAGE);
+        }
+        return null;
     }
 
     public boolean deletePage(Page page) {

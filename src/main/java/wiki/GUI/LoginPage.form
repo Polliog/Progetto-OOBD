@@ -3,45 +3,83 @@
   <grid id="27dc6" binding="mainPanel" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="10" left="10" bottom="10" right="10"/>
     <constraints>
-      <xy x="20" y="20" width="500" height="423"/>
+      <xy x="20" y="20" width="588" height="423"/>
     </constraints>
     <properties>
       <enabled value="true"/>
     </properties>
     <border type="none"/>
     <children>
-      <grid id="8b52f" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-        <margin top="0" left="0" bottom="0" right="0"/>
-        <constraints>
-          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties/>
-        <border type="none"/>
-        <children>
-          <component id="b1f87" class="javax.swing.JLabel">
-            <constraints>
-              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <font size="25"/>
-              <text value="Accedi per continuare"/>
-            </properties>
-          </component>
-        </children>
-      </grid>
       <grid id="90fd4" layout-manager="GridLayoutManager" row-count="5" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-        <margin top="0" left="20" bottom="0" right="20"/>
+        <margin top="0" left="40" bottom="0" right="40"/>
         <constraints>
           <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
         <border type="none"/>
         <children>
+          <grid id="a74e5" layout-manager="GridLayoutManager" row-count="3" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="40" left="70" bottom="0" right="70"/>
+            <constraints>
+              <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="1" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="5eaf" class="javax.swing.JButton" binding="registerBtn">
+                <constraints>
+                  <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Registrati"/>
+                </properties>
+              </component>
+              <component id="7a961" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <font style="2"/>
+                  <text value="Crea un nuovo account!"/>
+                </properties>
+              </component>
+              <component id="9633c" class="javax.swing.JButton" binding="loginBtn">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false">
+                    <minimum-size width="200" height="32"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <font size="14"/>
+                  <margin top="0" left="0" bottom="0" right="0"/>
+                  <text value="Accedi"/>
+                </properties>
+              </component>
+              <component id="cc91" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <font style="2"/>
+                  <text value="Oppure Accedi come ospite"/>
+                </properties>
+              </component>
+              <component id="905d8" class="javax.swing.JButton" binding="guestLoginBtn">
+                <constraints>
+                  <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Accedi Ospite"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
           <component id="dae63" class="javax.swing.JLabel">
             <constraints>
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
+              <font/>
               <text value="Nome Utente"/>
             </properties>
           </component>
@@ -69,43 +107,25 @@
             </constraints>
             <properties/>
           </component>
-          <grid id="a74e5" layout-manager="GridLayoutManager" row-count="2" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-            <margin top="25" left="70" bottom="30" right="70"/>
+        </children>
+      </grid>
+      <grid id="8b52f" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+        <margin top="0" left="0" bottom="0" right="0"/>
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="b1f87" class="javax.swing.JLabel">
             <constraints>
-              <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="1" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
-            <properties/>
-            <border type="none"/>
-            <children>
-              <component id="5eaf" class="javax.swing.JButton" binding="registerBtn">
-                <constraints>
-                  <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false">
-                    <preferred-size width="10" height="30"/>
-                  </grid>
-                </constraints>
-                <properties>
-                  <text value="Registrati"/>
-                </properties>
-              </component>
-              <component id="7a961" class="javax.swing.JLabel">
-                <constraints>
-                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <text value="Non hai un account?"/>
-                </properties>
-              </component>
-              <component id="9633c" class="javax.swing.JButton" binding="loginBtn">
-                <constraints>
-                  <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <margin top="0" left="0" bottom="0" right="0"/>
-                  <text value="Accedi"/>
-                </properties>
-              </component>
-            </children>
-          </grid>
+            <properties>
+              <font size="26"/>
+              <text value="Accedi per continuare"/>
+            </properties>
+          </component>
         </children>
       </grid>
     </children>

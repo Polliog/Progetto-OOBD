@@ -25,6 +25,8 @@ public class PageHistory extends PageBase {
         super(wikiController, prevPageRef);
         add(mainPanel);
 
+        setMinimumSize(new Dimension(700, 700));
+
         this.page = page;
 
 
@@ -51,7 +53,7 @@ public class PageHistory extends PageBase {
     }
 
     private void onBackPressed() {
-        prevPageRef.setVisible(true);
+        prevPage.setVisible(true);
         this.dispose();
     }
 
@@ -126,7 +128,7 @@ public class PageHistory extends PageBase {
 
             if (contentString.getType() == 0 || contentString.getType() == 3) {
                 try {
-                    line = update.getOldTextLine(contentString.getOrder_num());
+                    line = update.getOldTextLine(contentString.getOrderNum());
                 } catch (Exception e) {
                     line = "";
                 }
@@ -162,10 +164,5 @@ public class PageHistory extends PageBase {
         mainPanel.add(textPanel, BorderLayout.CENTER);
 
         historyView.setViewportView(mainPanel);
-    }
-
-    @Override
-    protected void frameStart() {
-
     }
 }

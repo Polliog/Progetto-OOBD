@@ -6,11 +6,13 @@ import wiki.Models.PaginationPage;
 import wiki.Models.User;
 
 import javax.swing.*;
-import java.awt.*;
 import java.util.ArrayList;
 
 
-public class MainMenu extends PageBase {
+public class MainMenu extends PageBase implements IUpdatable {
+    private final int PAGINATION_COUNT = 5;
+    private final int MAX_CHARACTER_INTRO_DISPLAY = 75;
+
     private JPanel mainPanel;
     private JTextField searchField;
     private JButton searchPageBtn;
@@ -26,42 +28,35 @@ public class MainMenu extends PageBase {
     private JRadioButton authorRadio;
     private JRadioButton titleRadio;
 
-    private final int PAGINATION_COUNT = 5;
-    private final int MAX_CHARACTER_INTRO_DISPLAY = 75;
-
     private int currentPage = 1;
     private int totalPages = 0;
-
 
 
     public MainMenu(WikiController wikiController, PageBase prevPageRef) {
         super(wikiController, prevPageRef);
         add(mainPanel);
 
-
-        // Buttons Action listeners
-        loginBtn.addActionListener(e -> onLoginPressed());
-        logoutBtn.addActionListener(e -> onLogoutPressed());
-        createPageBtn.addActionListener(e -> onCreatePagePressed());
-        notificationBtn.addActionListener(e -> onNotificationPressed());
-        searchPageBtn.addActionListener(e -> fetchData());
-        previousPageBtn.addActionListener(e -> previousPage());
-        nextPageBtn.addActionListener(e -> nextPage());
-        // Enter key
-        searchField.addActionListener(e -> fetchData());
-
-
         ButtonGroup group = new ButtonGroup();
         group.add(authorRadio);
         group.add(titleRadio);
 
-        updateUserLabel();
-        fetchData();
+        // Action listeners
+        loginBtn.addActionListener(e -> onLoginPressed());
+        logoutBtn.addActionListener(e -> onLogoutPressed());
+        createPageBtn.addActionListener(e -> onCreatePagePressed());
+        notificationBtn.addActionListener(e -> onNotificationPressed());
+        previousPageBtn.addActionListener(e -> previousPage());
+        nextPageBtn.addActionListener(e -> nextPage());
+        searchPageBtn.addActionListener(e -> fetchData());
+        searchField.addActionListener(e -> fetchData());
+
+        updateGUI();
     }
 
     @Override
-    protected void frameStart() {
-
+    public void updateGUI() {
+        updateUserLabel();
+        fetchData();
     }
 
     private void updateUserLabel() {
@@ -86,41 +81,15 @@ public class MainMenu extends PageBase {
     }
 
     private void fetchData() {
-        int type = authorRadio.isSelected() ? 1 : 0;
-
-        PaginationPage response = wikiController.fetchPages(searchField.getText(), currentPage, PAGINATION_COUNT, type);
+        PaginationPage response = wikiController.fetchPages(searchField.getText(), currentPage, PAGINATION_COUNT, authorRadio.isSelected() ? 1 : 0);
 
         if (response == null) return;
 
         totalPages = response.totalPages;
         currentPage = response.currentPage;
+
         updatePaginationUI();
-        updateListView(response.pages);
-    }
-
-    private void onLoginPressed() {
-        new LoginPage(wikiController, this);
-        this.setVisible(false);
-    }
-
-    private void onLogoutPressed() {
-        wikiController.disconnectUser();
-        updateUserLabel();
-    }
-
-    private void onNotificationPressed() {
-        new UserNotifications(wikiController, this);
-        this.setVisible(false);
-    }
-
-    private void onCreatePagePressed() {
-        new PageCreate(wikiController, this);
-        this.setVisible(false);
-    }
-
-    private void viewPage(int id) {
-        new PageView(wikiController, this, id);
-        this.setVisible(false);
+        updateSearchResultListUI(response.pages);
     }
 
     private void updatePaginationUI() {
@@ -129,7 +98,7 @@ public class MainMenu extends PageBase {
         paginationLabel.setText("Pagina " + currentPage + " di " + totalPages);
     }
 
-    private void updateListView(ArrayList<Page> pages) {
+    private void updateSearchResultListUI(ArrayList<Page> pages) {
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
             @Override
             protected Void doInBackground() {
@@ -143,19 +112,23 @@ public class MainMenu extends PageBase {
                 for (Page page : pages) {
                     String intro = page.getAllContent()
                             .replaceAll("\n", " ")
-                            .replaceAll("\\<.*?\\>", "")
+                            .replaceAll("<.*?>", "")
                             .replaceAll("\\s+", " ");
 
                     // Truncate first MAX_CHARACTER_INTRO_DISPLAY characters
                     if (intro.length() > MAX_CHARACTER_INTRO_DISPLAY)
                         intro = intro.substring(0, MAX_CHARACTER_INTRO_DISPLAY) + "...";
 
-                    panel.add(new WikiPageSearchDisplay(
+                    panel.add(new WikiPagePanel(
                             page.getTitle(),
                             intro,
                             page.getAuthorName(),
                             page.getDateString(),
-                            () -> viewPage(page.getId())));
+                            wikiController.getLoggedUser(),
+                            () -> viewPage(page.getId()),
+                            () -> editPage(page),
+                            () -> deletePage(page)
+                    ));
                 }
 
                 wikiListScroll.setViewportView(panel);
@@ -174,6 +147,38 @@ public class MainMenu extends PageBase {
         worker.execute();
     }
 
+    private void onLoginPressed() {
+        new LoginPage(wikiController, this);
+    }
+
+    private void onLogoutPressed() {
+        wikiController.disconnectUser();
+        updateUserLabel();
+    }
+
+    private void onNotificationPressed() {
+        new UserNotifications(wikiController, this);
+    }
+
+    private void onCreatePagePressed() {
+        new PageCreate(wikiController, this);
+    }
+
+    private boolean viewPage(int id) {
+        new PageView(wikiController, this, id);
+
+        return true;
+    }
+
+    private boolean editPage(Page page) {
+        new PageEdit(wikiController, this, page);
+        return true;
+    }
+
+    private boolean deletePage(Page page) {
+        return wikiController.deletePage(page);
+    }
+
     private void nextPage() {
         currentPage++;
         fetchData();
@@ -183,6 +188,4 @@ public class MainMenu extends PageBase {
         currentPage--;
         fetchData();
     }
-
-
 }

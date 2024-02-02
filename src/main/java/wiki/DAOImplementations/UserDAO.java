@@ -9,7 +9,7 @@ import wiki.Models.UpdateContentString;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Collections;
 
 public class UserDAO implements IUserDAO {
     public void insertUser(String username, String password) throws SQLException {
@@ -35,127 +35,100 @@ public class UserDAO implements IUserDAO {
         return pstmt.executeQuery().next();
     }
 
-    public ArrayList<Notification> getUserNotifications(String username, int status) throws SQLException {
+    public ArrayList<Notification> getUserNotifications(String username) throws SQLException {
         Connection conn = DatabaseConnection.getConnection();
-        String query;
-        if (status == -1) {
-            query = "SELECT * FROM notifications WHERE user = ?";
-        } else {
-            query = "SELECT * FROM notifications WHERE user = ? AND status = ?";
-        }
+        ArrayList<Notification> notifications = new ArrayList<>();
 
-        //in query join update e poi da update join page tramite update.page_id = page.id
-        query = "SELECT * FROM (" + query + ") AS notifications JOIN `update` AS upd ON notifications.update_id = upd.id JOIN page ON upd.page_id = page.id";
-
-        PreparedStatement pstmt = conn.prepareStatement(query);
+        PreparedStatement pstmt = conn.prepareStatement(
+                "SELECT * " +
+                "FROM (SELECT * FROM Notifications WHERE user = ?) AS notif " +
+                "JOIN `update` AS upd ON notif.update_id = upd.id " +
+                "JOIN page ON upd.page_id = page.id " +
+                "ORDER BY upd.creation DESC");
 
         pstmt.setString(1, username);
-        if (status != -1) {
-            pstmt.setInt(2, status);
-        }
-
         ResultSet rs = pstmt.executeQuery();
-        ResultSetMetaData rsmd = rs.getMetaData();
-        int columnsNumber = rsmd.getColumnCount();
-        ArrayList<Notification> updates = new ArrayList<>();
+
         while (rs.next()) {
-            //Ignora serve solo per debuggare
-            //for (int i = 1; i <= columnsNumber; i++) {
-            //    String columnValue = rs.getString(i);
-            //    System.out.println(rsmd.getColumnName(i) + ": " + columnValue);
-            //}
-            //System.out.println("");
-
-
-            int id = rs.getInt("id");
-            int pageId = rs.getInt("page_id");
-            int updateId = rs.getInt("update_id");
-            //get the second author
+            // Notification
+            int notificationId = rs.getInt("id");
+            int notificationStatus = rs.getInt("status");
             int notificationType = rs.getInt("type");
-            String author = rs.getString("author");
-            int notStatus = rs.getInt("status");
-            Integer updateStatus = rs.getObject(9, Integer.class);
+            Timestamp notificationCreation = rs.getTimestamp("creation");
+            boolean viewed = rs.getBoolean("viewed");
+            // Update
+            int updateId = rs.getInt("update_id");
+            String updateAuthor = rs.getString("author");
+            int updateStatus = rs.getObject(11 , Integer.class);
+            Timestamp updateCreation = rs.getObject(12 , Timestamp.class);
+            // Page
+            int pageId = rs.getInt("page_id");
             String pageTitle = rs.getString("title");
-            String pageAuthor = rs.getNString(15);
-            java.sql.Timestamp updateCreation = rs.getTimestamp("creation");
-            java.sql.Timestamp creation = rs.getTimestamp(14);
-            Page page = new Page(pageId, pageTitle, pageAuthor, creation);
-
-            //get update text
-            String query2 = "SELECT * FROM updatedText WHERE update_id = ?";
-            PreparedStatement pstmt2 = conn.prepareStatement(query2);
+            Timestamp creation = rs.getObject(16, Timestamp.class);
+            String pageAuthor = rs.getObject(17, String.class);
+            // PageUpdateText
+            PreparedStatement pstmt2 = conn.prepareStatement("SELECT * FROM UpdatedText WHERE update_id = ?");
             pstmt2.setInt(1, updateId);
             ResultSet rs2 = pstmt2.executeQuery();
+
             ArrayList<UpdateContentString> contentStrings = new ArrayList<>();
+            while (rs2.next())
+                contentStrings.add(new UpdateContentString(rs2.getInt("id"), rs2.getString("text"), rs2.getInt("order_num"), rs2.getInt("type")));
 
-            while (rs2.next()) {
-                int contentId = rs2.getInt("id");
-                String content = rs2.getString("text");
-                int order = rs2.getInt("order_num");
-                int type = rs2.getInt("type");
-                contentStrings.add(new UpdateContentString(contentId, content, order, type));
-            }
+            Page page = new Page(pageId, pageTitle, pageAuthor, creation);
 
-            Update update = new Update(updateId, page, author, updateStatus == null ? 2 : updateStatus, contentStrings, creation);
-            Notification notification = new Notification(id, notStatus, update, notificationType);
-            updates.add(notification);
+            Update update = new Update(
+                    updateId,
+                    page,
+                    updateAuthor,
+                    updateStatus,
+                    updateCreation,
+                    null,
+                    contentStrings);
+
+            Notification notification = new Notification(notificationId, notificationType, viewed, update, notificationCreation, notificationStatus);
+            notifications.add(notification);
         }
 
-        return updates;
+        return notifications;
     }
 
-    public void setNotificationStatus(int notificationId, int status, String username) throws SQLException {
+    public void setNotificationViewed(int notificationId, String username) throws SQLException {
         Connection conn = DatabaseConnection.getConnection();
         //controlla se la notifica appartiene all'utente
-        PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM notifications WHERE id = ? AND user = ?");
-        pstmt.setInt(1, notificationId);
-        pstmt.setString(2, username);
-        ResultSet rs = pstmt.executeQuery();
 
-        if (!rs.next()) {
-            throw new SQLException("La notifica non appartiene all'utente");
-        }
-
-        pstmt = conn.prepareStatement("UPDATE notifications SET status = ? WHERE id = ? and user = ?");
-        pstmt.setInt(1, status);
+        PreparedStatement pstmt = conn.prepareStatement("UPDATE Notifications SET viewed = ? WHERE id = ? and user = ?");
+        pstmt.setBoolean(1, true);
         pstmt.setInt(2, notificationId);
         pstmt.setString(3, username);
         pstmt.executeUpdate();
     }
 
     public void deleteNotification(Notification notification, String username) throws SQLException {
-        //also update the status of the update to 0
-
         Connection conn = DatabaseConnection.getConnection();
 
-        //controlla se la notifica appartiene all'utente
-        PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM notifications WHERE id = ? AND user = ?");
+        // Controlla se la notifica appartiene all'utente
+        PreparedStatement pstmt = conn.prepareStatement("SELECT COUNT(*) as count FROM notifications WHERE id = ? AND user = ?");
         pstmt.setInt(1, notification.getId());
         pstmt.setString(2, username);
 
         ResultSet rs = pstmt.executeQuery();
-        if (!rs.next()) {
+        boolean notificationBelongsToUser = (rs.next() && rs.getInt("count") > 0);
+
+        if (!notificationBelongsToUser)
             throw new SQLException("La notifica non appartiene all'utente");
-        }
 
-        if (notification.getType() == 0) {
-            //check if the update is pending
-            pstmt = conn.prepareStatement("SELECT * FROM `update` WHERE id = ? AND status IS NULL");
+        // Rifiuta le notifiche di richiesta di modifica
+        if (notification.getType() == Notification.TYPE_REQUEST_UPDATE) {
+            pstmt = conn.prepareStatement("UPDATE `update` SET status = 0 WHERE id = ?");
             pstmt.setInt(1, notification.getUpdate().getId());
-            rs = pstmt.executeQuery();
+            pstmt.executeUpdate();
 
-            if (rs.next()) {
-                pstmt = conn.prepareStatement("UPDATE `update` SET status = 0 WHERE id = ?");
-                pstmt.setInt(1, notification.getUpdate().getId());
-                pstmt.executeUpdate();
-            }
+            System.out.println("Rifiutata la richiesta di modifica");
         }
 
         pstmt = conn.prepareStatement("DELETE FROM notifications WHERE id = ?");
         pstmt.setInt(1, notification.getId());
         pstmt.executeUpdate();
     }
-    
-    
-
 }

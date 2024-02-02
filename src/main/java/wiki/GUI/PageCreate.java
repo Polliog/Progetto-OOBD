@@ -3,6 +3,7 @@ package wiki.GUI;
 import wiki.Controllers.WikiController;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class PageCreate extends PageBase {
     private JPanel mainPanel;
@@ -17,29 +18,24 @@ public class PageCreate extends PageBase {
         super(wikiController, frame);
         add(mainPanel);
 
+        setMinimumSize(new Dimension(700, 700));
+
         contentShortcutsPanel1.init(pageContentArea);
 
         createPageBtn.addActionListener(e -> onCreatePage());
         backBtn.addActionListener(e -> onBackButtonPressed());
     }
 
-    @Override
-    protected void frameStart() {
-
-    }
-
 
     private void onCreatePage() {
         // -> Goes back to the Main Menu Page
         if (wikiController.createPage(pageTitleField.getText(), pageContentArea.getText())) {
-            prevPageRef.setVisible(true);
-            this.dispose();
+            goBackToPrevPage();
         }
     }
 
     private void onBackButtonPressed() {
-        prevPageRef.setVisible(true);
-        this.dispose();
+        goBackToPrevPage();
     }
 
     private void createUIComponents() {

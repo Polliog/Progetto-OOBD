@@ -1,0 +1,206 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{svg}
+\usepackage{svg-extract}
+\usepackage{geometry}
+\usepackage{tabularx}
+\usepackage{caption}
+\usepackage{float}
+\geometry{margin=1in} % Imposta i margini
+\usepackage{titling} % Pacchetto aggiunto per gestire il titolo
+\usepackage{ulem}
+\usepackage{amsmath}
+\usepackage{listings}
+\usepackage{graphicx}
+
+\title{Documentazione Sistema Di Gestione Del Ciclo Di Vita Di Una Pagina Wiki}
+\author{Giuseppe Pollio, Mario Lombardo}
+\date{Anno accademico 2023-2024}
+
+
+
+\renewcommand{\maketitle}{%
+	\begin{titlepage}
+		\centering
+		\includegraphics[width=5cm]{logo_uni.png}\par\vspace{1cm}
+		\huge\bfseries\thetitle\par
+		\vspace{1cm}
+		\Large\theauthor\par
+		\vfill
+		\large\thedate\par
+	\end{titlepage}
+}
+
+
+\renewcommand{\contentsname}{Indice}
+
+\begin{document}
+	
+	\maketitle
+	
+	\tableofcontents
+	
+	\newpage
+	
+	\section{Dominio del problema}
+	\subsection{Introduzione}
+	In questa soluzione, esaminiamo attentamente il problema per identificarne il dominio, con l'intento di sviluppare un diagramma che orienterà le nostre decisioni di progettazione a livello di codice.
+	\subsection{Analisi dei requisiti}
+		In questa sezione si analizza la specifica con lo scopo di definire le funzionalità
+	che la base di dati deve soddisfare. Individueremo le entità e le associazioni
+	del mini-word, e produrremo una prima versione del modello concettuale che
+	sarà poi rielaborato nelle fasi successive della progettazione.\\ \\
+	{\itshape Si sviluppi un sistema informativo, composto da una base di dati relazionale e da un applicativo Java dotato
+		di GUI (Swing o JavaFX), per la gestione del ciclo di vita di una pagina di una wiki}
+	\vspace{0.5cm}
+	\\
+	L'introduzione individua il mini-world da rappresentare e una prima entità:
+	{\textbf {Page}} avente come attributi {\textbf {title}} e {\textbf {creation}}. Inoltre nel testo della {\textbf {Page}} possiamo individuare un'altra entità associata alla {\textbf {Page}: {\textbf {PageText}} contente come attributo oltre che la frase individuata come {\textbf {text}} anche {\textbf {link}} (collegamento) e un collegamento all'entità \textbf{Page}.\\ \\
+		{\itshape Una pagina di una wiki ha un titolo e un testo. Ogni pagina è creata da un determinato autore. Il testo è
+			composto di una sequenza di frasi. Il sistema mantiene traccia anche del giorno e ora nel quale la pagina è
+			stata creata. Una frase può contenere anche un collegamento. Ogni collegamento è caratterizzato da una
+			frase da cui scaturisce il collegamento e da un’altra pagina destinazione del collegamento.}
+		\vspace{0.5cm}
+		\\
+		Dato che le pagine delle wiki saranno publiche oltre che modificabili, sarà necessario tenere traccia degli utenti tramita l'entità {\textbf {User}}, alla quale sarà possibile accederci tramite una {\textbf {password}} e un {\textbf {username}}. Di conseguenza alla {\textbf {Page} viene individuata una nuova caratteristica {\textbf {author}}. Le modifiche del testo di una {\textbf {Page}} saranno salvate tramite le l'entità {\textbf {PageUpdate}} avente attributi {\textbf {status}} e un collegamento ad \textbf{User} che ne rappresenta l'autore ({\textbf {author}}}). Il testo modificato viene individuato tramite l'entità: {\textbf {UpdatedText}} contenente il nuovo testo individutato dall'attributo \textbf{text}, un eventuale \textbf{link} (collegamento) e un collegamento all'entità \textbf{PageUpdate}, quando una modifica viene inoltrata all'autore esso invece deve essere avvisato tramite una notifica individuata dall'entità {\textbf {Notification}} avente come attributi {\textbf {status}} (stato di lettura), {\textbf {type}}, un collegamento a {\textbf{User}} per individuare il proprietario della notifica e un collegamento a \textbf{PageUpdate}. \\ \\
+		{\itshape La modifica proposta verrà notificata all’autore del testo originale la prossima volta che utilizzerà il sistema.
+			L’autore potrà vedere la sua versione originale e la modifica proposta. Egli potrà accettare la modifica (in
+			quel caso la pagina originale diventerà ora quella con la modifica apportata), rifiutare la modifica (la pagina
+			originale rimarrà invariata). La modifica proposta dall’autore verrà memorizzata nel sistema e diventerà
+			subito parte della versione corrente del testo. Il sistema mantiene memoria delle modifiche proposte e anche
+			delle decisioni dell’autore (accettazione o rifiuto).}
+		\vspace{0.5cm}
+		\\
+		Viene in aggiunta inserito il nuovo attributo \textbf{order\_num} alle entità {\textbf {PageText}} e {\textbf {UpdatedText}} che rappresenta l'ordinamento all'interno del testo della {\textbf {Page}}.
+		
+		\newpage
+		
+		
+		\subsection{Diagramma del Dominio del Problema}
+		In seguito alle considerazioni espresse nella sezione precedente, si è prodotto il seguente class diagram del dominio del problema:
+		\begin{center}
+			\includegraphics[width=1\linewidth]{UML\_NONRISTRUTTURATO.drawio.png}
+		\end{center}
+		
+		\subsection{Dizionari}
+		{\subsubsection{Dizionario delle Entità}}
+		
+		\begin{table}[H]
+			\centering
+			\small % Riduci la dimensione del font
+			\setlength{\tabcolsep}{6pt} % Riduci lo spazio tra le colonne
+			\renewcommand{\arraystretch}{1.2} % Aumenta lo spazio tra le righe
+			
+			\begin{tabularx}{\textwidth}{|l|X|X|}
+				\hline
+				\textbf{Entità} & \textbf{Descrizione} & \textbf{Attributi} \\
+				\hline
+				User & Account Utente della wiki. & 
+				\textbf{Username}(Stringa): nome identificativo dell'account utente.
+				
+				\textbf{Password}(Stringa): password necessaria
+				per accedere all’account utente. \\
+				\hline
+				Page & Pagina presente sulla wiki. & 
+				\textbf{Title}(Stringa): Titolo della pagina.
+				
+				\textbf{Creation}(Data): Data e ora di creazione della pagina.
+				\\
+				\hline
+				PageText & Frase di una Pagina (\textbf{Page}). &
+				\textbf{Text}(Stringa): Contenuto della frase.
+				
+				\textbf{Link}(Stringa): Collegamento della frase (interno o esterno alla wiki).
+				
+				\textbf{Order\_num}(Intero): Ordinamento della frase all'interno del testo complessivo.
+				\\
+				\hline
+				PageUpdate & Modifica proposta ad pagina da parte di un altro utente. & 
+				\textbf{Status}(Intero): Stato della richiesta di modifica.
+				\\
+				\hline
+				UpdatedText & Nuovo testo proposto durante la modifica (\textbf{PageUpdate}). & 
+				\textbf{Text}(Stringa): Contenuto della frase.
+				
+				\textbf{Link}(Stringa): Collegamento della frase (interno o esterno alla wiki).
+				
+				\textbf{Order\_num}(Intero): Ordinamento della frase all'interno del testo complessivo.
+				\\
+				\hline
+				Notification & Notifiche di un \textbf{Utente (User)}.& 
+				\textbf{Status}(Booleano): Stato di lettura di una notifica.
+				
+				\textbf{Type}(Intero): Tipologia di notifica.
+				\\
+				\hline
+				
+			\end{tabularx}
+			
+		\end{table}
+		
+		{\subsubsection{Dizionario delle Associazioni}}
+		
+		\begin{table}[H]
+			\centering
+			\small % Riduci la dimensione del font
+			\setlength{\tabcolsep}{6pt} % Riduci lo spazio tra le colonne
+			\renewcommand{\arraystretch}{1.2} % Aumenta lo spazio tra le righe
+			
+			
+			\begin{tabularx}{\textwidth}{|l|l|X|}
+				\hline
+				\textbf{Associazione} &\textbf{Tipologia}  & \textbf{Descrizione} \\
+				\hline
+				Autore Pagina & uno-a-molti  & Associa ad ogni pagina (Page) un utente (User) che ne rappresenta l'autore
+				\\
+				\hline
+				Autore Modifica & uno-a-molti  & Associa ad ogni modifica (PageUpdate) un utente (User) che ne rappresenta l'autore
+				\\
+				\hline
+				Testo Pagina & uno-a-molti  & Associa ad ogni pagina (Page) tutto il testo (PageText) appartenente a quella determinata pagina.
+				\\
+				\hline
+				Testo Modifica & uno-a-molti  & Associa ad ogni modifica (PageUpdate) tutto il testo (UpdatedText) appartenente a quella determinata modifica.
+				\\
+				\hline
+				Proprietario Notifica & uno-a-molti  & Associa ad ogni notifica (Notification) un utente (User) che ne rappresenta l'autore.
+				\\
+				\hline
+				PageUpdate Notifica & uno-a-molti  & Associa ad ogni notifica (Notification) una modifica (PageUpdate) che ne aiuta a rappresentare il contenuto.
+				\\
+				\hline
+				Page PageUpdate & uno-a-molti  & Associa ad ogni Modifica proposta (PageUpdate), La pagina (Page) per cui \`e stata proposta. 
+				\\
+				\hline
+			\end{tabularx}
+		\end{table}
+		
+		\newpage
+		
+		\section{Impementazione e Dominio della Soluzione}
+		
+		In questa sezione, illustreremo l'architettura dell'applicazione e i vari pattern utilizzati, fornendo occasionali annotazioni implementative. Abbiamo scelto di escludere la trattazione del codice effettivo, il quale è disponibile nella documentazione JavaDoc del codice sorgente e, naturalmente, nel sorgente stesso.
+		
+		\subsection{Architettura BCED}
+		
+		L'applicazione è stata progettata seguendo i principi dell'architettura {\itshape {Boundary-Control-Entity con estensione Database}}, nota come BCED. Il pattern BCED fornisce una struttura ben organizzata per separare le diverse responsabilità all'interno di un software, basandosi su quattro componenti principali:
+		
+		\begin{itemize}
+			\item \textbf{Boundary}: Questa componente gestisce ogni interazione con agenti esterni. Nel contesto di un'applicazione con interfaccia grafica, la boundary corrisponde all'interfaccia stessa, e l'agente esterno è l'utente. Essa consente all'utente di comunicare con l'applicazione e comunica a sua volta con il resto del programma attraverso il controller.
+			 \\\\
+			 Nel nostro codice sorgente, la boundary è implementata nel package GUI.
+			 
+			 \item \textbf{Control}: Questa componente è al centro dell'applicazione, mettendo in comunicazione tutte le sue parti ed eseguendo la logica di business. Né la Boundary né l'Entity sono autorizzate a comunicare se non tramite il Control. Nel nostro codice sorgente.
+			 \\\\
+			 Il control è implementato nel package \textbf{Controllers}.
+			 
+			 \item \textbf{Entity}: Per Entity si intende l'insieme delle informazioni da memorizzare durante l'esecuzione che sono di interesse nel dominio. Nel contesto di un'applicazione, essa è rappresentata dal modello di dati interno. Nel nostro codice sorgente.
+			 \\\\
+			 L'Entity è implementata nel package \textbf{Models}.
+			 
+			 \item \textbf{Database}: 
+		\end{itemize}
+		
+
+\end{document}

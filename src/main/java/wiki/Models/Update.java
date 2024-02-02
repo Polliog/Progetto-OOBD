@@ -1,26 +1,32 @@
 package wiki.Models;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 
 public class Update {
+    public static final int STATUS_REJECTED = 0;
+    public static final int STATUS_ACCEPTED = 1;
+    public static final int STATUS_PENDING = -1;
+
     private int id;
     private Page page;
     private String author;
-    private int status; //2 = pending, 0 = rejected, 1 = accepted
-    private ArrayList<UpdateContentString> contentStrings = new ArrayList<>();
+    private int status; //-1 = pending, 0 = rejected, 1 = accepted
+    private ArrayList<UpdateContentString> contentStrings;
     private String oldText;
 
     private Date creation;
 
 
-    public Update(int id, Page page, String author, int status, ArrayList<UpdateContentString> contentStrings, Date creation) {
+    public Update(int id, Page page, String author, int status, Timestamp creation, String oldText, ArrayList<UpdateContentString> contentStrings) {
         this.id = id;
         this.page = page;
         this.author = author;
         this.status = status;
-        this.contentStrings = contentStrings;
         this.creation = creation;
+        this.oldText = oldText;
+        this.contentStrings = contentStrings;
     }
 
     public int getId() {
@@ -89,6 +95,10 @@ public class Update {
 
     public Date getCreation() {
         return creation;
+    }
+
+    public String getCreationDateString() {
+        return creation.toString().substring(0, 16);
     }
 
     public void setCreation(Date creation) {

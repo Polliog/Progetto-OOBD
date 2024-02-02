@@ -4,6 +4,8 @@ import wiki.Controllers.WikiController;
 import wiki.Models.Page;
 
 import javax.swing.*;
+import java.awt.*;
+import java.util.Objects;
 
 public class PageEdit extends PageBase {
     private JPanel mainPanel;
@@ -15,13 +17,15 @@ public class PageEdit extends PageBase {
     private ContentShortcutsPanel contentShortcutsPanel1;
 
     private Page page;
-    private final int id;
 
-    public PageEdit(WikiController wikiController, PageBase prevPageRef, int id) {
+
+    public PageEdit(WikiController wikiController, PageBase prevPageRef, Page page) {
         super(wikiController, prevPageRef);
         add(mainPanel);
 
-        this.id = id;
+        setMinimumSize(new Dimension(700, 700));
+
+        this.page = page;
 
         fontSizeComboBox1.init(pageContentArea);
         contentShortcutsPanel1.init(pageContentArea);
@@ -29,16 +33,11 @@ public class PageEdit extends PageBase {
         backBtn.addActionListener(e -> onBackPressed());
         saveBtn.addActionListener(e -> onSavePressed());
 
-        frameStart();
+        fetchData();
     }
 
-    @Override
-    protected void frameStart() {
-        fetchData(id);
-    }
 
-    private void fetchData(int id) {
-        page = wikiController.fetchPage(id);
+    private void fetchData() {
         if (page == null) {
             JOptionPane.showMessageDialog(null, "Pagina non trovata", "Errore", JOptionPane.ERROR_MESSAGE);
             return;
@@ -46,23 +45,18 @@ public class PageEdit extends PageBase {
 
         titleLabel.setText(page.getTitle());
         pageContentArea.setText(page.getAllContent());
+        saveBtn.setText(Objects.equals(page.getAuthorName(), wikiController.getLoggedUser().getUsername()) ? "Salva Modifiche" : "Richiedi Modifiche");
     }
 
-
     private void onBackPressed() {
-        prevPageRef.setVisible(true);
-        this.dispose();
+        goBackToPrevPage();
     }
 
     private void onSavePressed() {
-        confirmSave();
-    }
-
-    private void confirmSave() {
         // Confirmation dialog
         int dialogResult = JOptionPane.showConfirmDialog (null, "Vuoi salvare le modifiche?","Conferma di salvataggio", JOptionPane.YES_NO_OPTION);
         if (dialogResult == JOptionPane.YES_OPTION){
-            wikiController.compareAndSavePage(page, pageContentArea.getText());
+            wikiController.savePageUpdate(page, pageContentArea.getText());
         }
     }
 
