@@ -1,13 +1,13 @@
 package database;
 
 import java.sql.Connection;
+
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.SQLTimeoutException;
 
 public final class DatabaseConnection {
-    private static final String DATABASE_URL = "jdbc:mysql://localhost:3306/oo";
-    private static final String DATABASE_USER = "root";
+    private static final String DATABASE_URL = "jdbc:postgresql://localhost:5432/Wiki";
+    private static final String DATABASE_USER = "postgres";
     private static final String DATABASE_PASSWORD = "";
 
     private static Connection connection = null;
@@ -19,6 +19,9 @@ public final class DatabaseConnection {
         if (connection == null || connection.isClosed()) {
             System.out.println("db connecting...");
             connection = DriverManager.getConnection(DATABASE_URL, DATABASE_USER, DATABASE_PASSWORD);
+
+            if (connection != null)
+                System.out.println("db connected");
         }
         return connection;
     }

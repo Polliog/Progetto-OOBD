@@ -57,6 +57,7 @@ public class WikiController {
             }
         }
         catch (SQLException e) {
+            e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Errore durante il controllo dell'esistenza dell'utente", "Errore", JOptionPane.ERROR_MESSAGE);
             return false;
         }

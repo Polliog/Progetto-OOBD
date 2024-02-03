@@ -14,7 +14,7 @@ import java.util.Collections;
 public class UserDAO implements IUserDAO {
     public void insertUser(String username, String password) throws SQLException {
         Connection conn = DatabaseConnection.getConnection();
-        PreparedStatement pstmt = conn.prepareStatement("INSERT INTO utente (username, password) VALUES (?, ?)");
+        PreparedStatement pstmt = conn.prepareStatement("INSERT INTO \"User\" (username, password) VALUES (?, ?)");
         pstmt.setString(1, username);
         pstmt.setString(2, password);
         pstmt.executeUpdate();
@@ -22,14 +22,14 @@ public class UserDAO implements IUserDAO {
 
     public boolean doesUserExist(String username) throws SQLException {
         Connection conn = DatabaseConnection.getConnection();
-        PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM utente WHERE username = ?");
+        PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM \"User\" WHERE username = ?");
         pstmt.setString(1, username);
         return pstmt.executeQuery().next();
     }
 
     public boolean login(String username, String password) throws SQLException {
         Connection conn = DatabaseConnection.getConnection();
-        PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM utente WHERE username = ? AND password = ?");
+        PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM \"User\" WHERE username = ? AND password = ?");
         pstmt.setString(1, username);
         pstmt.setString(2, password);
         return pstmt.executeQuery().next();
@@ -41,7 +41,7 @@ public class UserDAO implements IUserDAO {
 
         PreparedStatement pstmt = conn.prepareStatement(
                 "SELECT * " +
-                "FROM (SELECT * FROM Notifications WHERE user = ?) AS notif " +
+                "FROM (SELECT * FROM \"Notification\" WHERE user = ?) AS notif " +
                 "JOIN `update` AS upd ON notif.update_id = upd.id " +
                 "JOIN page ON upd.page_id = page.id " +
                 "ORDER BY upd.creation DESC");
