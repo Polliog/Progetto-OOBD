@@ -39,6 +39,20 @@ public class User {
         }
     }
 
+    public ArrayList<Notification> getNotifications(boolean viewed) {
+        ArrayList<Notification> notifications = new ArrayList<>();
+
+        for (Notification notification : this.notifications) {
+            if (notification.isViewed() == viewed) {
+                notifications.add(notification);
+            }
+        }
+
+        return notifications;
+    }
+
+
+
     public void setNotifications(ArrayList<Notification> notifications) {
         this.notifications = notifications;
     }

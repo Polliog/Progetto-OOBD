@@ -15,7 +15,7 @@ public class Notification {
     private int id;
     private int type;
     // change to read bool
-    private int status; //0 = non letta, 1 = letta
+    private int status; //0 = APERTO 1 = CHIUSO
     private Update update;
     private Timestamp creation;
     private boolean viewed;

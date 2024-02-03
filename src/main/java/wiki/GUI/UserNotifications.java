@@ -85,6 +85,8 @@ public class UserNotifications extends PageBase {
     }
 
     private void updateNotificationCounterLabel() {
-        notificationsCounterLabel.setText("<html>Hai <b>" + wikiController.getLoggedUser().getNotifications(-1).size() + "</b> notifiche, di cui <b>" + wikiController.getLoggedUser().getNotifications(0).size() + "</b> in sospeso.</html>");
+        notificationsCounterLabel.setText("<html>Hai <b>" + wikiController.getLoggedUser().getNotifications(-1).size() +
+                "</b> notifiche, di cui <b>" + wikiController.getLoggedUser().getNotifications(0).size() +
+                "</b> in sospeso e <b>" + wikiController.getLoggedUser().getNotifications(false).size() + "</b> da leggere.</html>");
     }
 }
