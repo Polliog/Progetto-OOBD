@@ -29,7 +29,7 @@ public class PageDAO implements IPageDAO {
             Collections.addAll(text, pageContent.split("\n"));
 
             // Insert page
-            var pstmt = conn.prepareStatement("INSERT INTO Page (title, author) VALUES (?, ?)");
+            var pstmt = conn.prepareStatement("INSERT INTO \"Page\" (title, author) VALUES (?, ?)");
             pstmt.setString(1, pageTitle);
             pstmt.setString(2, user.getUsername());
 
@@ -38,7 +38,7 @@ public class PageDAO implements IPageDAO {
             pstmt.close();
 
             // Get id
-            pstmt = conn.prepareStatement("SELECT id FROM Page WHERE title = ?");
+            pstmt = conn.prepareStatement("SELECT id FROM \"Page\" WHERE title = ?");
             pstmt.setString(1, pageTitle);
             var rs = pstmt.executeQuery();
             rs.next();
@@ -46,7 +46,7 @@ public class PageDAO implements IPageDAO {
             int pageId = rs.getInt("id");
 
             // Insert content
-            pstmt = conn.prepareStatement("INSERT INTO PageText (order_num, text, page_id, author) VALUES (?, ?, ?, ?)");
+            pstmt = conn.prepareStatement("INSERT INTO \"PageText\" (order_num, text, page_id, author) VALUES (?, ?, ?, ?)");
             for (int i = 0; i < text.size(); i++) {
                 pstmt.setInt(1, i);
                 pstmt.setString(2, text.get(i));
@@ -73,7 +73,7 @@ public class PageDAO implements IPageDAO {
     public Page fetchPage(int id) throws SQLException {
         Connection conn = DatabaseConnection.getConnection();
         try {
-            var pstmt = conn.prepareStatement("SELECT * FROM Page WHERE id = ?");
+            var pstmt = conn.prepareStatement("SELECT * FROM \"Page\" WHERE id = ?");
             pstmt.setInt(1, id);
             var rs = pstmt.executeQuery();
             rs.next();
@@ -83,12 +83,12 @@ public class PageDAO implements IPageDAO {
 
             String title = rs.getString("title");
             String author = rs.getString("author");
-            java.sql.Timestamp creation = rs.getTimestamp("creation");
+            java.sql.Timestamp creation_date = rs.getTimestamp("creation_date");
 
-            Page page = new Page(id, title, author, creation);
+            Page page = new Page(id, title, author, creation_date);
 
             //get text and links if present
-            pstmt = conn.prepareStatement("SELECT * FROM PageText WHERE page_id = ? ORDER BY order_num");
+            pstmt = conn.prepareStatement("SELECT * FROM \"PageText\" WHERE page_id = ? ORDER BY order_num");
             pstmt.setInt(1, id);
             rs = pstmt.executeQuery();
 
@@ -105,7 +105,7 @@ public class PageDAO implements IPageDAO {
             ArrayList<Update> updates = new ArrayList<>();
 
             //fetch all updates for the page with old text and updated text
-            pstmt = conn.prepareStatement("SELECT * FROM `update` WHERE page_id = ? ORDER BY creation DESC");
+            pstmt = conn.prepareStatement("SELECT * FROM \"PageUpdate\" WHERE page_id = ? ORDER BY creation_date DESC");
             pstmt.setInt(1, id);
             rs = pstmt.executeQuery();
 
@@ -113,11 +113,11 @@ public class PageDAO implements IPageDAO {
                 int updateId = rs.getInt("id");
                 String updateAuthor = rs.getString("author");
                 String oldText = rs.getString("old_text");
-                java.sql.Timestamp updateCreation = rs.getTimestamp("creation");
+                java.sql.Timestamp updateCreation = rs.getTimestamp("creation_date");
                 Integer updateStatus = rs.getInt("status");
 
                 //fetch updated text
-                pstmt = conn.prepareStatement("SELECT * FROM UpdatedText WHERE update_id = ? ORDER BY order_num");
+                pstmt = conn.prepareStatement("SELECT * FROM \"UpdatedText\" WHERE update_id = ? ORDER BY order_num");
                 pstmt.setInt(1, updateId);
 
                 var rs2 = pstmt.executeQuery();
@@ -157,9 +157,9 @@ public class PageDAO implements IPageDAO {
             java.sql.PreparedStatement pstmt;
 
             if (type == 0) {
-                pstmt = conn.prepareStatement("SELECT COUNT(*) AS count FROM Page WHERE title LIKE ?");
+                pstmt = conn.prepareStatement("SELECT COUNT(*) AS count FROM \"Page\" WHERE title LIKE ?");
             } else {
-                pstmt = conn.prepareStatement("SELECT COUNT(*) AS count FROM Page WHERE author LIKE ?");
+                pstmt = conn.prepareStatement("SELECT COUNT(*) AS count FROM \"Page\" WHERE author LIKE ?");
             }
 
 
@@ -170,9 +170,9 @@ public class PageDAO implements IPageDAO {
             int count = rs.getInt("count");
 
             if (type == 0) {
-                pstmt = conn.prepareStatement("SELECT * FROM Page WHERE title LIKE ? ORDER BY creation DESC LIMIT ? OFFSET ?");
+                pstmt = conn.prepareStatement("SELECT * FROM \"Page\" WHERE title LIKE ? ORDER BY creation_date DESC LIMIT ? OFFSET ?");
             } else {
-                pstmt = conn.prepareStatement("SELECT * FROM Page WHERE author LIKE ? ORDER BY creation DESC LIMIT ? OFFSET ?");
+                pstmt = conn.prepareStatement("SELECT * FROM \"Page\" WHERE author LIKE ? ORDER BY creation_date DESC LIMIT ? OFFSET ?");
             }
 
             pstmt.setString(1, "%" + q + "%");
@@ -200,7 +200,7 @@ public class PageDAO implements IPageDAO {
 
         // do a select of updates where page_id equals pageId and status equals 2 and returns the arrayList of updates
         try {
-            var pstmt = conn.prepareStatement("SELECT * FROM `Update` WHERE page_id = ? AND status = -1 ORDER BY creation DESC");
+            var pstmt = conn.prepareStatement("SELECT * FROM \"PageUpdate\" WHERE page_id = ? AND status = -1 ORDER BY creation_date DESC");
             pstmt.setInt(1, pageId);
             var rs = pstmt.executeQuery();
 
@@ -210,11 +210,11 @@ public class PageDAO implements IPageDAO {
                 int updateId = rs.getInt("id");
                 String updateAuthor = rs.getString("author");
                 int updateStatus = rs.getInt("status");
-                Timestamp updateCreation = rs.getTimestamp("creation");
+                Timestamp updateCreation = rs.getTimestamp("creation_date");
                 String updateOldText = rs.getString("old_text");
 
                 //fetch updated text
-                pstmt = conn.prepareStatement("SELECT * FROM UpdatedText WHERE update_id = ? ORDER BY order_num");
+                pstmt = conn.prepareStatement("SELECT * FROM \"UpdatedText\" WHERE update_id = ? ORDER BY order_num");
                 pstmt.setInt(1, updateId);
 
                 var rs2 = pstmt.executeQuery();
@@ -261,13 +261,13 @@ public class PageDAO implements IPageDAO {
             //rimuovi il vecchio testo e inserisci il nuovo
 
             try {
-                var pstmt = conn.prepareStatement("DELETE FROM PageText WHERE page_id = ?");
+                var pstmt = conn.prepareStatement("DELETE FROM \"PageText\" WHERE page_id = ?");
                 pstmt.setInt(1, oldPage.getId());
                 pstmt.executeUpdate();
                 pstmt.close();
 
                 for (int i = 0; i < newText.split("\n").length; i++) {
-                    pstmt = conn.prepareStatement("INSERT INTO PageText (order_num, text, page_id, author) VALUES (?, ?, ?, ?)");
+                    pstmt = conn.prepareStatement("INSERT INTO \"PageText\" (order_num, text, page_id, author) VALUES (?, ?, ?, ?)");
                     pstmt.setInt(1, i);
                     pstmt.setString(2, newText.split("\n")[i]);
                     pstmt.setInt(3, oldPage.getId());
@@ -335,7 +335,7 @@ public class PageDAO implements IPageDAO {
         conn.setAutoCommit(false);
         int updateId = -1;
         try {
-            var pstmt = conn.prepareStatement("INSERT INTO `Update` (page_id, author) VALUES (?, ?)", Statement.RETURN_GENERATED_KEYS);
+            var pstmt = conn.prepareStatement("INSERT INTO \"PageUpdate\" (page_id, author) VALUES (?, ?)", Statement.RETURN_GENERATED_KEYS);
             pstmt.setInt(1, pageId);
             pstmt.setString(2, username);
             pstmt.executeUpdate();
@@ -360,7 +360,7 @@ public class PageDAO implements IPageDAO {
         Connection conn = DatabaseConnection.getConnection();
         conn.setAutoCommit(false);
         try {
-            var pstmt = conn.prepareStatement("INSERT INTO UpdatedText (update_id, text, order_num, type) VALUES (?, ?, ?, ?)");
+            var pstmt = conn.prepareStatement("INSERT INTO \"UpdatedText\" (update_id, text, order_num, type) VALUES (?, ?, ?, ?)");
             pstmt.setInt(1, updateId);
             pstmt.setString(2, text);
             pstmt.setInt(3, orderNum);
@@ -402,13 +402,13 @@ public class PageDAO implements IPageDAO {
             Connection conn = DatabaseConnection.getConnection();
             conn.setAutoCommit(false);
             try {
-                var pstmt = conn.prepareStatement("DELETE FROM PageText WHERE page_id = ?");
+                var pstmt = conn.prepareStatement("DELETE FROM \"PageText\" WHERE page_id = ?");
                 pstmt.setInt(1, oldPage.getId());
                 pstmt.executeUpdate();
                 pstmt.close();
 
                 for (int i = 0; i < newText.split("\n").length; i++) {
-                    pstmt = conn.prepareStatement("INSERT INTO PageText (order_num, text, page_id, author) VALUES (?, ?, ?, ?)");
+                    pstmt = conn.prepareStatement("INSERT INTO \"PageText\" (order_num, text, page_id, author) VALUES (?, ?, ?, ?)");
                     pstmt.setInt(1, i);
                     //check if text type is 0
                     if (update.getContentStrings().get(i).getType() == 0) {
@@ -461,7 +461,7 @@ public class PageDAO implements IPageDAO {
             Connection conn = DatabaseConnection.getConnection();
             conn.setAutoCommit(false);
             try {
-                var pstmt = conn.prepareStatement("UPDATE `update` SET status = 1, old_text = ? WHERE id = ?");
+                var pstmt = conn.prepareStatement("UPDATE \"PageUpdate\" SET status = 1, old_text = ? WHERE id = ?");
                 pstmt.setString(1, oldText);
                 pstmt.setInt(2, update.getId());
                 pstmt.executeUpdate();
@@ -487,7 +487,7 @@ public class PageDAO implements IPageDAO {
             Connection conn = DatabaseConnection.getConnection();
             conn.setAutoCommit(false);
             try {
-                var pstmt = conn.prepareStatement("UPDATE notifications SET status = 1 WHERE update_id = ? AND type = 0 AND user = ?");
+                var pstmt = conn.prepareStatement("UPDATE \"Notification\" SET status = 1 WHERE update_id = ? AND \"type\" = 0 AND \"user\" = ?");
                 pstmt.setInt(1, update.getId());
                 pstmt.setString(2, user.getUsername());
                 pstmt.executeUpdate();
@@ -526,7 +526,7 @@ public class PageDAO implements IPageDAO {
             Connection conn = DatabaseConnection.getConnection();
             conn.setAutoCommit(false);
             try {
-                var pstmt = conn.prepareStatement("UPDATE `Update` SET status = 0, old_text = ? WHERE id = ?");
+                var pstmt = conn.prepareStatement("UPDATE \"PageUpdate\" SET status = 0, old_text = ? WHERE id = ?");
                 pstmt.setString(1, oldText);
                 pstmt.setInt(2, update.getId());
                 pstmt.executeUpdate();
@@ -551,7 +551,7 @@ public class PageDAO implements IPageDAO {
             Connection conn = DatabaseConnection.getConnection();
             conn.setAutoCommit(false);
             try {
-                var pstmt = conn.prepareStatement("UPDATE notifications SET status = 1 WHERE update_id = ? AND type = 0 AND user = ?");
+                var pstmt = conn.prepareStatement("UPDATE \"Notification\" SET status = 1 WHERE update_id = ? AND \"type\" = 0 AND \"user\" = ?");
                 pstmt.setInt(1, update.getId());
                 pstmt.setString(2, user.getUsername());
                 pstmt.executeUpdate();
@@ -583,7 +583,7 @@ public class PageDAO implements IPageDAO {
         conn.setAutoCommit(false);
 
         try {
-            var pstmt = conn.prepareStatement("DELETE FROM Page WHERE id = ?");
+            var pstmt = conn.prepareStatement("DELETE FROM \"Page\" WHERE id = ?");
             pstmt.setInt(1, page.getId());
             pstmt.executeUpdate();
             pstmt.close();
@@ -592,7 +592,6 @@ public class PageDAO implements IPageDAO {
         catch (SQLException e) {
             conn.rollback();
             JOptionPane.showMessageDialog(null, "Errore durante l'eliminazione della pagina", "Errore", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
             throw e;
         }
         finally {

@@ -7,49 +7,64 @@
 \usepackage{tabularx}
 \usepackage{caption}
 \usepackage{float}
-\geometry{margin=1in} % Imposta i margini
 \usepackage{titling} % Pacchetto aggiunto per gestire il titolo
 \usepackage{ulem}
 \usepackage{amsmath}
 \usepackage{listings}
 \usepackage{graphicx}
+\usepackage{xcolor}
+
+\geometry{margin=1in} % Imposta i margini
+
+% Definizione di uno stile per il codice SQL
+\lstdefinestyle{SQL}{
+	language=SQL,
+	basicstyle=\ttfamily,
+	keywordstyle=\color{blue},
+	commentstyle=\color{green!60!black},
+	stringstyle=\color{orange},
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	breaklines=false,
+	breakatwhitespace=true,
+	showstringspaces=false,
+	frame=single,
+	rulecolor=\color{black},
+	backgroundcolor=\color{gray!10}
+}
 
 
 
+% Definizione del titolo personalizzato con il logo
+\renewcommand\maketitlehooka{
+\begin{center}
+\includegraphics[width=6cm]{logo_uni.png}\par\vspace{1cm}
+\end{center}
+}
 
-\title{Documentazione Sistema Di Gestione Del Ciclo Di Vita Di Una Pagina Wiki}
+% Altre personalizzazioni del titolo
+\pretitle{\begin{center}\LARGE\bfseries}
+\posttitle{\end{center}\vspace{1cm}}
+\predate{\begin{center}\vspace{1cm}}
+\postdate{\end{center}}
+\preauthor{\begin{center}\large}
+\postauthor{\end{center}}
+
+\title{Documentazione DB - Sistema Di Gestione Del Ciclo Di Vita Di Una Pagina Wiki}
 \author{Giuseppe Pollio, Mario Lombardo}
 \date{Anno accademico 2023-2024}
 
 
-\lstset{
-	language=SQL,
-	basicstyle=\ttfamily,
-	numbers=left,
-	numberstyle=\tiny,
-	tabsize=2,
-	breaklines=true
-}
-
-\renewcommand{\maketitle}{%
-	\begin{titlepage}
-		\centering
-		\includegraphics[width=5cm]{logo_uni.png}\par\vspace{1cm}
-		\huge\bfseries\thetitle\par
-		\vspace{1cm}
-		\Large\theauthor\par
-		\vfill
-		\large\thedate\par
-	\end{titlepage}
-}
 
 
-\renewcommand{\contentsname}{Indice}
+
 
 
 \begin{document}
 	
 	\maketitle
+	
+	\newpage
 	
 	\tableofcontents
 	
@@ -57,37 +72,57 @@
 	
 	\section{Modello Concettuale}
 	\subsection{Analisi dei requisiti}
-	In questa sezione si analizza la specifica con lo scopo di definire le funzionalità
+	In questa sezione si analizza la traccia in maniera specifica con lo scopo di definire le funzionalità
 	che la base di dati deve soddisfare. Individueremo le entità e le associazioni
-	del mini-word, e produrremo una prima versione del modello concettuale che
+	del mini-word, producendo la prima versione del modello concettuale che
 	sarà poi rielaborato nelle fasi successive della progettazione.\\ \\
-	{\itshape Si sviluppi un sistema informativo, composto da una base di dati relazionale e da un applicativo Java dotato
-		di GUI (Swing o JavaFX), per la gestione del ciclo di vita di una pagina di una wiki}
+	{\itshape "Si sviluppi un sistema informativo, composto da una base di dati relazionale e da un applicativo Java dotato
+		di GUI (Swing o JavaFX), per la gestione del ciclo di vita di una pagina di una wiki"}
 	\vspace{0.5cm}
 	\\
-	L'introduzione individua il mini-world da rappresentare e una prima entità:
-	{\textbf {Page}} avente come attributi {\textbf {title}} e {\textbf {creation}}. Inoltre nel testo della {\textbf {Page}} possiamo individuare un'altra entità associata alla {\textbf {Page}: {\textbf {PageText}} contente come attributo oltre che la frase individuata come {\textbf {text}} anche {\textbf {link}} (collegamento) e un collegamento all'entità \textbf{Page}.\\ \\
-	{\itshape Una pagina di una wiki ha un titolo e un testo. Ogni pagina è creata da un determinato autore. Il testo è
-		composto di una sequenza di frasi. Il sistema mantiene traccia anche del giorno e ora nel quale la pagina è
-		stata creata. Una frase può contenere anche un collegamento. Ogni collegamento è caratterizzato da una
-		frase da cui scaturisce il collegamento e da un’altra pagina destinazione del collegamento.}
+	{\itshape "Una pagina di una wiki ha un titolo e un testo. Ogni pagina è creata da un determinato autore. Il testo è
+	composto di una sequenza di frasi. Il sistema mantiene traccia anche del giorno e ora nel quale la pagina è
+	stata creata. Una frase può contenere anche un collegamento. Ogni collegamento è caratterizzato da una
+	frase da cui scaturisce il collegamento e da un’altra pagina destinazione del collegamento."}
 	\vspace{0.5cm}
 	\\
-	Dato che le pagine delle wiki saranno publiche oltre che modificabili, sarà necessario tenere traccia degli utenti tramita l'entità {\textbf {User}}, alla quale sarà possibile accederci tramite una {\textbf {password}} e un {\textbf {username}}. Di conseguenza alla {\textbf {Page} viene individuata una nuova caratteristica {\textbf {author}}. Le modifiche del testo di una {\textbf {Page}} saranno salvate tramite le l'entità {\textbf {PageUpdate}} avente attributi {\textbf {status}} e un collegamento ad \textbf{User} che ne rappresenta l'autore ({\textbf {author}}}). Il testo modificato viene individuato tramite l'entità: {\textbf {UpdatedText}} contenente il nuovo testo individutato dall'attributo \textbf{text}, un eventuale \textbf{link} (collegamento) e un collegamento all'entità \textbf{PageUpdate}, quando una modifica viene inoltrata all'autore esso invece deve essere avvisato tramite una notifica individuata dall'entità {\textbf {Notification}} avente come attributi {\textbf {status}} (stato di lettura), {\textbf {type}}, un collegamento a {\textbf{User}} per individuare il proprietario della notifica e un collegamento a \textbf{PageUpdate}. \\ \\
-	{\itshape La modifica proposta verrà notificata all’autore del testo originale la prossima volta che utilizzerà il sistema.
-		L’autore potrà vedere la sua versione originale e la modifica proposta. Egli potrà accettare la modifica (in
-		quel caso la pagina originale diventerà ora quella con la modifica apportata), rifiutare la modifica (la pagina
-		originale rimarrà invariata). La modifica proposta dall’autore verrà memorizzata nel sistema e diventerà
-		subito parte della versione corrente del testo. Il sistema mantiene memoria delle modifiche proposte e anche
-		delle decisioni dell’autore (accettazione o rifiuto).}
+	{\itshape "Il testo può essere modificato da un altro utente del sistema, che seleziona una o più delle frasi, scrive la sua	
+	versione alternativa (modifica) e prova a proporla"}
 	\vspace{0.5cm}
-	\\
-	Viene in aggiunta inserito il nuovo attributo \textbf{order\_num} alle entità {\textbf {PageText}} e {\textbf {UpdatedText}} che rappresenta l'ordinamento all'interno del testo della {\textbf {Page}}.
 	
-	\newpage
+	
+	Dall'introduzione individuiamo il mini-world da rappresentare, ovvero un \textit{"Sistema informativo per la gestione del ciclo di vita di una pagina di una wiki"}, e iniziamo a riconoscere la prima entità:
+	\textbf{Page} avente come attributi \texttt{title} e \texttt{creation\_date}. 
+	Inoltre una pagina della Wiki deve essere composta da un testo, a sua volta composto da una sequenza di frasi, e questo testo deve poter essere modificabile da un utente, individuiamo cos\`i un entità associata alla pagina: \textbf {PageText} contenente come attributi, la riga di testo \texttt{text} e un indice per l'ordinamento delle righe di testo \texttt{order\_num}. Invece di utilizzare un singolo attributo per salvare tutto il contenuto di una pagina l'utilizzo dell'entità \textbf{PageText} ottimizza molto le operazioni di modifica del testo poich\`e lavora su singole righe di testo invece di lavorare su l'intero contenuto.
+	Una frase del testo di una pagina puo' contenere un collegamento ad un altra pagina, otteniamo questo comportamento aggiungendo all'entità \textbf{PageText} l'attributo \texttt{link} (attributo parziale) tenendo traccia del \texttt{page\_id} della Pagina alla quale ci riferiamo. Andiamo ad utilizzare il formato \texttt{\{page\_id:riga\_di\_testo\}} quando una riga di testo è un collegamento, sarà l'applicativo a mostrare solo la riga\_di\_testo e gestire il collegamento alla pagina.
+	\\\\\\
+	{\itshape "La modifica proposta verrà notificata all’autore del testo originale la prossima volta che utilizzerà il sistema.
+	L’autore potrà vedere la sua versione originale e la modifica proposta. Egli potrà accettare la modifica (in
+	quel caso la pagina originale diventerà ora quella con la modifica apportata), rifiutare la modifica (la pagina
+	originale rimarrà invariata). La modifica proposta dall’autore verrà memorizzata nel sistema e diventerà
+	subito parte della versione corrente del testo. Il sistema mantiene memoria delle modifiche proposte e anche
+	delle decisioni dell’autore (accettazione o rifiuto)."}
+	\vspace{0.5cm}
+	\\
+	{\itshape "Nel caso in cui si fossero accumulate più modifiche da rivedere, l’autore dovrà accettarle o rifiutarle tutte
+	nell’ordine in ordine dalla più antica alla più recente"}
+	\vspace{0.5cm}
+	\\
+	{\itshape "Gli utenti generici del sistema potranno cercare una pagina e il sistema mostrerà la versione corrente del
+	testo e i collegamenti.
+	Gli autori dovranno prima autenticarsi fornendo la propria login e password. Tutti gli autori potranno vedere
+	tutta la storia di tutti i testi dei quali sono autori e di tutti quelli nei quali hanno proposto una modifica"}
+	\vspace{0.5cm}
+	
+
+	Sarà necessario tenere traccia degli utenti della Wiki per poter permettere loro pubblicare nuove pagine e gestire le pagine esistenti (richiedendo modiche agli autori), da questo andiamo a creare l'entità \textbf{User}, alla quale sarà possibile accedere al sistema tramite una \textbf{password} e un \textbf{username}. Inoltre il sistema tiene conto del fatto che un utente possa essere un Gestore della Wiki tramite l'attributo \texttt{admin} (attributo parziale).
+	All'entità \textbf{Page} individuiamo la necessità di possedere un autore inserendo l'attributo \textbf{author}. Le modifiche del testo di una pagina (\textbf {Page}) saranno salvate tramite le l'entità \textbf {PageUpdate} avente attributi: \textbf{status}, che indica lo stato della modifica, e un collegamento all'utente \textbf{User} autore della modifica (\texttt {author}). Le righe di testo da modificare sono individuate tramite l'entità \textbf {UpdatedText} che contiene l'attributo \texttt{text} che indica la "nuova riga di testo", un collegamento \texttt{link} (attributo parziale) e un collegamento all'entità \textbf{PageUpdate}.
+	Quando una modifica viene inoltrata all'autore esso invece deve essere avvisato tramite una notifica, questa verrà gestita dall'entità \textbf{Notification} avente come attributi \texttt{status} (stato della notifica, \texttt{OPEN, CLOSED}), il tipo di notifica \texttt{type} (\texttt{REQUEST\_UPDATE, UPDATE\_ACCEPTED, UPDATE\_REJECTED}), \texttt{viewed} per indicare se la notifica è stata letta, e ovviamente, contiene le relazioni all'utente destinatario \textbf{User} e alla modifica del testo \textbf{PageUpdate}. 
+	In fine \textit{Tutti gli autori potranno vedere tutta la storia di tutti i testi dei quali sono autori e di tutti quelli nei quali hanno proposto una modifica} sarà possibile per via delle relazioni \textbf{User} → \textbf{Page} usando l'attributo \texttt{author} contenuto in \textbf{Page}, e \textbf{PageUpdate} → \textbf{Page} usando l'attributo \texttt{page\_id} in \textbf{PageUpdate}.
+	\\\\\\
 	
 	{\subsection{Diagramma (UML)}}
-	 In seguito alle considerazioni espresse nella sezione precedente, si `e prodotto
+	 In seguito alle considerazioni espresse, si `e prodotto
 	 il seguente schema concettuale espresso mediante diagramma UML:
 	 
 	\begin{center}
@@ -117,13 +152,11 @@
 			Page & Pagina presente sulla wiki. & 
 			\textbf{Title}(Stringa): Titolo della pagina.
 			
-			\textbf{Creation}(Data): Data e ora di creazione della pagina.
+			\textbf{CreationDate}(Data/Timestamp): Data e ora di creazione della pagina.
 			\\
 			\hline
 		    PageText & Frase di una Pagina (\textbf{Page}). &
 			\textbf{Text}(Stringa): Contenuto della frase.
-			
-			\textbf{Link}(Stringa): Collegamento della frase (interno o esterno alla wiki).
 			
 			\textbf{Order\_num}(Intero): Ordinamento della frase all'interno del testo complessivo.
 			\\
@@ -133,17 +166,23 @@
 			\\
 			\hline
 			UpdatedText & Nuovo testo proposto durante la modifica (\textbf{PageUpdate}). & 
-			\textbf{Text}(Stringa): Contenuto della frase.
-
-			\textbf{Link}(Stringa): Collegamento della frase (interno o esterno alla wiki).
+			\textbf{Text}(Stringa): Contenuto della riga di testo.
 
 			\textbf{Order\_num}(Intero): Ordinamento della frase all'interno del testo complessivo.
 			\\
 			\hline
 			Notification & Notifiche di un \textbf{Utente (User)}.& 
-		    \textbf{Status}(Booleano): Stato di lettura di una notifica.
+			\textbf{Status}(Intero): Stato della notifica. (\texttt{OPEN, CLOSED})
+			
+		    \textbf{Viewed}(Booleano): Stato di lettura di una notifica.
 		    
-		    \textbf{Type}(Intero): Tipologia di notifica.
+		    \textbf{Type}(Intero): Tipologia di notifica. (\texttt{REQUEST\_UPDATE, UPDATE\_ACCEPTED, UPDATE\_REJECTED})
+			\\
+			\hline
+			Admin & Specializzazione parziale di un utente, un amministratore pu\`o modificare ed eliminare le pagine di altri utenti senza dover prima inviare una notifica di accettazione delle modifiche.& 
+			\\
+			\hline
+			Link & Specializzazione parziale di una riga di testo che rappresent\`a se una riga di testo \`e un collegamento o meno.& 
 			\\
 			\hline
 
@@ -191,7 +230,7 @@
 		
 	\end{table}
 
-	{\subsubsection {Dizionario dei vincoli}}
+	{\subsubsection {Dizionario dei Vincoli}}
 	\begin{table}[H]
 		\centering
 		\small % Riduci la dimensione del font
@@ -203,667 +242,674 @@
 			\hline
 			\textbf{Vincolo} &\textbf{Tipologia}  & \textbf{Descrizione} \\
 			\hline
-			Di Leggibilità Testuale & Intrarelazionale & Il testo di una pagina, il titolo di una pagina e il testo di una modifica devono avere lunghezza non nulla.
+			Di Leggibilità Testuale & Intrarelazionale & Il titolo di una pagina, il nome utente e la password  devono avere lunghezza non nulla, poichè fondamentali.
 			\\
 			\hline
 			Di Autore & Interrelazionale & Una pagina e una modifica devono sempre avere un autore. Se un utente autore di una pagina viene eliminato, anche la pagina viene eliminata.
 			\\
-			\hline
-			Di Privacy & interrelazionale  & Un utente deve avere un modo obbligatorio una password.
+			\hline	
+			Di Sicurezza & Interrelazionale  & Una pagina può essere modificata direttamente solo nel caso in cui, l'utente che effettua la modifica è l'autore della pagina oppure un gestore della wiki.
 			\\
-			Di Sicurezza & interrelazionale  & Una pagina può essere modificata direttamente solo nel caso in cui, l'utente che effettua la modifica è l'autore della pagina
+			\hline	
+			Di Gestione & Interrelazionale  & Se esistono utenti almeno uno di essi dovr\`a essere il gestore della wiki (amministratore).
 			\\
 			\hline
+			
 		\end{tabularx}
 		
 	\end{table}
 	
 	\newpage
-	
-	{\subsection{Ristrutturazione del Modello Concettuale}}
-	Prima di poter passare allo schema logico è necessario ristrutturare il diagramma delle classi per semplificare la traduzione in schema logico, ottimizzare il progetto, eliminare le generalizzazioni, eliminare gli attributi multivalore,
-	eliminare gli attributi strutturati, accorpare o partizionare le entita figlie e scegliere gli identificatori delle nostre entità ove necessario
-	
-	{\subsubsection{Analisi delle Ridondanze}}
-	Una ridondanza è un dato che è già presente nella base di dati o può essere
-	derivato da altri dati.
-	Nel modello concettuale originale non sono presenti ridondanze
-	
-	{\subsubsection{Analisi delle generalizzazioni}}
-	La specializzazione è il processo di determinazione di sottoclassi per una data
-	entità. La generalizzazione è il suo concetto complementare.
-	Nel modello attuale è stato scelto di non ristrutturare le generalizzazioni presenti.
-	
-	{\subsubsection{Eliminazione degli attributi Multivalore o Composti}}
-	Un attributo è multivalore se può essere associato ad un numero variabile di
-	valori dello stesso dominio. Un attributo è composto se può essere suddiviso
-	in sottoparti ognuna dotata di dominio.
-	Nel modello concettuale non sono presenti attributi multivalore o attributi composti.
-	
-	{\subsubsection{Analisi di Entità e Associazioni}}
-	Non si è ritenuto opportuno scomporre o accorpare entità. Tuttavia è stato deciso di rimuovere l'attributo \textbf{link} dalle entità \textbf{PageText} e \textbf{UpdatedText} in quanto i collegamenti verrano salvati dal programma seguendo la formattazione \textbf{href='link'}, facendo in questo modo il programma capirà in automatico quando un testo rappresenta un link e lo andrà a trattare come tale. Inoltre alla entità \textbf{PageUpdate} viene aggiunto l'attributo \textbf{old\_text} che rappresenta il testo di una pagina prima che venga modificato inoltre viene aggiunto l'attributo \textbf{author} all'entit\`a \textbf{PageText} che rappresenta chi ha scritto quel testo, queste modifiche vengono fatte in modo da poter tenere traccia della "storia" di una pagina.
-	\\
-	\\	
-	Nel modello attuale si è evitato di creare relazioni di composizione.
+
+	\section{Ristrutturazione del Modello Concettuale}
+	Prima di procedere con lo schema logico è fondamentale riorganizzare il \textbf{Diagramma delle Classi} al fine ottimizzare il progetto, rimuovere le generalizzazioni, eliminare gli attributi multivalore, eliminare attributi strutturati, riorganizzare le entità figlie e selezionare gli identificatori appropriati per le nostre entità quando necessario. 
 	\\\\
-	{\subsubsection{Scelta degli Identificatori Primari}}
-	Un identificatore o chiave minimale \`e un insieme di attributi che identificano univocamente un’entit\`a. \`E possibile che un’entit\`a sia dotata di molteplici identificatori, fra i quali ne sceglieremo uno principale che agir\`a da chiave primaria.
+
+	\subsection{Analisi delle Ridondanze}
+	Con Analisi delle Ridondanze intendiamo il processo di identificazione dei dati duplicati o derivabili da altre informazioni all'interno di una base di dati.
+	\\
+	Nel modello concettuale originale non sono presenti ridondanze. 
+	\\\\
 	
+	\subsection{Analisi delle Generalizzazioni}
+	Nell'Analisi delle Generalizzazioni, l'obiettivo è quello di generalizzare informazioni all'interno della base di dati per ottimizzare le relazioni tra entità.
+	\\
+	Nel modello concettuale attuale ci sono due generalizzazioni: 
+	\\
+	
+	\begin{enumerate}
+	\item 	
+		La sottoclasse \texttt{Admin}, dove non sono presenti attributi e viene utilizzata per definire i permessi di un utente. Questa nel diagramma ristrutturato verr\`a accorpata all'entit\`a genitore \texttt{User} come flag booleana \texttt{admin}. 
+	\item 
+		La sottoclasse \texttt{Link}, usata per capire se una riga di testo è anche un link ad una pagina \texttt{Page}, viene eliminata del tutto in quanto un link ad una pagina doveva necessariamente essere una composta da un intera riga di testo, per risolvere questo problema e semplificare l'implementazione della base dati si è optato nell'utilizzo della formattazione \texttt{<href='link'>} contenuta nel testo della pagina dove si vuole assegnare un collegamento, cos\`i facendo la gestione e rappresentazione dei collegamenti è data dall'applicativo stesso.		
+		\\\\
+	\end{enumerate}
+	
+	
+	\subsection{Eliminazione degli attributi Multivalore o Composti}
+	Durante l'Eliminazione degli attributi Multivalore o Composti, si procede a rimuovere dalla struttura del modello concettuale gli attributi che possono avere più di un valore o che sono composti da diverse parti, semplificando così la rappresentazione dei dati.	
+	\\
+	Nel modello concettuale non sono presenti attributi multivalore o attributi composti.
+	\\\\
+	
+	% -------------------------------------------------------------------------------------------
+	\newpage
+	% -------------------------------------------------------------------------------------------
+	
+	\subsection{Analisi di Entità e Associazioni}
+	Non si è ritenuto opportuno scomporre o accorpare le entità restanti, fanno accezione le sottoclassi \texttt{Admin} e \texttt{Link} che sono state eliminate e solo la prima è stata sostituita dal nuovo attributo \texttt{admin} nell'entità \textbf{User}.
+	\\
+	
+	\subsubsection{Attributi aggiunti in fase di Ristrutturazione}
+	Durante la fase di Ristrutturazione è stato necessario aggiungere dei nuovi attributi ad alcuni campi per andare a coprire tutti i casi d'uso. Le aggiunte sono:
+	
+	\begin{enumerate}
+		\item L'attributo \texttt{admin} nella tabella \textbf{User}: Come detto in precedenza, viene introdotto per generalizzare la base dati.
+		\item L'attributo \texttt{creation\_date} nella tabella \textbf{User}: Viene aggiunto per salvare la data di creazione dell'utente.
+		\item L'attributo \texttt{old\_text} nella tabella \textbf{PageUpdate}: Viene aggiunto per rappresentare il testo di una pagina prima della modifica; impiegato per tenere traccia della "storia" delle modifiche in una pagina.
+		\item L'attributo \texttt{author} nella tabella \textbf{PageText}: Viene aggiunto per identificare l'utente che ha modificato/aggiunto una determinata riga alla pagina.
+		\\\\
+	\end{enumerate}
+	 
+	
+	\subsubsection{Scelta degli Identificatori Primari}
+	La scelta degli identificatori primari è fondamentale poiché consente di identificare e distinguere univocamente ogni record delle varie tabelle.
+	\\
+	Ecco i seguenti nomi delle \texttt{PRIMARY KEY} che sono state scelte:
+	\\
 	\begin{itemize}
-		\item \textbf{User}: Viene scelto \textbf{username} come identificatore primario \textbf{id}.
+		\item \textbf{User}: Viene scelto \textbf{username} come identificatore primario.
 		\item \textbf{Notification}: Viene introdotto l'identificativo primario \textbf{id}.
 		\item \textbf{Page}: Viene introdotto l'identificativo primario \textbf{id}.
-		\item \textbf{PageText}: Viene introdotto l'identificativo primario. \textbf{id}.
+		\item \textbf{PageText}: Viene introdotto l'identificativo primario \textbf{id}.
 		\item \textbf{PageUpdate}: Viene introdotto l'identificativo primario \textbf{id}.
 		\item \textbf{UpdatedText}: Viene introdotto l'identificativo primario \textbf{id}.
 	\end{itemize}
 
 
+	% -------------------------------------------------------------------------------------------
 	\newpage
+	% -------------------------------------------------------------------------------------------
+
 
 	\subsubsection{Diagramma UML Ristrutturato}
-	Dopo aver ristrutturato il Class Diagram come descritto precedentemente, possiamo produrre il seguente schema concettuale ristrutturato espresso mediante diagramma UML:
+	Dopo aver completato la ristrutturazione del \textit{Class Diagram} come descritto delle sezioni precedenti, possiamo mostrare il seguente schema concettuale espresso mediante diagramma UML:
+	\\\\
 	
 	\begin{center}
 		\includegraphics[width=1\linewidth]{UML\_RISTRUTTURATO.drawio.png}
 	\end{center}
 	
+	
+	% -------------------------------------------------------------------------------------------
 	\newpage
+	% -------------------------------------------------------------------------------------------
+	
 	
 	\subsubsection{Diagramma ER Ristrutturato}
-	Ulteriore notazione per poter esprimere lo schema concettuale \`e l’ER. Il seguente \`e il diagramma ER:
+	Ecco il diagramma ER della soluzione, prodotto aver completato la ristrutturazione del \textit{Class Diagram} come descritto nelle sezioni precedenti.
+	\\\\
 	
 	\begin{center}
 		\includegraphics[width=1\linewidth]{ER\_RISTRUTTURATO.drawio.png}
 	\end{center}
 	
 	
+	% -------------------------------------------------------------------------------------------
 	\newpage
+	% -------------------------------------------------------------------------------------------
+	
 	
 	\section{Modello Logico}
 	
 	\subsection{Traduzione di Entit\`a e Associazioni}
-	Avendo completato il processo di ristrutturazione, possiamo procedere col \textit{mapping} di entit\`a e associazioni. Per ogni entit\`a del modello ristrutturato, definiremo una relazione equivalente con gli stessi attributi. Il processo di traduzione per le associazioni \`e invece pi\`u complesso e richiede un’analisi individuale di ogni associazione.
+	Avendo completato il modello concettuale possiamo procedere con il \textit{mapping} delle entit\`a e associazioni della soluzione. Per ogni entit\`a del modello ristrutturato definiamo una \textit{relazione equivalente}. Il processo di traduzione per le associazioni \`e invece pi\`u complesso e richiede un’analisi individuale di ogni associazione.
 	
-	
-		\begin{itemize}
-		\item \textbf{User, Page}: sono associazioni {\itshape{uno-a-molti}} che espriamiamo tramite chiave esterna, solo l'entit\`a \textbf{Page} avr\`a come attributo \textbf{author}.
-		\item \textbf{User, PageUpdate}: sono associazioni {\itshape{uno-a-molti}} che espriamiamo tramite chiave esterna, solo l'entit\`a \textbf{PageUpdate} avr\`a come attributo \textbf{author}.
-		\item \textbf{PageText, Page}: sono associazioni {\itshape{uno-a-molti}} che espriamiamo tramite chiave esterna, solo l'entit\`a \textbf{PageText} avr\`a come attributo \textbf{page\_id}.
+	\begin{itemize}
+		\item \textbf{User, Page}: sono associazioni {\itshape{uno-a-molti}} che esprimiamo tramite chiave esterna, solo l'entit\`a \textbf{Page} avr\`a come attributo \textbf{author}.
+		\item \textbf{User, PageUpdate}: sono associazioni {\itshape{uno-a-molti}} che esprimiamo tramite chiave esterna, solo l'entit\`a \textbf{PageUpdate} avr\`a come attributo \textbf{author}.
+		\item \textbf{PageText, Page}: sono associazioni {\itshape{uno-a-molti}} che esprimiamo tramite chiave esterna, solo l'entit\`a \textbf{PageText} avr\`a come attributo \textbf{page\_id}.
 		\item \textbf{UpdatedText, PageUpdate}: sono associazioni {\itshape{uno-a-molti}} che espriamiamo tramite chiave esterna, solo l'entit\`a \textbf{UpdatedText} avr\`a come attributo \textbf{update\_id}.
-		\item \textbf{PageText, User}: sono associazioni {\itshape{uno-a-molti}} che espriamiamo tramite chiave esterna, solo l'entit\`a \textbf{PageText} avr\`a come attributo \textbf{author}.
-		\item \textbf{User, Notification}: sono associazioni {\itshape{uno-a-molti}} che espriamiamo tramite chiave esterna, solo l'entit\`a \textbf{UpdatedText} avr\`a come attributo \textbf{user}.
-		\item \textbf{PageUpdate, Notification}: sono associazioni {\itshape{uno-a-molti}} che espriamiamo tramite chiave esterna, solo l'entit\`a \textbf{Notification} avr\`a come attributo \textbf{update\_id}.
+		\item \textbf{PageText, User}: sono associazioni {\itshape{uno-a-molti}} che esprimiamo tramite chiave esterna, solo l'entit\`a \textbf{PageText} avr\`a come attributo \textbf{author}.
+		\item \textbf{User, Notification}: sono associazioni {\itshape{uno-a-molti}} che esprimiamo tramite chiave esterna, solo l'entit\`a \textbf{UpdatedText} avr\`a come attributo \textbf{user}.
+		\item \textbf{PageUpdate, Notification}: sono associazioni {\itshape{uno-a-molti}} che esprimiamo tramite chiave esterna, solo l'entit\`a \textbf{Notification} avr\`a come attributo \textbf{update\_id}.
+		\\\\
 	\end{itemize}
 	
 	\subsection{Relazioni}
-	\textbf{{\itshape{Legenda}}}}: $\underline{Chiave Primaria}$, Chiave Esterna↑, Attributo Nullabile?, \dashuline{Attributo Derivato}
+	\textbf{{\itshape{Legenda}}}: $\underline{Chiave Primaria}$, Chiave Esterna↑, Attributo Nullabile?
 	
 	\begin{itemize}
-		\item \textbf{USER} ($\underline{username}$, password)
+		\item \textbf{USER} ($\underline{username}$, \texttt{password}, \texttt{admin}, \texttt{creation\_date})
 		
-		\item \textbf{PAGE} ($\underline{id}$, title, creation, author↑)
-		- author → USER.username
+		\item \textbf{PAGE} ($\underline{id}$, \texttt{title}, \texttt{author}↑, \texttt{creation\_date})
+		\\
+		- \texttt{author} → USER.username
 		
-		\item \textbf{PAGETEXT} ($\underline{id}$, order\_num, text, page\_id↑, author↑)
+		\item \textbf{PAGETEXT} ($\underline{id}$, \texttt{order\_num}, \texttt{text}, \texttt{page\_id}↑, \texttt{author}↑)
+		\\
+		- \texttt{page\_id} → PAGE.id	
+		\\
+		- \texttt{author} → USER.username
 		
-		- page\_id → PAGE.id
+		\item \textbf{PAGEUPDATE} ($\underline{id}$, \texttt{status}, \texttt{old\_text}?, \texttt{page\_id}↑, \texttt{author}↑, \texttt{creation\_date})
+		\\
+		- \texttt{page\_id} → PAGE.id
+		\\
+		- \texttt{author} → USER.username
 		
-		- author → USER.username
+		\item \textbf{NOTIFICATION} ($\underline{id}$, \texttt{status}, \texttt{type}, \texttt{viewed}, \texttt{user}↑, \texttt{update\_id}↑, \texttt{creation\_date})
+		\\
+		- \texttt{update\_id} → UPDATE.id
+		\\
+		- \texttt{user} → USER.username
 		
-		\item \textbf{UPDATE} ($\underline{id}$, status, creation, page\_id↑, author↑)
-		
-		- page\_id → PAGE.id
-		
-		- author → USER.username
-		
-		\item \textbf{NOTIFICATION} ($\underline{id}$, status, type, user↑, update\_id↑)
-		
-		- update\_id → UPDATE.id
-		
-		- user → USER.username
-		
-		\item \textbf{UPDATEDTEXT} ($\underline{id}$, text, order\_num, type, update\_id↑)
-		
-		- update\_id → UPDATE.id
+		\item \textbf{UPDATEDTEXT} ($\underline{id}$, \texttt{order\_num}, \texttt{text}, \texttt{update\_id}↑)
+		\\
+		- \texttt{update\_id} → UPDATE.id
+		\\\\
 	\end{itemize}
 	
-	\subsection{User View}
-	Mentre le relazioni materiali sopra individuate definiscono la natura dei dati
-	che andiamo a tracciare, in questa sezione definiamo un numero di viste che
-	sono necessarie agli utenti per un comodo utilizzo del database. Esprimiamo
-	queste viste come variabili e funzioni dell’algebra relazionale.
-	
-
-	\begin{itemize}
-			\item \textbf{Pagine di un Utente:}
-			\[ \text{PagineDiUnUtente} \leftarrow \pi_{\text{username, title}}(\sigma_{\text{author=username}}(\text{User} \bowtie_{\text{id=page\_id}} \text{Page})) \]
-			
-			\item \textbf{Modifiche di un Utente ad una Specifica Pagina con Testo Nuovo:}
-			\begin{align*}
-				\text{ModificheDiUnUtenteAdUnaPagina} &\leftarrow \pi_{\text{username, title, text \text{ AS new\_text}}} \\
-				&\quad\left(
-				(\text{Page} \bowtie_{\text{author=username}} \text{User}) \bowtie_{\text{id=page\_id}} \text{PageText}
-				\right)
-			\end{align*}
-
-			
-			
-			\item \textbf{Pagina con Testo:}
-			\[
-			\text{PaginaConTesto} \leftarrow \pi_{\text{title, page\_id, text\_id, author}}(\text{Page} \bowtie_{\text{id=page\_id}} \text{PageText})
-			\]
-
-			
-			\item \textbf{Notifiche di un Utente:}
-			\[ \text{NotificheDiUnUtente} \leftarrow \pi_{\text{username, status, update\_id, type}}(\text{Notifications} \bowtie_{\text{user=username}} \text{User}) \]
-			
-			\item \textbf{Quanti PageUpdate ha una Pagina in Ordine dal Più Recente:}
-			\[ \text{UpdatePerPagina} \leftarrow \pi_{\text{page\_id, COUNT(id) \text{ AS num\_updates}}}(\sigma_{\text{status IS NOT NULL}}(\text{PageUpdate}) \bowtie_{\text{id=page\_id}} \text{Page}) \]
-			
-			\item \textbf{Utenti che Hanno Proposto una Modifica ad una Specifica Pagina:}
-			\[ \text{UtentiConModificheProposte} \leftarrow \pi_{\text{username, page\_id}}(\text{PageUpdate} \bowtie_{\text{author=username}} \text{User}) \]
-			
-			\item \textbf{Pagine con Più Modifiche Accettate:}
-\begin{align*}
-	\text{PagineConPiuModificheAccettate} &\leftarrow \\
-	&\pi_{\text{title, num\_accepted}} \left( \right. \\
-	&\quad \pi_{\text{title, MAX(num\_accepted) \text{ AS num\_accepted}}} \left( \right. \\
-	&\quad \quad \pi_{\text{title, COUNT(id) \text{ AS num\_accepted}}} \left( \right. \\
-	&\quad \quad \quad \text{Page} \bowtie_{\text{id=page\_id}} \text{PageUpdate} \bowtie_{\text{status=1}} \text{Notifications} \\
-	&\quad \quad \left. \right) \\
-	&\quad \left. \right) \\
-	&\left. \right)
-\end{align*}
-
-
-
-
-			
-			\item \textbf{Pagine con Più Modifiche Proposte:}
-\begin{align*}
-	\text{PagineConPiuModificheProposte} &\leftarrow \pi_{\text{title, num\_proposed}} \left( \pi_{\text{title, MAX(num\_proposed) \text{ AS num\_proposed}}} \left( \right. \right. \\
-	& \qquad \left. \left. \pi_{\text{title, COUNT(id) \text{ AS num\_proposed}}} \left( \text{PageUpdate} \bowtie_{\text{status=0}} \text{Notifications} \right) \right) \right)
-\end{align*}
-
-
-		
-	\end{itemize}
 	
 	\newpage
 	
 	\section{Modello Fisico}
 	\subsection{Domini}
 	\textbf{Notazioni}: I domini usano SNAKE\_CASE maiuscolo.
+	\\
 		
-	\begin{lstlisting}
-		CREATE DOMAIN SHORT_TEXT VARCHAR(128)
-		CHECK(LENGTH(VALUE) > 0)
+	\begin{lstlisting}[style=SQL]
+CREATE DOMAIN SHORT_TEXT VARCHAR(128)
+CHECK(LENGTH(VALUE) > 0)
 	\end{lstlisting}
+Il dominio \texttt{SHORT\_TEXT} rappresenta un tipo di testo i cui valori sono vincolati
+	a essere non nulli in termini di lunghezza. Le applicazioni di questo dominio sono:
 	
-	Il dominio SHORT\_TEXT rappresenta un tipo di testo i cui valori sono vincolati
-	a essere non nulli in termini di lunghezza. Applichiamo questo tipo per la maggior parte
-	dei titoli e nomi nello schema, garantendo così il rispetto del {\itshape{Vincolo di Leggibilit\`a Testuale}}.
+	\begin{itemize}
+		\item Nomi utente.
+		\item Password degli utenti.
+		\item Titolo delle pagine.
+	\end{itemize}
+Garantiamo in questo modo il rispetto del {\itshape{Vincolo di Leggibilit\`a Testuale}}.
+	\\
 	
 	\subsection{Tabelle}
-	Di seguito sono indicate le istruzioni DDL necessarie per definire le
+	Di seguito sono indicate le istruzioni DDL necessarie per la creazione e definizione delle
 	tabelle del database relazionale. Poiché queste sono una traduzione diretta delle
-	relazioni definite nella sezione sul modello logico, si è preferito mantenere i
-	commenti al minimo. Questi ultimi sono inclusi solo per chiarire concetti di SQL.
-	Per informazioni sulla progettazione, fare riferimento alla sezione 3, Modello Logico.
-	\\
-	\textbf{Notazioni}: Tutte le tabelle condividono lo stesso nome delle relazioni
-	corrispondenti nel modello logico e utilizzano PascalCase. Data una
+	relazioni definite in precedenza nella sezione sul modello logico, si è preferito utilizzare i commenti solo per chiarire le parti pi\`u complessi di SQL usate nelle query di creazione.
+	Per le informazioni sulla progettazione, fare riferimento alla sezione "Modello Logico".
+	\\\\
+	\textbf{Notazioni}: Tutte le tabelle condividono lo stesso nome in notazione PascalCase delle \textit{relazioni corrispondenti} nel Modello Logico. Data una
 	tabella Sorgente, tutti i vincoli di chiave primaria espliciti seguono il formato
 	\textbf{Sorgente\_pk}. Per ogni chiave esterna che fa riferimento a una tabella
 	Destinazione, si avrà il corrispondente vincolo \textbf{Sorgente\_fk\_Destinazione}.
+	\\\\
 	
-	\begin{lstlisting}
-		CREATE TABLE IF NOT EXISTS User (
-		username SHORT_TEXT NOT NULL,
-		password SHORT_TEXT NOT NULL,
-		
-		CONSTRAINT User_pk PRIMARY KEY (username)
-		);
-	\end{lstlisting}
-		
-	\begin{lstlisting}
-		CREATE TABLE IF NOT EXISTS Page (
-		id INT AUTO_INCREMENT,
-		title SHORT_TEXT NOT NULL,
-		creation DATE DEFAULT CURRENT_DATE NOT NULL,
-		author SHORT_TEXT NOT NULL,
-		CONSTRAINT Page_pk PRIMARY KEY (id),
-		CONSTRAINT Page_fk_User FOREIGN KEY (author) REFERENCES User(username)
-		ON DELETE CASCADE
-		);
+	
+	\textit{Creazione tabella User:}	
+	\begin{lstlisting}[style=SQL]
+CREATE TABLE IF NOT EXISTS "User" (
+	username SHORT_TEXT NOT NULL,
+	password SHORT_TEXT NOT NULL,
+	admin BOOLEAN DEFAULT FALSE,
+	creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	CONSTRAINT User_pk PRIMARY KEY (username)
+);
 	\end{lstlisting}
 	
-	\begin{lstlisting}
-		CREATE TABLE IF NOT EXISTS PageText (
-			id INT AUTO_INCREMENT,
-			order_num INT NOT NULL,
-			text TEXT NOT NULL,
-			page_id INT NOT NULL,
-			author SHORT_TEXT NOT NULL,
-	    CONSTRAINT PageText_pk PRIMARY KEY (id),
-			CONSTRAINT PageText_fk_Page FOREIGN KEY (page_id) 
-			REFERENCES Page(id) ON DELETE CASCADE,
-			CONSTRAINT PageText_pk_User FOREIGN KEY (author)
-			REFERENCES User(username)
-		);
+	\textit{Creazione tabella Page:}	
+	\begin{lstlisting}[style=SQL]
+CREATE TABLE IF NOT EXISTS "Page" (
+	id SERIAL NOT NULL,
+	title SHORT_TEXT NOT NULL,
+	creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	author SHORT_TEXT NOT NULL,
+	CONSTRAINT Page_pk PRIMARY KEY (id),
+	-- Se un utente viene eliminato dalla tabella 'User'
+	-- tutte le pagine correlate (con 'author' uguale
+	-- al 'username') nella tabella 'Page' verranno eliminate automaticamente.
+	CONSTRAINT Page_fk_User FOREIGN KEY (author) REFERENCES "User"(username)
+	ON DELETE CASCADE
+);
+	\end{lstlisting}
+	
+	\newpage
+	
+	\textit{Creazione tabella PageText: (definisce il contenuto di una pagina)}
+	\begin{lstlisting}[style=SQL]
+CREATE TABLE IF NOT EXISTS "PageText" (
+	id SERIAL NOT NULL,
+	order_num INT NOT NULL,
+	text TEXT NOT NULL,
+	page_id INT NOT NULL,
+	author SHORT_TEXT NOT NULL,
+	CONSTRAINT PageText_pk PRIMARY KEY (id),
+   	-- Se una pagina viene eliminata dalla tabella 'Page'
+   	-- tutti i testi correlati a quella pagina
+   	-- verranno eliminate automaticamente.	
+	CONSTRAINT PageText_fk_Page FOREIGN KEY (page_id) 
+	REFERENCES "Page"(id) ON DELETE CASCADE,
+	CONSTRAINT PageText_pk_User FOREIGN KEY (author)
+	REFERENCES "User"(username)
+);
 	\end{lstlisting}
 	
 	
-	\begin{lstlisting}
-		CREATE TABLE IF NOT EXISTS `PageUpdate` (
-		id INT AUTO_INCREMENT,
-		page_id INT DEFAULT NULL,
-		author SHORT_TEXT DEFAULT NULL,
-		status INT DEFAULT NULL,
-		creation DATETIME DEFAULT CURRENT_TIMESTAMP() NOT NULL,
-		old_text LONGTEXT DEFAULT NULL,
-		CONSTRAINT Update_pk PRIMARY KEY (id),
-		CONSTRAINT Update_fk_Page FOREIGN KEY (page_id)
-		REFERENCES Page(id) ON DELETE CASCADE,
-		CONSTRAINT Update_fk_User FOREIGN KEY (author)
-		REFERENCES User(username) ON DELETE CASCADE
-		);
+	\textit{Creazione tabella PageUpdate: (definisce una modifiche ad una pagina)}
+	\begin{lstlisting}[style=SQL]
+CREATE TABLE IF NOT EXISTS "PageUpdate" (
+	id SERIAL NOT NULL,
+	page_id INT DEFAULT NULL,
+	author SHORT_TEXT DEFAULT NULL,
+	status INT DEFAULT -1,
+	creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	old_text TEXT DEFAULT NULL,
+	CONSTRAINT Update_pk PRIMARY KEY (id),
+	-- Se una pagina o un utente che ha creato la modifica viene eliminato
+	-- allora tutte le modifiche correlate
+	-- verranno eliminate automaticamente.	
+	CONSTRAINT Update_fk_Page FOREIGN KEY (page_id)
+	REFERENCES "Page"(id) ON DELETE CASCADE,
+	CONSTRAINT Update_fk_User FOREIGN KEY (author)
+	REFERENCES "User"(username) ON DELETE CASCADE
+);
 	\end{lstlisting}
 	
-	\begin{lstlisting}
-		CREATE TABLE IF NOT EXISTS `UpdatedText` (
-		id INT NOT NULL,
-		text LONGTEXT DEFAULT NULL,
-		order_num INT DEFAULT NULL,
-		update_id INT DEFAULT NULL,
-		type INT NOT NULL,
-		CONSTRAINT UpdatedText_pk PRIMARY KEY (id),
-		CONSTRAINT UpdatedText_fk_Update FOREIGN KEY (update_id)
-		REFERENCES `PageUpdate`(id) ON DELETE CASCADE
-		);
+	
+	\textit{Creazione tabella PageUpdate: (definisce il contenuto della modifica)}
+	\begin{lstlisting}[style=SQL]
+CREATE TABLE IF NOT EXISTS "UpdatedText" (
+	id SERIAL NOT NULL,
+	text TEXT DEFAULT NULL,
+	order_num INT DEFAULT NULL,
+	update_id INT DEFAULT NULL,
+	type INT NOT NULL,
+	CONSTRAINT UpdatedText_pk PRIMARY KEY (id),
+ 	-- Se una modifica viene eliminata dalla tabella 'Update'
+	-- tutti i testi correlati a quella modifica
+	-- verranno eliminate automaticamente.	
+	CONSTRAINT UpdatedText_fk_Update FOREIGN KEY (update_id)
+	REFERENCES "PageUpdate"(id) ON DELETE CASCADE
+);
 	\end{lstlisting}
 
-	\begin{lstlisting}
-		CREATE TABLE IF NOT EXISTS Notification (
-		id INT AUTO_INCREMENT,
-		user SHORT_TEXT NOT NULL,
-		status BOOLEAN,
-		update_id INT NOT NULL,
-		type INT NOT NULL,
-		viewed BOOLEAN DEFAULT FALSE,
-		creation DATETIME DEFAULT CURRENT_TIMESTAMP() NOT NULL,
-		CONSTRAINT Notification_pk PRIMARY KEY (id),
-		CONSTRAINT Notification_fk_User FOREIGN KEY (user)
-		REFERENCES User(username)
-		ON DELETE CASCADE,
-		CONSTRAINT Notification_fk_User FOREIGN KEY (update_id) 
-		REFERENCES `Update`(id)
-		ON DELETE CASCADE
-		);
+
+	\newpage
+
+
+	\textit{Creazione tabella Notification:}
+	\begin{lstlisting}[style=SQL]
+CREATE TABLE IF NOT EXISTS "Notification" (
+	id SERIAL NOT NULL,
+	"user" SHORT_TEXT NOT NULL,
+	status INT DEFAULT 0,
+	update_id INT NOT NULL,
+	"type" INT NOT NULL,
+	viewed BOOLEAN DEFAULT FALSE,
+	creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	CONSTRAINT Notification_pk PRIMARY KEY (id),
+	-- Se viene eliminato l'utente a cui e' dedicata la notifica o 
+	-- Se viene eliminata la modifica su cui e' stata creata una notifica
+	-- Di conseguenza anche le notifiche correlate saranno 
+	-- eliminate automaticamente dalla tabella 'Notification'.	
+	CONSTRAINT Notification_fk_User FOREIGN KEY ("user")
+	REFERENCES "User"(username) ON DELETE CASCADE,
+	CONSTRAINT Notification_fk_PageUpdate FOREIGN KEY (update_id) 
+	REFERENCES "PageUpdate"(id) ON DELETE CASCADE
+);
 	\end{lstlisting}
 	
 	\newpage
 	
 	\subsection{View}
-	In questa sezione sono definite le istruzioni SQL corrispondenti alle Viste Utente
-	dell'algebra relazionale delineate nella sezione "2.3 - User View". Le Viste Utente
-	rappresentate come variabili sono tradotte in SQL mediante il comando \textbf{CREATE VIEW}.
-	\\\\
-	Le Viste Utente rappresentate come funzioni dell'algebra relazionale sono tradotte come
-	funzioni del plpgsql.
-	\\\\
-	\textbf{Notazioni}: ogni vista condivide il nome con la corrispondente Vista Utente
-	logica, in PascalCase. I parametri utilizzano camelCase.\\\\
-	{\itshape	C'è un commento quando la traduzione dall'algebra relazionale a SQL
-		non è completamente diretta.}
 	
-	\begin{lstlisting}
-		CREATE OR REPLACE FUNCTION PagineDiUnUtente(
-		utente_username user.username%TYPE
-		)
-		RETURNS TABLE(username user.username%TYPE, title Page.title%TYPE) AS
-		$$
-		BEGIN
-		RETURN QUERY (
-		SELECT User.username, Page.title
-		FROM User
-		JOIN Page ON User.username = Page.author
-		WHERE User.username = utente_username
-		);
-		END;
-		$$
-		LANGUAGE plpgsql;
-	\end{lstlisting}
+	Le seguenti viste sono state create per fornire una visione strutturata e semplificata di alcuni dei dati pi\`u significativi nel database. Ogni vista corrisponde a una specifica interrogazione o aggregazione di dati utili per analizzare e monitorare l'attività degli utenti e le modifiche alle pagine nel sistema.
 	
-	\begin{lstlisting}
-		CREATE OR REPLACE FUNCTION ModificheDiUnUtenteAdUnaPagina(
-		utente_username User.username%TYPE
-		)
-		RETURNS TABLE(
-		username User.username%TYPE,
-		title Page.title%TYPE,
-		new_text PageText.text%TYPE
-		) AS
-		$$
-		BEGIN
-		RETURN QUERY (
-		SELECT User.username, Page.title, PageText.text AS new_text
-		FROM User
-		JOIN Page ON User.username = Page.author
-		JOIN PageText ON Page.id = PageText.page_id
-		WHERE User.username = utente_username
-		);
-		END;
-		$$
-		LANGUAGE plpgsql;
-	\end{lstlisting}
-	
-	\begin{lstlisting}
-		CREATE OR REPLACE FUNCTION PaginaConTesto(
-		pagina_id Page.id%TYPE
-		)
-		RETURNS TABLE(
-		title Page.title%TYPE,
-		page_id Page.id%TYPE,
-		text_id PageText.id%TYPE,
-		author Page.author%TYPE
-		) AS
-		$$
-		BEGIN
-		RETURN QUERY (
-		SELECT Page.title, Page.id AS page_id, PageText.id AS text_id, Page.author
-		FROM Page
-		LEFT JOIN PageText ON Page.id = PageText.page_id
-		WHERE Page.id = pagina_id
-		);
-		END;
-		$$
-		LANGUAGE plpgsql;
-	\end{lstlisting}
-	
-	\begin{lstlisting}
-		CREATE OR REPLACE FUNCTION NotificheDiUnUtente(
-		utente_username User.username%TYPE
-		)
-		RETURNS TABLE(
-		username User.username%TYPE,
-		status Notifications.status%TYPE,
-		update_id Notifications.update_id%TYPE,
-		type Notifications.type%TYPE
-		) AS
-		$$
-		BEGIN
-		RETURN QUERY (
-		SELECT User.username, Notifications.status, Notifications.update_id, Notifications.type
-		FROM Notifications
-		JOIN User ON Notifications.user = User.username
-		WHERE User.username = utente_username
-		);
-		END;
-		$$
-		LANGUAGE plpgsql;
+% PagineDiUnUtente
+\begin{lstlisting}[caption={Vista PagineDiUnUtente}, label={lst:pagine_di_un_utente}, style=SQL]
+-- Restituisce gli username degli utenti e i titoli delle pagine 
+-- associate a un utente specifico.
+CREATE OR REPLACE VIEW PagineDiUnUtente AS
+	SELECT "User".username, "Page".title
+	FROM "User"
+	JOIN "Page" ON "User".username = "Page".author;
+\end{lstlisting}
 
-	\end{lstlisting}
-	
-	\begin{lstlisting}
-		CREATE OR REPLACE FUNCTION UpdatePerPagina(
-		pagina_id Page.id%TYPE
-		)
-		RETURNS TABLE(
-		page_id Page.id%TYPE,
-		num_updates BIGINT
-		) AS
-		$$
-		BEGIN
-		RETURN QUERY (
-		SELECT Page.id AS page_id, COUNT(PageUpdate.id) AS num_updates
-		FROM Page
-		LEFT JOIN PageUpdate ON Page.id = PageUpdate.page_id
-		WHERE Page.id = pagina_id AND PageUpdate.status IS NOT NULL
-		GROUP BY Page.id
-		);
-		END;
-		$$
-		LANGUAGE plpgsql;
-	\end{lstlisting}
-	
-	{\begin{lstlisting}
-		CREATE OR REPLACE FUNCTION UtentiConModificheProposte(
-		pagina_id Page.id%TYPE
-		)
-		RETURNS TABLE(
-		username User.username%TYPE,
-		page_id Page.id%TYPE
-		) AS
-		$$
-		BEGIN
-		RETURN QUERY (
-		SELECT User.username, PageUpdate.page_id
-		FROM PageUpdate
-		JOIN User ON PageUpdate.author = User.username
-		WHERE PageUpdate.page_id = pagina_id
-		);
-		END;
-		$$
-		LANGUAGE plpgsql;
-	\end{lstlisting}}
+% ModificheDiUnUtenteAdUnaPagina
+\begin{lstlisting}[caption={Vista ModificheDiUnUtenteAdUnaPagina}, label={lst:modifiche_di_un_utente_ad_una_pagina}, style=SQL]
+-- Restituisce gli username degli utenti, i titoli delle pagine e 
+-- i nuovi testi delle modifiche effettuate da un utente su una pagina.
+CREATE OR REPLACE VIEW ModificheDiUnUtenteAdUnaPagina AS
+	SELECT "User".username, "Page".title, "PageText".text AS new_text
+	FROM "User"
+	JOIN "Page" ON "User".username = "Page".author
+	JOIN "PageText" ON "Page".id = "PageText".page_id;
+\end{lstlisting}
 
-	{\begin{lstlisting}
-		CREATE OR REPLACE FUNCTION PagineConPiuModificheAccettate()
-		RETURNS TABLE(
-		title Page.title%TYPE,
-		num_accepted BIGINT
-		) AS
-		$$
-		BEGIN
-		RETURN QUERY (
-		SELECT Page.title, MAX(num_accepted) AS num_accepted
-		FROM (
-		SELECT Page.id, Page.title, COUNT(PageUpdate.id) AS num_accepted
-		FROM Page
-		LEFT JOIN PageUpdate ON Page.id = PageUpdate.page_id
-		LEFT JOIN Notifications ON PageUpdate.id = Notifications.update_id
-		WHERE Notifications.status = 1
-		GROUP BY Page.id, Page.title
-		) AS Subquery
-		GROUP BY Subquery.id, Subquery.title
-		);
-		END;
-		$$
-		LANGUAGE plpgsql;
-	\end{lstlisting}}
-	
-	{\begin{lstlisting}
-		CREATE OR REPLACE FUNCTION PagineConPiuModificheProposte()
-		RETURNS TABLE(
-		title Page.title%TYPE,
-		num_proposed BIGINT
-		) AS
-		$$
-		BEGIN
-		RETURN QUERY (
-		SELECT Page.title, MAX(num_proposed) AS num_proposed
-		FROM (
-		SELECT Page.id, Page.title, COUNT(PageUpdate.id) AS num_proposed
-		FROM Page
-		LEFT JOIN PageUpdate ON Page.id = PageUpdate.page_id
-		LEFT JOIN Notifications ON PageUpdate.id = Notifications.update_id
-		WHERE Notifications.status = 0
-		GROUP BY Page.id, Page.title
-		) AS Subquery
-		GROUP BY Subquery.id, Subquery.title
-		);
-		END;
-		$$
-		LANGUAGE plpgsql;
-	\end{lstlisting}}
+% PaginaConTesto
+\begin{lstlisting}[caption={Vista PaginaConTesto}, label={lst:pagina_con_testo}, style=SQL]
+-- Restituisce il titolo, l'ID della pagina, l'ID del testo e 
+-- l'autore di una pagina insieme al testo associato.
+CREATE OR REPLACE VIEW PaginaConTesto AS
+	SELECT "Page".title, "Page".id AS page_id, "PageText".id AS text_id, "Page".author
+	FROM "Page"
+	LEFT JOIN "PageText" ON "Page".id = "PageText".page_id;
+\end{lstlisting}
 
-	\newpage
 
-	\subsection{Operazioni}
-	In questa sezione sono presenti operazioni di tipo programmatico.
+% NotificheDiUnUtente
+\begin{lstlisting}[caption={Vista NotificheDiUnUtente}, label={lst:notifiche_di_un_utente}, style=SQL]
+-- Restituisce gli username degli utenti, lo stato, 
+-- l'ID dell'aggiornamento e il tipo di notifiche associate a un utente.
+CREATE OR REPLACE VIEW NotificheDiUnUtente AS
+	SELECT 
+		"User".username, 
+		"Notification".status, 
+		"Notification".update_id,
+		"Notification"."type"
+	FROM "Notification"
+	JOIN "User" ON "Notification"."user" = "User".username;
+\end{lstlisting}
+
+\newpage
+
+% UpdatePerPagina
+\begin{lstlisting}[caption={Vista UpdatePerPagina}, label={lst:update_per_pagina}, style=SQL]
+-- Restituisce l'ID della pagina e il numero di 
+-- aggiornamenti accettati per una pagina specifica.
+CREATE OR REPLACE VIEW UpdatePerPagina AS
+	SELECT "Page".id AS page_id, COUNT("PageUpdate".id) AS num_updates
+	FROM "Page"
+	LEFT JOIN "PageUpdate" ON "Page".id = "PageUpdate".page_id
+	WHERE "PageUpdate".status IS NOT NULL
+	GROUP BY "Page".id;
+\end{lstlisting}
+
+% UtentiConModificheProposte
+\begin{lstlisting}[caption={Vista UtentiConModificheProposte}, label={lst:utenti_con_modifiche_proposte}, style=SQL]
+-- Restituisce gli username degli utenti che hanno 
+-- proposto modifiche per una pagina specifica.
+CREATE OR REPLACE VIEW UtentiConModificheProposte AS
+	SELECT "User".username, "PageUpdate".page_id
+	FROM "PageUpdate"
+	JOIN "User" ON "PageUpdate".author = "User".username;
+\end{lstlisting}
+
+\newpage
+
+\subsection{Operazioni}
+
+\textbf{Notazioni}: si utilizza snake\_case minuscolo per i nomi delle funzioni/procedure e parametri
+\\\\
+
+\subsubsection{Funzione PL/pgSQL \texttt{search\_pages}}
 	
-	\textbf{Notazioni}: si utilizza PascalCase per i nomi delle funzioni/procedure e
-	camelCase per i parametri
+\begin{lstlisting}[style=SQL, caption={Funzione SQL per la ricerca di pagine}]
+CREATE OR REPLACE FUNCTION search_pages(
+	search_text SHORT_TEXT,
+	search_in_title BOOLEAN DEFAULT TRUE,
+	search_in_text BOOLEAN DEFAULT FALSE,
+	search_in_author BOOLEAN DEFAULT FALSE
+) RETURNS TABLE (
+	page_id INT,
+	title SHORT_TEXT,
+	creation_date TIMESTAMP,
+	author SHORT_TEXT
+) 
+AS $$
+BEGIN
+RETURN QUERY
+	SELECT p.id, p."title", p.creation_date, p.author
+	FROM "Page" p
+	WHERE
+	(search_in_title AND p."title" ILIKE '%' || search_text || '%') 
+	OR
+	(search_in_text AND p.id IN (
+	SELECT pt.page_id 
+	FROM "PageText" pt
+	WHERE pt.text ILIKE '%' || search_text || '%')) 
+	OR
+	(search_in_author AND p.author ILIKE '%' || search_text || '%');
+END;
+$$ LANGUAGE plpgsql;
+\end{lstlisting}
+Questa funzione PL/pgSQL, chiamata \texttt{search\_pages}, accetta un testo di ricerca e tre parametri booleani come input. Restituisce una tabella contenente \texttt{page\_id}, \texttt{titolo}, \texttt{creation\_date} e \texttt{author} delle pagine che corrispondono ai criteri di ricerca specificati. 
+\\\\
+\textbf{Note:} 
+
+\begin{itemize}
+	\item La funzione esegue una ricerca case-insensitive utilizzando l'operatore ILIKE.
+	\item Risultato: \texttt{page\_id}, \texttt{titolo}, \texttt{creation\_date} e \texttt{author}.
+\end{itemize}
+
+\subsubsection{Esempio di utilizzo della funzione \texttt{search\_pages}}
+
+\begin{lstlisting}[style=SQL]
+SELECT * FROM search_pages('testo_di_ricerca', TRUE, TRUE, FALSE);
+\end{lstlisting}
 	
-	\begin{lstlisting}
-		CREATE OR REPLACE FUNCTION search_pages(
-		search_text VARCHAR(255),
-		search_in_title BOOLEAN DEFAULT TRUE,
-		search_in_text BOOLEAN DEFAULT FALSE,
-		search_in_author BOOLEAN DEFAULT FALSE
-		) RETURNS TABLE (
-		page_id INT,
-		title VARCHAR(255),
-		creation DATE,
-		author VARCHAR(255)
-		) AS $$
-		BEGIN
-		RETURN QUERY
-		SELECT id, title, creation, author
-		FROM Page
-		WHERE
-		(search_in_title AND title ILIKE '%' || search_text || '%') OR
-		(search_in_text AND id IN (SELECT page_id FROM PageText WHERE text ILIKE '%' || search_text || '%')) OR
-		(search_in_author AND author ILIKE '%' || search_text || '%');
-		END;
-		$$ LANGUAGE plpgsql;
-	\end{lstlisting}
-	
-	
-	
-	Questa funzione PL/pgSQL, chiamata \texttt{search\_pages}, accetta un testo di ricerca e tre parametri booleani come input. Restituisce una tabella contenente page\_id, titolo, data di creazione e autore delle pagine che corrispondono ai criteri di ricerca specificati. \\\\
-	
-	\textbf{Parametri:}\\	
+\subsubsection{Parametri della funzione \texttt{search\_pages}}	
 	\begin{itemize}
 		\item \texttt{search\_text}: Il testo da cercare all'interno dei titoli, dei testi o degli autori delle pagine.
 		\item \texttt{search\_in\_title} (Default: \texttt{TRUE}): Booleano che indica se cercare all'interno dei titoli delle pagine.
 		\item \texttt{search\_in\_text} (Default: \texttt{FALSE}): Booleano che indica se cercare all'interno dei testi delle pagine.
 		\item \texttt{search\_in\_author} (Default: \texttt{FALSE}): Booleano che indica se cercare all'interno degli autori delle pagine.
+		\\\\
 	\end{itemize}
 	
-	\textbf{Utilizzo:}
+
 	
-	\begin{lstlisting}[language=SQL]
-		SELECT * FROM search_pages('testo_di_ricerca', TRUE, TRUE, FALSE);
-	\end{lstlisting}
+\subsubsection{Funzione PL/pgSQL \texttt{search\_notifications}}
 	
-	\textbf{Note:} \\
 	
-	\begin{itemize}
-		\item La funzione esegue una ricerca case-insensitive utilizzando l'operatore ILIKE.
-		\item Il risultato è una tabella con colonne: page\_id, titolo, data di creazione e autore.
-	\end{itemize}
-	
+\begin{lstlisting}[style=SQL]
+CREATE OR REPLACE FUNCTION search_notifications(
+	titolo_pagina_text TEXT,
+	tipo_notifica INT,
+	stato_notifica INT,
+	notifica_letta BOOLEAN
+) RETURNS TABLE (
+	id INT,
+	user_name SHORT_TEXT,
+	status INT,
+	update_id INT,
+	notification_type INT,
+	viewed BOOLEAN,
+	creation_date TIMESTAMP
+) AS $$
+BEGIN
+RETURN QUERY
+	SELECT 
+		n.id,
+		n."user",
+		n.status,
+		n.update_id,
+		n."type",
+		n.viewed,
+		n.creation_date
+	FROM "Notification" n
+	JOIN "PageUpdate" u ON n.update_id = u.id
+	JOIN "Page" p ON u.page_id = p.id
+	WHERE p.title ILIKE '%' || titolo_pagina_text || '%'
+	AND n.type = tipo_notifica
+	AND n.status = stato_notifica
+	AND n.viewed = notifica_letta;
+END;
+$$
+LANGUAGE plpgsql;
+\end{lstlisting}
+La funzione PL/pgSQL, denominata \texttt{search\_notifications}, consente di effettuare una ricerca avanzata tra le notifiche del sistema. Restituisce una tabella contenente dettagli specifici delle notifiche che corrispondono ai criteri di ricerca specificati.
+\\
+    
+    \newpage
+    
+    \subsubsection{Esempio di utilizzo della funzione \texttt{search\_notifications}}
+    
+    \begin{lstlisting}[style=SQL]
+SELECT * FROM search_notifications('Pagina', 1, 0, FALSE);
+    \end{lstlisting}
+    \textbf{Note:} 
+    \begin{itemize}
+    	\item Questa query restituirà tutte le notifiche relative alle pagine che contengono il testo "Pagina", hanno tipo di notifica 1, stato 0 e non sono state ancora lette.
+    	\\
+    \end{itemize}
+    
+    \subsubsection{Parametri della funzione \texttt{search\_notifications}}	
+    
+    \begin{itemize}
+    	\item \texttt{titolo\_pagina\_text}: Il testo da cercare all'interno dei titoli delle pagine associate alle notifiche.
+    	\item \texttt{tipo\_notifica}: Il tipo di notifica da cercare.
+    	\item \texttt{stato\_notifica}: Lo stato della notifica da cercare.
+    	\item \texttt{notifica\_letta} (Default: \texttt{FALSE}): Booleano che indica se cercare notifiche lette o non lette.
+    	\\
+    \end{itemize}
+    
+
+    
+    
+\subsubsection{Elementi di output della funzione \texttt{search\_notifications}}
+    
+    La funzione restituisce una tabella con le seguenti colonne:
+    
+    \begin{itemize}
+    	\item \texttt{id}: L'identificativo univoco della notifica.
+    	\item \texttt{user\_name}: Lo username dell'utente associato alla notifica.
+    	\item \texttt{status}: Lo stato della notifica.
+    	\item \texttt{update\_id}: L'identificativo univoco dell'aggiornamento associato alla notifica.
+    	\item \texttt{notification\_type}: Il tipo della notifica.
+    	\item \texttt{viewed}: Booleano che indica se la notifica è stata letta o meno.
+    	\item \texttt{creation\_date}: La data di creazione della notifica.
+    \end{itemize}
+    
+    
+
 	\newpage
 	
-	\subsection{Trigger}
-	In questa sezione sono definiti trigger necessari per l'implementazione di vincoli o altre caratteristiche della base di dati oppure necessari per l'automatizzazione di certe cose.\\\\
-	I trigger nel modello vengono utilizzati principalmente per gestire le notifiche degli updates di una pagina.\\\\
+\subsection{Trigger}
+	In questa sezione sono definiti Trigger necessari per l'implementazione di vincoli o altre caratteristiche della base di dati.
+	\\
+	I Trigger di questa soluzione sono impiegati principalmente per gestire le notifiche degli utenti della Wiki.
+	\\\\
 	\textbf{Notazione}: Ogni trigger viene definito dalla notazione \textbf{Trigger\_NomeTabellaListen\_Caratteristica\_NomeTabellaEdit} dove:
 	
 	\begin{itemize}
-		\item \textbf{NomeTabellaListen}: Rappresenta la tabella sulla quale il trigger "guarda" le modifiche.
-		\item \textbf{NomeTabellaEdit}: Rappresenta la tabella modificata dal trigger
-		\item \textbf{Caratteristica}: Rappresenta una caratteristica determinata da ci\`o che compie il trigger.
-	\end{itemize}
+		\item \textbf{NomeTabellaListen}: Rappresenta la tabella sulla quale il Trigger "guarda" le modifiche.
+		\item \textbf{NomeTabellaEdit}: Rappresenta la tabella modificata dal Trigger.
+		\item \textbf{Caratteristica}: Rappresenta ci\`o che scaturisce il Trigger.
+		\\
+	\end{itemize}	
+\textbf{Nota}: Ogni trigger \`e composto da due parti, il trigger vero e proprio e la funzione che esso esegue.
+\\\\
+
 	
-	Ogni trigger \`e composto da due parti, il trigger vero e proprio e la funzione che esso esegue
+	\subsubsection{Trigger\_Update\_Request\_Notifica}
 	
-	\begin{lstlisting}
-		CREATE OR REPLACE FUNCTION notification_request_update()
-		RETURNS TRIGGER AS $$
-		DECLARE
-		page_creator VARCHAR(255);
-		TYPE_REQUEST_UPDATE INT := 0;
-		BEGIN
-		SELECT author INTO page_creator
-		FROM Page
-		WHERE id = NEW.page_id;
+	\begin{lstlisting}[style=SQL]
+CREATE OR REPLACE FUNCTION notification_request_update()
+  RETURNS TRIGGER AS $$
+  DECLARE
+	 page_creator VARCHAR(255); 
+	TYPE_REQUEST_UPDATE INT := 0;
+			
+  BEGIN
+	SELECT author INTO page_creator
+	FROM "Page"
+	WHERE id = NEW.page_id;
 		
-		INSERT INTO notification ("user", update_id, type)
-		VALUES (page_creator, NEW.id, TYPE_REQUEST_UPDATE);
+	INSERT INTO "Notification" ("user", update_id, type)
+	VALUES (page_creator, NEW.id, TYPE_REQUEST_UPDATE);
 		
-		RETURN NEW;
-		END;
-		$$ LANGUAGE plpgsql;
+	RETURN NEW;
+  END;
+$$ LANGUAGE plpgsql;
 		
-		CREATE TRIGGER Trigger_Update_Request_Notifica
-		AFTER INSERT ON PageUpdate
-		FOR EACH ROW
-		EXECUTE FUNCTION notification_request_update();
+CREATE TRIGGER Trigger_Update_Request_Notifica
+	AFTER INSERT ON "PageUpdate"
+	FOR EACH ROW
+	EXECUTE FUNCTION notification_request_update();
 	\end{lstlisting}
 	
-	\begin{lstlisting}
-		CREATE OR REPLACE FUNCTION notification_update_accepted()
-		RETURNS TRIGGER AS $$
-		DECLARE
-		page_creator VARCHAR(255);
-		TYPE_UPDATE_ACCEPTED INT := 1;
-		NOTIFICATION_READ INT := 1;
-		STATUS_PENDING INT := -1;
-		STATUS_ACCEPTED INT := 1;
-		BEGIN
-		SELECT author INTO page_creator
-		FROM Page
-		WHERE id = NEW.page_id;
+	\newpage
+	
+	\subsubsection{Trigger\_Update\_Accettazione\_Notifica}
+	
+	\begin{lstlisting}[style=SQL]
+CREATE OR REPLACE FUNCTION notification_update_accepted()
+  RETURNS TRIGGER AS $$
+  DECLARE
+	TYPE_UPDATE_ACCEPTED INT := 1;
+	NOTIFICATION_READ INT := 1;
+	STATUS_PENDING INT := -1;
+	STATUS_ACCEPTED INT := 1;
+	page_creator VARCHAR(255);
+				
+  BEGIN
+	SELECT author INTO page_creator
+	FROM "Page"
+	WHERE id = NEW.page_id;
 		
-		IF OLD.status = STATUS_PENDING AND NEW.status = STATUS_ACCEPTED THEN
-		INSERT INTO Notification ("user", update_id, type)
-		VALUES (NEW.author, NEW.id, TYPE_UPDATE_ACCEPTED);
+	IF OLD.status = STATUS_PENDING AND NEW.status = STATUS_ACCEPTED THEN
+	  INSERT INTO "Notification" ("user", update_id, type)
+  	  VALUES (NEW.author, NEW.id, TYPE_UPDATE_ACCEPTED);
 		
-		UPDATE Notification
-		SET type = TYPE_UPDATE_ACCEPTED, status = NOTIFICATION_READ
-		WHERE "user" = page_creator AND update_id = NEW.id;
-		END IF;
+	  UPDATE "Notification"
+	  SET "type" = TYPE_UPDATE_ACCEPTED, status = NOTIFICATION_READ
+	  WHERE "user" = page_creator AND update_id = NEW.id;
+	END IF;
 		
-		RETURN NEW;
-		END;
-		$$ LANGUAGE plpgsql;
+    RETURN NEW;
+  END;
+$$ LANGUAGE plpgsql;
 		
-		CREATE TRIGGER Trigger_Update_Accettazione_Notifica
-		AFTER UPDATE ON PageUpdate
-		FOR EACH ROW
-		EXECUTE FUNCTION notification_update_accepted();
+CREATE TRIGGER Trigger_Update_Accettazione_Notifica
+	AFTER UPDATE ON "PageUpdate"
+	FOR EACH ROW
+	EXECUTE FUNCTION notification_update_accepted();
 	\end{lstlisting}
 	
-	\begin{lstlisting}
-		CREATE OR REPLACE FUNCTION notification_update_rejected()
-		RETURNS TRIGGER AS $$
-		DECLARE
-		page_creator VARCHAR(255);
-		TYPE_UPDATE_REJECTED INT := 2;
-		NOTIFICATION_READ INT := 1;
-		STATUS_PENDING INT := -1;
-		STATUS_REJECTED INT := 0;
-		BEGIN
-		SELECT author INTO page_creator
-		FROM Page
-		WHERE id = NEW.page_id;
+	\newpage
+	
+	\subsubsection{Trigger\_Update\_Rifiuto\_Notifica}
+	
+	\begin{lstlisting}[style=SQL]
+CREATE OR REPLACE FUNCTION notification_update_rejected()
+  RETURNS TRIGGER AS $$
+  DECLARE
+	TYPE_UPDATE_REJECTED INT := 2;
+	NOTIFICATION_READ INT := 1;
+	STATUS_PENDING INT := -1;
+	STATUS_REJECTED INT := 0;
+	page_creator VARCHAR(255);
+				
+  BEGIN
+	SELECT author INTO page_creator
+	FROM "Page"
+	WHERE id = NEW.page_id;
 		
-		IF OLD.status = STATUS_PENDING AND NEW.status = STATUS_REJECTED THEN
-		INSERT INTO notification ("user", update_id, type)
-		VALUES (NEW.author, NEW.id, TYPE_UPDATE_REJECTED);
+	IF OLD.status = STATUS_PENDING AND NEW.status = STATUS_REJECTED THEN
+	  INSERT INTO "Notification" ("user", update_id, type)
+	  VALUES (NEW.author, NEW.id, TYPE_UPDATE_REJECTED);
 		
-		UPDATE notification
-		SET type = TYPE_UPDATE_REJECTED, status = NOTIFICATION_READ
-		WHERE "user" = page_creator AND update_id = NEW.id;
-		END IF;
+	  UPDATE "Notification"
+  	  SET "type" = TYPE_UPDATE_REJECTED, status = NOTIFICATION_READ
+	  WHERE "user" = page_creator AND update_id = NEW.id;
+	END IF;
 		
-		RETURN NEW;
-		END;
-		$$ LANGUAGE plpgsql;
+  RETURN NEW;
+  END;
+$$ LANGUAGE plpgsql;
 		
-		CREATE TRIGGER Trigger_Update_Rifiuto_Notifica
-		AFTER UPDATE ON PageUpdate
-		FOR EACH ROW
-		EXECUTE FUNCTION notification_update_rejected();
-	\end{lstlisting}
+CREATE TRIGGER Trigger_Update_Rifiuto_Notifica
+	AFTER UPDATE ON "PageUpdate"
+	FOR EACH ROW
+	EXECUTE FUNCTION notification_update_rejected();
+\end{lstlisting}
 	
 	
-	
-	
-	
+	% finalmente siamo qui, alla fine di questo documento
+	% è stato una bellissima e lunghissima avventura
+	% speriamo che ci da almeno 24 al progetto
+	% buona fortuna futuro te che stai leggendo!
+	% e ricorda, hai finito il progetto di BD
 	
 \end{document}
