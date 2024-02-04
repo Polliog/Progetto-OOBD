@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="SqlDialectMappings">
-    <file url="dbSrc:///24d8f6c5/dc364774-443a-4cd2-8a37-6469adcb3421/database/Wiki/schema/public/routine/notification_request_update@().sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/src/main/java/wiki/Models/User.java" dialect="GenericSQL" />
     <file url="PROJECT" dialect="MySQL" />
   </component>
