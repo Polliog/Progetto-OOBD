@@ -26,19 +26,21 @@ public class UserNotifications extends PageBase {
         backBtn.addActionListener(e -> onBackButtonPressed());
 
         updateNotificationCounterLabel();
-        createUIComponents();
+        createNotificationPanels();
     }
 
     private void onBackButtonPressed() {
         super.goBackToPrevPage();
     }
 
-    private void createUIComponents() {
+    private void createNotificationPanels() {
         JPanel notificationsPanel = new JPanel();
         notificationsPanel.setLayout(new BoxLayout(notificationsPanel, BoxLayout.Y_AXIS));
 
         // Ottenere le notifiche dall'utente loggato
         ArrayList<Notification> notifications = wikiController.fetchUserNotifications();
+
+        System.out.println(notifications.size());
 
         for (Notification notification : notifications) {
             notificationsPanel.add(new NotificationPanel(
@@ -85,6 +87,8 @@ public class UserNotifications extends PageBase {
     }
 
     private void updateNotificationCounterLabel() {
-        notificationsCounterLabel.setText("<html>Hai <b>" + wikiController.getLoggedUser().getNotifications(-1).size() + "</b> notifiche, di cui <b>" + wikiController.getLoggedUser().getNotifications(0).size() + "</b> in sospeso.</html>");
+        notificationsCounterLabel.setText("<html>Hai <b>" + wikiController.getLoggedUser().getNotifications(-1).size() +
+                "</b> notifiche, di cui <b>" + wikiController.getLoggedUser().getNotifications(0).size() +
+                "</b> in sospeso e <b>" + wikiController.getLoggedUser().getNotifications(false).size() + "</b> da leggere.</html>");
     }
 }

@@ -14,7 +14,7 @@ import java.util.Collections;
 public class UserDAO implements IUserDAO {
     public void insertUser(String username, String password) throws SQLException {
         Connection conn = DatabaseConnection.getConnection();
-        PreparedStatement pstmt = conn.prepareStatement("INSERT INTO utente (username, password) VALUES (?, ?)");
+        PreparedStatement pstmt = conn.prepareStatement("INSERT INTO \"User\" (username, password) VALUES (?, ?)");
         pstmt.setString(1, username);
         pstmt.setString(2, password);
         pstmt.executeUpdate();
@@ -22,14 +22,14 @@ public class UserDAO implements IUserDAO {
 
     public boolean doesUserExist(String username) throws SQLException {
         Connection conn = DatabaseConnection.getConnection();
-        PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM utente WHERE username = ?");
+        PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM \"User\" WHERE username = ?");
         pstmt.setString(1, username);
         return pstmt.executeQuery().next();
     }
 
     public boolean login(String username, String password) throws SQLException {
         Connection conn = DatabaseConnection.getConnection();
-        PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM utente WHERE username = ? AND password = ?");
+        PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM \"User\" WHERE username = ? AND password = ?");
         pstmt.setString(1, username);
         pstmt.setString(2, password);
         return pstmt.executeQuery().next();
@@ -41,10 +41,10 @@ public class UserDAO implements IUserDAO {
 
         PreparedStatement pstmt = conn.prepareStatement(
                 "SELECT * " +
-                "FROM (SELECT * FROM Notifications WHERE user = ?) AS notif " +
-                "JOIN `update` AS upd ON notif.update_id = upd.id " +
-                "JOIN page ON upd.page_id = page.id " +
-                "ORDER BY upd.creation DESC");
+                "FROM (SELECT * FROM \"Notification\" WHERE \"user\" = ?) AS notif " +
+                "JOIN \"PageUpdate\" AS upd ON notif.update_id = upd.id " +
+                "JOIN \"Page\" AS page ON upd.page_id = page.id " +
+                "ORDER BY upd.creation_date DESC");
 
         pstmt.setString(1, username);
         ResultSet rs = pstmt.executeQuery();
@@ -54,7 +54,7 @@ public class UserDAO implements IUserDAO {
             int notificationId = rs.getInt("id");
             int notificationStatus = rs.getInt("status");
             int notificationType = rs.getInt("type");
-            Timestamp notificationCreation = rs.getTimestamp("creation");
+            Timestamp notificationCreation = rs.getTimestamp("creation_date");
             boolean viewed = rs.getBoolean("viewed");
             // Update
             int updateId = rs.getInt("update_id");
@@ -64,10 +64,10 @@ public class UserDAO implements IUserDAO {
             // Page
             int pageId = rs.getInt("page_id");
             String pageTitle = rs.getString("title");
-            Timestamp creation = rs.getObject(16, Timestamp.class);
+            Timestamp creation_date = rs.getObject(16, Timestamp.class);
             String pageAuthor = rs.getObject(17, String.class);
             // PageUpdateText
-            PreparedStatement pstmt2 = conn.prepareStatement("SELECT * FROM UpdatedText WHERE update_id = ?");
+            PreparedStatement pstmt2 = conn.prepareStatement("SELECT * FROM \"UpdatedText\" WHERE update_id = ?");
             pstmt2.setInt(1, updateId);
             ResultSet rs2 = pstmt2.executeQuery();
 
@@ -75,7 +75,7 @@ public class UserDAO implements IUserDAO {
             while (rs2.next())
                 contentStrings.add(new UpdateContentString(rs2.getInt("id"), rs2.getString("text"), rs2.getInt("order_num"), rs2.getInt("type")));
 
-            Page page = new Page(pageId, pageTitle, pageAuthor, creation);
+            Page page = new Page(pageId, pageTitle, pageAuthor, creation_date);
 
             Update update = new Update(
                     updateId,
@@ -97,7 +97,7 @@ public class UserDAO implements IUserDAO {
         Connection conn = DatabaseConnection.getConnection();
         //controlla se la notifica appartiene all'utente
 
-        PreparedStatement pstmt = conn.prepareStatement("UPDATE Notifications SET viewed = ? WHERE id = ? and user = ?");
+        PreparedStatement pstmt = conn.prepareStatement("UPDATE \"Notification\" SET viewed = ? WHERE id = ? and \"user\" = ?");
         pstmt.setBoolean(1, true);
         pstmt.setInt(2, notificationId);
         pstmt.setString(3, username);
@@ -108,7 +108,7 @@ public class UserDAO implements IUserDAO {
         Connection conn = DatabaseConnection.getConnection();
 
         // Controlla se la notifica appartiene all'utente
-        PreparedStatement pstmt = conn.prepareStatement("SELECT COUNT(*) as count FROM notifications WHERE id = ? AND user = ?");
+        PreparedStatement pstmt = conn.prepareStatement("SELECT COUNT(*) as count FROM \"Notification\" WHERE id = ? AND \"user\" = ?");
         pstmt.setInt(1, notification.getId());
         pstmt.setString(2, username);
 
@@ -120,14 +120,14 @@ public class UserDAO implements IUserDAO {
 
         // Rifiuta le notifiche di richiesta di modifica
         if (notification.getType() == Notification.TYPE_REQUEST_UPDATE) {
-            pstmt = conn.prepareStatement("UPDATE `update` SET status = 0 WHERE id = ?");
+            pstmt = conn.prepareStatement("UPDATE \"PageUpdate\" SET status = 0 WHERE id = ?");
             pstmt.setInt(1, notification.getUpdate().getId());
             pstmt.executeUpdate();
 
             System.out.println("Rifiutata la richiesta di modifica");
         }
 
-        pstmt = conn.prepareStatement("DELETE FROM notifications WHERE id = ?");
+        pstmt = conn.prepareStatement("DELETE FROM \"Notification\" WHERE id = ?");
         pstmt.setInt(1, notification.getId());
         pstmt.executeUpdate();
     }

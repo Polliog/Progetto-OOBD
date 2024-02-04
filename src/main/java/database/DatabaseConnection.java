@@ -3,14 +3,14 @@ package database;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.SQLTimeoutException;
 
 public final class DatabaseConnection {
-    private static final String DATABASE_URL = "jdbc:mysql://localhost:3306/oo";
-    private static final String DATABASE_USER = "root";
-    private static final String DATABASE_PASSWORD = "";
+    private static final String DATABASE_URL = "jdbc:postgresql://172.17.0.3:5432/Wiki";
+    private static final String DATABASE_USER = "postgres";
+    private static final String DATABASE_PASSWORD = "root";
 
     private static Connection connection = null;
+
 
     // private constructor to prevent instantiation
     private DatabaseConnection() {}

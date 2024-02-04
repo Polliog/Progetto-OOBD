@@ -57,6 +57,7 @@ public class WikiController {
             }
         }
         catch (SQLException e) {
+            e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Errore durante il controllo dell'esistenza dell'utente", "Errore", JOptionPane.ERROR_MESSAGE);
             return false;
         }
@@ -131,8 +132,8 @@ public class WikiController {
         loggedUser.setNotifications(notifications);
 
         // Shows 'new notification' dialog if there are any non read notifications
-        if (!loggedUser.getNotifications(0).isEmpty()) {
-            String message = "Hai (" + loggedUser.getNotifications(0).size() + ") nuove notifiche";
+        if (!loggedUser.getNotifications(false).isEmpty()) {
+            String message = "Hai (" + loggedUser.getNotifications(false).size() + ") nuove notifiche da leggere";
             Object[] options = {"Visualizza", "Chiudi"};
 
             int n = JOptionPane.showOptionDialog(null,
