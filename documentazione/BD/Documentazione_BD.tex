@@ -268,7 +268,16 @@
 	\subsection{Analisi delle Ridondanze}
 	Con Analisi delle Ridondanze intendiamo il processo di identificazione dei dati duplicati o derivabili da altre informazioni all'interno di una base di dati.
 	\\
-	Nel modello concettuale originale non sono presenti ridondanze. 
+	Nel modello concettuale originale riscontriamo una ridondanza con l'attributo \texttt{status} dell'entità \textbf{Notification} in quanto il dominio dei valori possibili dell'attributo è \{\texttt{OPEN, CLOSED}\}, che rispettivamente va ad indicare se la notifica è \texttt{OPEN} quando in attesa di un azione dall'utente destinatario della notifica (attributo \texttt{user}), e \texttt{CLOSED} quando la notifica ha già ricevuto un azione dall'utente e dunque viene utilizzata puramente come feedback dell'azione ricevuta.
+	Ricordando che i tipi possibili di notifiche sono \texttt{REQUEST\_UPDATE, UPDATE\_ACCEPTED, UPDATE\_REJECTED}, che rispettivamente indicano:
+	\begin{enumerate}
+		\item \texttt{REQUEST\_UPDATE}: Notifica di Richiesta di modifica di una pagina.
+		\item \texttt{UPDATE\_ACCEPTED}: Notifica di accettazione della modifica proposta.
+		\item \texttt{UPDATE\_REJECTED}: Notifica di rifiuto della modifica proposta.
+	\end{enumerate}
+	
+	Possiamo notare che il valore dello stato di una notifica (attributo \texttt{status}) sarà sempre \texttt{OPEN} quando il tipo di notifica è \texttt{REQUEST\_UPDATE}, e sarà sempre \texttt{CLOSED} quando il tipo di notifica è \texttt{UPDATE\_ACCEPTED} o \texttt{UPDATE\_REJECTED}, quindi il valore dell'attributo \texttt{status} è puramente derivabile dal valore dall'attributo \texttt{type}.
+	Decidiamo dunque di eliminare l'attributo \texttt{status} dall'entità \textbf{Notification} in quando dato derivabile da altre informazioni all'interno della base di dati.
 	\\\\
 	
 	\subsection{Analisi delle Generalizzazioni}
@@ -290,11 +299,8 @@
 	Durante l'Eliminazione degli attributi Multivalore o Composti, si procede a rimuovere dalla struttura del modello concettuale gli attributi che possono avere più di un valore o che sono composti da diverse parti, semplificando così la rappresentazione dei dati.	
 	\\
 	Nel modello concettuale non sono presenti attributi multivalore o attributi composti.
-	\\\\
+	\\
 	
-	% -------------------------------------------------------------------------------------------
-	\newpage
-	% -------------------------------------------------------------------------------------------
 	
 	\subsection{Analisi di Entità e Associazioni}
 	Non si è ritenuto opportuno scomporre o accorpare le entità restanti, fanno accezione le sottoclassi \texttt{Admin} e \texttt{Link} che sono state eliminate e solo la prima è stata sostituita dal nuovo attributo \texttt{admin} nell'entità \textbf{User}.
@@ -398,7 +404,7 @@
 		\\
 		- \texttt{author} → USER.username
 		
-		\item \textbf{NOTIFICATION} ($\underline{id}$, \texttt{status}, \texttt{type}, \texttt{viewed}, \texttt{user}↑, \texttt{update\_id}↑, \texttt{creation\_date})
+		\item \textbf{NOTIFICATION} ($\underline{id}$, \texttt{type}, \texttt{viewed}, \texttt{user}↑, \texttt{update\_id}↑, \texttt{creation\_date})
 		\\
 		- \texttt{update\_id} → UPDATE.id
 		\\
@@ -542,7 +548,6 @@ CREATE TABLE IF NOT EXISTS "UpdatedText" (
 CREATE TABLE IF NOT EXISTS "Notification" (
 	id SERIAL NOT NULL,
 	"user" SHORT_TEXT NOT NULL,
-	status INT DEFAULT 0,
 	update_id INT NOT NULL,
 	"type" INT NOT NULL,
 	viewed BOOLEAN DEFAULT FALSE,
@@ -591,7 +596,11 @@ CREATE OR REPLACE VIEW ModificheDiUnUtenteAdUnaPagina AS
 -- Restituisce il titolo, l'ID della pagina, l'ID del testo e 
 -- l'autore di una pagina insieme al testo associato.
 CREATE OR REPLACE VIEW PaginaConTesto AS
-	SELECT "Page".title, "Page".id AS page_id, "PageText".id AS text_id, "Page".author
+	SELECT 
+		"Page".title, 
+		"Page".id AS page_id, 
+		"PageText".id AS text_id, 
+		"Page".author
 	FROM "Page"
 	LEFT JOIN "PageText" ON "Page".id = "PageText".page_id;
 \end{lstlisting}
@@ -604,7 +613,6 @@ CREATE OR REPLACE VIEW PaginaConTesto AS
 CREATE OR REPLACE VIEW NotificheDiUnUtente AS
 	SELECT 
 		"User".username, 
-		"Notification".status, 
 		"Notification".update_id,
 		"Notification"."type"
 	FROM "Notification"
@@ -676,42 +684,101 @@ $$ LANGUAGE plpgsql;
 Questa funzione PL/pgSQL, chiamata \texttt{search\_pages}, accetta un testo di ricerca e tre parametri booleani come input. Restituisce una tabella contenente \texttt{page\_id}, \texttt{titolo}, \texttt{creation\_date} e \texttt{author} delle pagine che corrispondono ai criteri di ricerca specificati. 
 \\\\
 \textbf{Note:} 
-
 \begin{itemize}
 	\item La funzione esegue una ricerca case-insensitive utilizzando l'operatore ILIKE.
 	\item Risultato: \texttt{page\_id}, \texttt{titolo}, \texttt{creation\_date} e \texttt{author}.
 \end{itemize}
 
+\newpage
+
 \subsubsection{Esempio di utilizzo della funzione \texttt{search\_pages}}
 
 \begin{lstlisting}[style=SQL]
-SELECT * FROM search_pages('testo_di_ricerca', TRUE, TRUE, FALSE);
+SELECT * FROM search_pages('pagina', TRUE, TRUE, FALSE);
 \end{lstlisting}
+Ricerca di pagine che abbiamo il testo 'pagina' (o simile \texttt{ILIKE}) nel titolo o nel contenuto.
+\\
+\begin{lstlisting}[style=SQL]
+SELECT * FROM search_pages('pagina');
+\end{lstlisting}
+Ricerca di pagine che abbiamo il testo 'pagina' (o simile \texttt{ILIKE}) solo nel titolo, essendo i valori di default degli altri parametri:
+\begin{itemize}
+	\item \texttt{search\_in\_title = TRUE}
+	\item \texttt{search\_in\_text = FALSE}
+	\item \texttt{search\_in\_author = FALSE} 
+	\\\\
+\end{itemize}
+
 	
 \subsubsection{Parametri della funzione \texttt{search\_pages}}	
 	\begin{itemize}
-		\item \texttt{search\_text}: Il testo da cercare all'interno dei titoli, dei testi o degli autori delle pagine.
-		\item \texttt{search\_in\_title} (Default: \texttt{TRUE}): Booleano che indica se cercare all'interno dei titoli delle pagine.
-		\item \texttt{search\_in\_text} (Default: \texttt{FALSE}): Booleano che indica se cercare all'interno dei testi delle pagine.
-		\item \texttt{search\_in\_author} (Default: \texttt{FALSE}): Booleano che indica se cercare all'interno degli autori delle pagine.
+		\item \texttt{search\_text} \texttt{SHORT\_TEXT}: Indica il testo della ricerca, può indicare il testo dei titoli, dei contenuti o degli autori delle pagine.
+		\item \texttt{search\_in\_title} \texttt {BOOLEAN} (Default: \texttt{TRUE}): Indica se cercare all'interno dei titoli delle pagine.
+		\item \texttt{search\_in\_text} \texttt {BOOLEAN} (Default: \texttt{FALSE}): Indica se cercare all'interno dei testi delle pagine.
+		\item \texttt{search\_in\_author} \texttt {BOOLEAN} (Default: \texttt{FALSE}): Indica se cercare all'interno degli autori delle pagine.
 		\\\\
 	\end{itemize}
 	
-
+\newpage
 	
 \subsubsection{Funzione PL/pgSQL \texttt{search\_notifications}}
+
+La funzione PL/pgSQL, denominata \texttt{search\_notifications}, consente di effettuare una ricerca avanzata tra le notifiche del sistema. Restituisce una tabella contenente dettagli specifici delle notifiche che corrispondono ai criteri di ricerca specificati. 
+Per coprire tutti i casi d'uso della ricerca di una notifica, che sono:
+\begin{itemize}
+	\item Ricerca di tutte le notifiche di un dato utente \texttt{nome\_destinatario} che si riferiscono ad una pagina dal titolo \texttt{titolo\_pagina\_text}.
+	\item Ricerca di tutte le notifiche che rispettano il caso precedente e con l'aggiunta della ricerca sul tipo di notifica \texttt{tipo\_notifica} o sullo stato di lettura \texttt{notifica\_letta}.
+	\item Ricerca di tutte le notifiche per \texttt{nome\_destinatario}, {titolo\_pagina\_text}, \texttt{tipo\_notifica} e \texttt{notifica\_letta}.  
+\end{itemize}
+abbiamo optato per la definizione di più funzioni \texttt{search\_notifications} con \textit{liste di attributi} diverse. Questo metodo viene chiamato \textbf{Function Overloading}, quando la query viene eseguita è il server a determinare la funzione da chiamare tramite i tipi e il numero di argomenti passati. Nel nostro caso le diverse definizioni della funzione \texttt{search\_notifications} non creano ambiguità tra loro in quanto tutte le \textit{liste di attributi} sono diverse, queste sono:
+\begin{itemize}
+ 	\item \texttt{search\_notifications(SHORT\_TEXT, TEXT, INT, BOOLEAN)}.
+ 	\item \texttt{search\_notifications(SHORT\_TEXT, TEXT, INT)}.
+ 	\item \texttt{search\_notifications(SHORT\_TEXT, TEXT, BOOLEAN)}.
+ 	\item \texttt{search\_notifications(SHORT\_TEXT, TEXT)}.
+ 	\\
+\end{itemize}
+
+	
+	    
+	\subsubsection{Parametri della funzione \texttt{search\_notifications}}	
+	
+	\begin{itemize}
+		\item \texttt{nome\_destinatario} \texttt{SHORT\_TEXT}: Il nome del destinatario della notifica da cercare.
+		\item \texttt{titolo\_pagina\_text} \texttt{TEXT}: Il testo da cercare all'interno dei titoli delle pagine. Si è scelto di utilizzare il tipo \texttt{TEXT} per permettere l'inserimento di un testo vuoto (''), in questo caso la funzione ritornerà tutte le pagine che rispettano i restanti criteri a prescindere dal titolo. 
+		\item \texttt{tipo\_notifica} \texttt{INT}: Il tipo di notifica da cercare.
+		\item \texttt{notifica\_letta} \texttt{BOOLEAN} (Default: \texttt{FALSE}): Indica se le notifiche sono lette o non lette.
+		\\
+	\end{itemize}
 	
 	
-\begin{lstlisting}[style=SQL]
+	
+	
+	\subsubsection{Elementi di output della funzione \texttt{search\_notifications}}
+	
+	La funzione restituisce una tabella con le seguenti colonne:
+	
+	\begin{itemize}
+		\item \texttt{id}: L'identificativo univoco della notifica.
+		\item \texttt{user\_name}: Lo username dell'utente associato alla notifica.
+		\item \texttt{update\_id}: L'identificativo univoco dell'aggiornamento associato alla notifica.
+		\item \texttt{notification\_type}: Il tipo della notifica.
+		\item \texttt{viewed}: Booleano che indica se la notifica è stata letta o meno.
+		\item \texttt{creation\_date}: La data di creazione della notifica.
+	\end{itemize}
+	
+	
+\subsubsection{Funzione \texttt{search\_notifications(SHORT\_TEXT, TEXT, INT, BOOLEAN)}}
+	
+\begin{lstlisting}[style=SQL, caption={\texttt{search\_notifications(SHORT\_TEXT, TEXT, INT, BOOLEAN)}}]
 CREATE OR REPLACE FUNCTION search_notifications(
+	nome_destinatario SHORT_TEXT,
 	titolo_pagina_text TEXT,
 	tipo_notifica INT,
-	stato_notifica INT,
 	notifica_letta BOOLEAN
 ) RETURNS TABLE (
 	id INT,
 	user_name SHORT_TEXT,
-	status INT,
 	update_id INT,
 	notification_type INT,
 	viewed BOOLEAN,
@@ -722,7 +789,6 @@ RETURN QUERY
 	SELECT 
 		n.id,
 		n."user",
-		n.status,
 		n.update_id,
 		n."type",
 		n.viewed,
@@ -731,59 +797,151 @@ RETURN QUERY
 	JOIN "PageUpdate" u ON n.update_id = u.id
 	JOIN "Page" p ON u.page_id = p.id
 	WHERE p.title ILIKE '%' || titolo_pagina_text || '%'
+	AND n."user" = nome_destinatario
 	AND n.type = tipo_notifica
-	AND n.status = stato_notifica
 	AND n.viewed = notifica_letta;
 END;
-$$
-LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 \end{lstlisting}
-La funzione PL/pgSQL, denominata \texttt{search\_notifications}, consente di effettuare una ricerca avanzata tra le notifiche del sistema. Restituisce una tabella contenente dettagli specifici delle notifiche che corrispondono ai criteri di ricerca specificati.
-\\
+\textbf{\\\\Esempio:}
+\begin{lstlisting}[style=SQL]
+SELECT * FROM search_notifications('giuseppe', 'Pagina', 1, FALSE);
+\end{lstlisting}
+Questa query restituirà tutte le notifiche dell'utente "giuseppe" relative alle pagine che contengono un titolo \textit{simile} a "Pagina", di tipo 1 \texttt{UPDATE\_ACCEPTED} e che non sono state ancora lette dal destinatario.
+
     
-    \newpage
-    
-    \subsubsection{Esempio di utilizzo della funzione \texttt{search\_notifications}}
-    
+\newpage
+
+
+
+\subsubsection{Funzione \texttt{search\_notifications(SHORT\_TEXT, TEXT, INT)}}
+
+\begin{lstlisting}[style=SQL, caption={\texttt{search\_notifications(SHORT\_TEXT, TEXT, INT)}}]
+CREATE OR REPLACE FUNCTION search_notifications(
+	nome_destinatario SHORT_TEXT,
+	titolo_pagina_text TEXT,
+	tipo_notifica INT
+) RETURNS TABLE (
+	id INT,
+	user_name SHORT_TEXT,
+	update_id INT,
+	notification_type INT,
+	viewed BOOLEAN,
+	creation_date TIMESTAMP
+) AS $$
+BEGIN
+RETURN QUERY
+	SELECT 
+		n.id,
+		n."user",
+		n.update_id,
+		n."type",
+		n.viewed,
+		n.creation_date
+	FROM "Notification" n
+	JOIN "PageUpdate" u ON n.update_id = u.id
+	JOIN "Page" p ON u.page_id = p.id
+	WHERE p.title ILIKE '%' || titolo_pagina_text || '%'
+	AND n."user" = nome_destinatario
+	AND n.type = tipo_notifica;
+END;
+$$ LANGUAGE plpgsql;
+\end{lstlisting}
+\textbf{\\\\Esempio:}
+\begin{lstlisting}[style=SQL]
+SELECT * FROM search_notifications('mario', 'Pagina', 2);
+\end{lstlisting}
+Questa query restituirà tutte le notifiche dell'utente "mario" relative alle pagine che contengono un titolo \textit{simile} a "Pagina", di tipo 2 \texttt{UPDATE\_REJECTED}. Ritorna sia le pagine lette che quelle non lette.
+
+\newpage
+
+
+\subsubsection{Funzione \texttt{search\_notifications(SHORT\_TEXT, TEXT, BOOLEAN)}}
+
+\begin{lstlisting}[style=SQL, caption={\texttt{search\_notifications(SHORT\_TEXT, TEXT, BOOLEAN)}}]
+CREATE OR REPLACE FUNCTION search_notifications(
+	nome_destinatario SHORT_TEXT,
+	titolo_pagina_text TEXT,
+	notifica_letta BOOLEAN
+) RETURNS TABLE (
+	id INT,
+	user_name SHORT_TEXT,
+	update_id INT,
+	notification_type INT,
+	viewed BOOLEAN,
+	creation_date TIMESTAMP
+) AS $$
+BEGIN
+RETURN QUERY
+	SELECT 
+		n.id,
+		n."user",
+		n.update_id,
+		n."type",
+		n.viewed,
+		n.creation_date
+	FROM "Notification" n
+	JOIN "PageUpdate" u ON n.update_id = u.id
+	JOIN "Page" p ON u.page_id = p.id
+	WHERE p.title ILIKE '%' || titolo_pagina_text || '%'
+	AND n."user" = nome_destinatario
+	AND n.viewed = notifica_letta;
+END;
+$$ LANGUAGE plpgsql;
+\end{lstlisting}
+\textbf{\\\\Esempio:}
+\begin{lstlisting}[style=SQL]
+SELECT * FROM search_notifications('mario', 'Pagina', FALSE);
+\end{lstlisting}
+Questa query restituirà tutte le notifiche dell'utente "mario" relative alle pagine che contengono un titolo \textit{simile} a "Pagina", che non sono state ancora lette.
+
+\newpage
+
+
+
+\subsubsection{Funzione \texttt{search\_notifications(SHORT\_TEXT, TEXT)}}
+
+\begin{lstlisting}[style=SQL, caption={\texttt{search\_notifications(SHORT\_TEXT, TEXT)}}]
+CREATE OR REPLACE FUNCTION search_notifications(
+	nome_destinatario SHORT_TEXT,
+	titolo_pagina_text TEXT
+) RETURNS TABLE (
+	id INT,
+	user_name SHORT_TEXT,
+	update_id INT,
+	notification_type INT,
+	viewed BOOLEAN,
+	creation_date TIMESTAMP
+) AS $$
+BEGIN
+RETURN QUERY
+	SELECT 
+		n.id,
+		n."user",
+		n.update_id,
+		n."type",
+		n.viewed,
+		n.creation_date
+	FROM "Notification" n
+	JOIN "PageUpdate" u ON n.update_id = u.id
+	JOIN "Page" p ON u.page_id = p.id
+	WHERE p.title ILIKE '%' || titolo_pagina_text || '%'
+	AND n."user" = nome_destinatario;
+END;
+$$ LANGUAGE plpgsql;
+\end{lstlisting}
+\textbf{\\\\Esempio:}
     \begin{lstlisting}[style=SQL]
-SELECT * FROM search_notifications('Pagina', 1, 0, FALSE);
-    \end{lstlisting}
-    \textbf{Note:} 
-    \begin{itemize}
-    	\item Questa query restituirà tutte le notifiche relative alle pagine che contengono il testo "Pagina", hanno tipo di notifica 1, stato 0 e non sono state ancora lette.
-    	\\
-    \end{itemize}
-    
-    \subsubsection{Parametri della funzione \texttt{search\_notifications}}	
-    
-    \begin{itemize}
-    	\item \texttt{titolo\_pagina\_text}: Il testo da cercare all'interno dei titoli delle pagine associate alle notifiche.
-    	\item \texttt{tipo\_notifica}: Il tipo di notifica da cercare.
-    	\item \texttt{stato\_notifica}: Lo stato della notifica da cercare.
-    	\item \texttt{notifica\_letta} (Default: \texttt{FALSE}): Booleano che indica se cercare notifiche lette o non lette.
-    	\\
-    \end{itemize}
-    
+SELECT * FROM search_notifications('prova', 'Pagina');
+	\end{lstlisting}
+Questa query restituirà tutte le notifiche dell'utente "prova" relative alle pagine che contengono un titolo \textit{simile} a "Pagina", a prescindere dal tipo della notifica e dalla visualizzazione della notifica (letta o non);
+
+
+\newpage
+
 
     
-    
-\subsubsection{Elementi di output della funzione \texttt{search\_notifications}}
-    
-    La funzione restituisce una tabella con le seguenti colonne:
-    
-    \begin{itemize}
-    	\item \texttt{id}: L'identificativo univoco della notifica.
-    	\item \texttt{user\_name}: Lo username dell'utente associato alla notifica.
-    	\item \texttt{status}: Lo stato della notifica.
-    	\item \texttt{update\_id}: L'identificativo univoco dell'aggiornamento associato alla notifica.
-    	\item \texttt{notification\_type}: Il tipo della notifica.
-    	\item \texttt{viewed}: Booleano che indica se la notifica è stata letta o meno.
-    	\item \texttt{creation\_date}: La data di creazione della notifica.
-    \end{itemize}
-    
-    
 
-	\newpage
 	
 \subsection{Trigger}
 	In questa sezione sono definiti Trigger necessari per l'implementazione di vincoli o altre caratteristiche della base di dati.
@@ -838,7 +996,6 @@ CREATE OR REPLACE FUNCTION notification_update_accepted()
   RETURNS TRIGGER AS $$
   DECLARE
 	TYPE_UPDATE_ACCEPTED INT := 1;
-	NOTIFICATION_READ INT := 1;
 	STATUS_PENDING INT := -1;
 	STATUS_ACCEPTED INT := 1;
 	page_creator VARCHAR(255);
@@ -853,7 +1010,7 @@ CREATE OR REPLACE FUNCTION notification_update_accepted()
   	  VALUES (NEW.author, NEW.id, TYPE_UPDATE_ACCEPTED);
 		
 	  UPDATE "Notification"
-	  SET "type" = TYPE_UPDATE_ACCEPTED, status = NOTIFICATION_READ
+	  SET "type" = TYPE_UPDATE_ACCEPTED
 	  WHERE "user" = page_creator AND update_id = NEW.id;
 	END IF;
 		
@@ -876,7 +1033,6 @@ CREATE OR REPLACE FUNCTION notification_update_rejected()
   RETURNS TRIGGER AS $$
   DECLARE
 	TYPE_UPDATE_REJECTED INT := 2;
-	NOTIFICATION_READ INT := 1;
 	STATUS_PENDING INT := -1;
 	STATUS_REJECTED INT := 0;
 	page_creator VARCHAR(255);
@@ -891,7 +1047,7 @@ CREATE OR REPLACE FUNCTION notification_update_rejected()
 	  VALUES (NEW.author, NEW.id, TYPE_UPDATE_REJECTED);
 		
 	  UPDATE "Notification"
-  	  SET "type" = TYPE_UPDATE_REJECTED, status = NOTIFICATION_READ
+  	  SET "type" = TYPE_UPDATE_REJECTED
 	  WHERE "user" = page_creator AND update_id = NEW.id;
 	END IF;
 		

@@ -8,7 +8,7 @@
 \contentsline {section}{\numberline {2}Ristrutturazione del Modello Concettuale}{7}{}%
 \contentsline {subsection}{\numberline {2.1}Analisi delle Ridondanze}{7}{}%
 \contentsline {subsection}{\numberline {2.2}Analisi delle Generalizzazioni}{7}{}%
-\contentsline {subsection}{\numberline {2.3}Eliminazione degli attributi Multivalore o Composti}{7}{}%
+\contentsline {subsection}{\numberline {2.3}Eliminazione degli attributi Multivalore o Composti}{8}{}%
 \contentsline {subsection}{\numberline {2.4}Analisi di Entità e Associazioni}{8}{}%
 \contentsline {subsubsection}{\numberline {2.4.1}Attributi aggiunti in fase di Ristrutturazione}{8}{}%
 \contentsline {subsubsection}{\numberline {2.4.2}Scelta degli Identificatori Primari}{8}{}%
@@ -23,13 +23,16 @@
 \contentsline {subsection}{\numberline {4.3}View}{15}{}%
 \contentsline {subsection}{\numberline {4.4}Operazioni}{17}{}%
 \contentsline {subsubsection}{\numberline {4.4.1}Funzione PL/pgSQL \texttt {search\_pages}}{17}{}%
-\contentsline {subsubsection}{\numberline {4.4.2}Esempio di utilizzo della funzione \texttt {search\_pages}}{17}{}%
+\contentsline {subsubsection}{\numberline {4.4.2}Esempio di utilizzo della funzione \texttt {search\_pages}}{18}{}%
 \contentsline {subsubsection}{\numberline {4.4.3}Parametri della funzione \texttt {search\_pages}}{18}{}%
-\contentsline {subsubsection}{\numberline {4.4.4}Funzione PL/pgSQL \texttt {search\_notifications}}{18}{}%
-\contentsline {subsubsection}{\numberline {4.4.5}Esempio di utilizzo della funzione \texttt {search\_notifications}}{19}{}%
-\contentsline {subsubsection}{\numberline {4.4.6}Parametri della funzione \texttt {search\_notifications}}{19}{}%
-\contentsline {subsubsection}{\numberline {4.4.7}Elementi di output della funzione \texttt {search\_notifications}}{19}{}%
-\contentsline {subsection}{\numberline {4.5}Trigger}{20}{}%
-\contentsline {subsubsection}{\numberline {4.5.1}Trigger\_Update\_Request\_Notifica}{20}{}%
-\contentsline {subsubsection}{\numberline {4.5.2}Trigger\_Update\_Accettazione\_Notifica}{21}{}%
-\contentsline {subsubsection}{\numberline {4.5.3}Trigger\_Update\_Rifiuto\_Notifica}{22}{}%
+\contentsline {subsubsection}{\numberline {4.4.4}Funzione PL/pgSQL \texttt {search\_notifications}}{19}{}%
+\contentsline {subsubsection}{\numberline {4.4.5}Parametri della funzione \texttt {search\_notifications}}{19}{}%
+\contentsline {subsubsection}{\numberline {4.4.6}Elementi di output della funzione \texttt {search\_notifications}}{19}{}%
+\contentsline {subsubsection}{\numberline {4.4.7}Funzione \texttt {search\_notifications(SHORT\_TEXT, TEXT, INT, BOOLEAN)}}{20}{}%
+\contentsline {subsubsection}{\numberline {4.4.8}Funzione \texttt {search\_notifications(SHORT\_TEXT, TEXT, INT)}}{21}{}%
+\contentsline {subsubsection}{\numberline {4.4.9}Funzione \texttt {search\_notifications(SHORT\_TEXT, TEXT, BOOLEAN)}}{22}{}%
+\contentsline {subsubsection}{\numberline {4.4.10}Funzione \texttt {search\_notifications(SHORT\_TEXT, TEXT)}}{23}{}%
+\contentsline {subsection}{\numberline {4.5}Trigger}{24}{}%
+\contentsline {subsubsection}{\numberline {4.5.1}Trigger\_Update\_Request\_Notifica}{24}{}%
+\contentsline {subsubsection}{\numberline {4.5.2}Trigger\_Update\_Accettazione\_Notifica}{25}{}%
+\contentsline {subsubsection}{\numberline {4.5.3}Trigger\_Update\_Rifiuto\_Notifica}{26}{}%
