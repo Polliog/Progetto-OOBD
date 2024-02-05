@@ -4,18 +4,17 @@ package wiki.Models;
 import java.sql.Timestamp;
 
 public class Notification {
+    // Types
     public static final int TYPE_REQUEST_UPDATE = 0;
     public static final int TYPE_UPDATE_ACCEPTED = 1;
     public static final int TYPE_UPDATE_REJECTED = 2;
-    //
-
+    // Status
     public static final int STATUS_OPEN = 0;
     public static final int STATUS_CLOSED = 1;
 
     private int id;
     private int type;
-    // change to read bool
-    private int status;         //0 = APERTO 1 = CHIUSO
+    private int status;
     private Update update;
     private Timestamp creation;
     private boolean viewed;

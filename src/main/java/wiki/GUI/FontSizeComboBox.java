@@ -5,7 +5,7 @@ import javax.swing.text.JTextComponent;
 import java.awt.*;
 
 public class FontSizeComboBox extends JComboBox {
-    public final int[] fontSizeArray = {12, 14, 16, 18, 20, 24, 28, 32, 36};
+    public final int[] fontSizeArray = {10, 12, 14, 16, 18, 20, 24, 28, 32, 36};
 
     private JTextComponent textComponent;
 
@@ -25,6 +25,6 @@ public class FontSizeComboBox extends JComboBox {
     }
 
     private void onFontSizeSelected() {
-        textComponent.setFont(new Font(textComponent.getFont().getFamily(), Font.PLAIN, (int)this.getSelectedItem()));
+        textComponent.setFont(new Font(textComponent.getFont().getFamily(), Font.PLAIN, (int)getSelectedItem()));
     }
 }

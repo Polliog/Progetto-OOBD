@@ -36,9 +36,8 @@ public abstract class PageBase extends JFrame {
     protected void goBackToPrevPage() {
         prevPage.setVisible(true);
 
-        if (prevPage instanceof IUpdatable) {
+        if (prevPage instanceof IUpdatable)
             ((IUpdatable) prevPage).updateGUI();
-        }
 
         this.dispose();
     }

@@ -14,6 +14,9 @@ import java.util.Collections;
 public class UserDAO implements IUserDAO {
     public void insertUser(String username, String password) throws SQLException {
         Connection conn = DatabaseConnection.getConnection();
+
+        // TODO
+        //  INSERT WITH COL ADMIN TRUE IF COUNT(*) User IS 0
         PreparedStatement pstmt = conn.prepareStatement("INSERT INTO \"User\" (username, password) VALUES (?, ?)");
         pstmt.setString(1, username);
         pstmt.setString(2, password);
@@ -21,6 +24,8 @@ public class UserDAO implements IUserDAO {
     }
 
     public boolean doesUserExist(String username) throws SQLException {
+        // TODO
+        //  REPLACE SELECT WITH COUNT
         Connection conn = DatabaseConnection.getConnection();
         PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM \"User\" WHERE username = ?");
         pstmt.setString(1, username);
@@ -39,6 +44,8 @@ public class UserDAO implements IUserDAO {
         Connection conn = DatabaseConnection.getConnection();
         ArrayList<Notification> notifications = new ArrayList<>();
 
+        // TODO
+        //  REPLACE WITH SUBQUERY AND RENAME RETURN VALUES
         PreparedStatement pstmt = conn.prepareStatement(
                 "SELECT * " +
                 "FROM (SELECT * FROM \"Notification\" WHERE \"user\" = ?) AS notif " +
@@ -97,7 +104,7 @@ public class UserDAO implements IUserDAO {
         Connection conn = DatabaseConnection.getConnection();
         //controlla se la notifica appartiene all'utente
 
-        PreparedStatement pstmt = conn.prepareStatement("UPDATE \"Notification\" SET viewed = ? WHERE id = ? and \"user\" = ?");
+        PreparedStatement pstmt = conn.prepareStatement("UPDATE \"Notification\" SET viewed = ? WHERE id = ? AND \"user\" = ?");
         pstmt.setBoolean(1, true);
         pstmt.setInt(2, notificationId);
         pstmt.setString(3, username);
@@ -108,11 +115,11 @@ public class UserDAO implements IUserDAO {
         Connection conn = DatabaseConnection.getConnection();
 
         // Controlla se la notifica appartiene all'utente
-        PreparedStatement pstmt = conn.prepareStatement("SELECT COUNT(*) as count FROM \"Notification\" WHERE id = ? AND \"user\" = ?");
+        PreparedStatement pstmt = conn.prepareStatement("SELECT COUNT(*) AS count FROM \"Notification\" WHERE id = ? AND \"user\" = ?");
         pstmt.setInt(1, notification.getId());
         pstmt.setString(2, username);
-
         ResultSet rs = pstmt.executeQuery();
+
         boolean notificationBelongsToUser = (rs.next() && rs.getInt("count") > 0);
 
         if (!notificationBelongsToUser)
@@ -123,8 +130,6 @@ public class UserDAO implements IUserDAO {
             pstmt = conn.prepareStatement("UPDATE \"PageUpdate\" SET status = 0 WHERE id = ?");
             pstmt.setInt(1, notification.getUpdate().getId());
             pstmt.executeUpdate();
-
-            System.out.println("Rifiutata la richiesta di modifica");
         }
 
         pstmt = conn.prepareStatement("DELETE FROM \"Notification\" WHERE id = ?");

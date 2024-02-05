@@ -70,7 +70,7 @@ public class WikiController {
             }
             else {
                 JOptionPane.showMessageDialog(null, "Login effettuato", "Successo", JOptionPane.INFORMATION_MESSAGE);
-                setLoggedUser(new User(username));
+                setLoggedUser(new User(username, isUserLogged()));
             }
 
             return loginResult;
@@ -94,22 +94,16 @@ public class WikiController {
         }
 
         try {
+            // Returns is the username is already taken
             if (userDAO.doesUserExist(username)) {
-                JOptionPane.showMessageDialog(null, "Nome utente già esistente", "Errore", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Nome utente già registrato", "Errore", JOptionPane.ERROR_MESSAGE);
                 return false;
             }
-        }
-        catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Errore durante il controllo dell'esistenza dell'utente", "Errore", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
-            return false;
-        }
 
-        try {
             userDAO.insertUser(username, password);
         }
         catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Errore durante la registrazione dell'utente", "Errore", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Impossibile registrarsi", "Errore", JOptionPane.ERROR_MESSAGE);
             return false;
         }
 

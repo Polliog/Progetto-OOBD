@@ -4,15 +4,16 @@ import java.util.ArrayList;
 
 public class User {
     //attributes
-    private String username;
-
+    private final String username;
+    private final boolean isAdmin;
     private ArrayList<Notification> notifications = new ArrayList<>();
 
 
 
     //constructor
-    public User(String username) {
+    public User(String username, boolean isAdmin) {
         this.username = username.toLowerCase();
+        this.isAdmin = isAdmin;
     }
 
     //metodi
@@ -20,6 +21,8 @@ public class User {
     public String getUsername() {
         return username;
     }
+
+    public boolean isAdmin() { return isAdmin; }
 
     //getter and setter for updates
 
