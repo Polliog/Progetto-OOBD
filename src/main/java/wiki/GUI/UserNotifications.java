@@ -13,12 +13,34 @@ public class UserNotifications extends PageBase {
     private JLabel usernameLabel;
     private JLabel notificationsCounterLabel;
     private JScrollPane notificationScrollPanel;
+    private JTextField textField1;
+    private JButton searchBtn;
+    private JRadioButton requestUpdateRadBtn;
+    private JRadioButton updateAcceptedRadBtn;
+    private JRadioButton updateRejectedRadBtn;
+    private JRadioButton isViewedRadBtn;
+    private JRadioButton notViewedRadBtn;
+    private JRadioButton anyTypeRadBtn;
+    private JRadioButton anyViewedRadBtn;
 
     public UserNotifications(WikiController wikiController, PageBase prevPageRef) {
         super(wikiController, prevPageRef);
         add(mainPanel);
 
         setMinimumSize(new Dimension(600, 700));
+
+        ButtonGroup typeGroup = new ButtonGroup();
+        typeGroup.add(anyTypeRadBtn);
+        typeGroup.add(requestUpdateRadBtn);
+        typeGroup.add(updateAcceptedRadBtn);
+        typeGroup.add(updateRejectedRadBtn);
+        typeGroup.setSelected(anyTypeRadBtn.getModel(), true);
+
+        ButtonGroup viewedGroup = new ButtonGroup();
+        viewedGroup.add(anyViewedRadBtn);
+        viewedGroup.add(isViewedRadBtn);
+        viewedGroup.add(notViewedRadBtn);
+        viewedGroup.setSelected(anyViewedRadBtn.getModel(), true);
 
         usernameLabel.setText("<html>Utente: <b>" + wikiController.getLoggedUser().getUsername() + "</b></html>");
 

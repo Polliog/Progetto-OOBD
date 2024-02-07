@@ -44,7 +44,7 @@ public class ReviewUpdates extends PageBase {
         backBtn.addActionListener(e -> onBackButtonPressed());
 
         // ? cambiare testo?
-        titleLabel.setText("Revisione della richiesta di modifica dell'utente " + updates.getFirst().getAuthor() + " alla pagina \"" + page.getTitle() + "\"");
+        titleLabel.setText("Revisione della richiesta di modifica dell'utente " + updates.get(0).getAuthor() + " alla pagina \"" + page.getTitle() + "\"");
 
 
         if (multipleUpdates) {

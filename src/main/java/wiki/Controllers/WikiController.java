@@ -63,17 +63,16 @@ public class WikiController {
         }
 
         try {
-            boolean loginResult = userDAO.login(username, password);
+            User userResult = userDAO.login(username, password);
 
-            if (!loginResult) {
+            if (userResult == null) {
                 JOptionPane.showMessageDialog(null, "Password errata", "Errore", JOptionPane.ERROR_MESSAGE);
             }
             else {
                 JOptionPane.showMessageDialog(null, "Login effettuato", "Successo", JOptionPane.INFORMATION_MESSAGE);
-                setLoggedUser(new User(username));
+                setLoggedUser(userResult);
+                return true;
             }
-
-            return loginResult;
         }
         catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Errore durante il caricamento dell'utente", "Errore", JOptionPane.ERROR_MESSAGE);

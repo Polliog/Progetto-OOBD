@@ -2,10 +2,7 @@ package wiki.DAOImplementations;
 
 import database.DatabaseConnection;
 import wiki.DAO.IUserDAO;
-import wiki.Models.Notification;
-import wiki.Models.Page;
-import wiki.Models.Update;
-import wiki.Models.UpdateContentString;
+import wiki.Models.*;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -27,12 +24,17 @@ public class UserDAO implements IUserDAO {
         return pstmt.executeQuery().next();
     }
 
-    public boolean login(String username, String password) throws SQLException {
+    public User login(String username, String password) throws SQLException {
         Connection conn = DatabaseConnection.getConnection();
         PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM \"User\" WHERE username = ? AND password = ?");
         pstmt.setString(1, username);
         pstmt.setString(2, password);
-        return pstmt.executeQuery().next();
+
+        ResultSet rs = pstmt.executeQuery();
+        if (!rs.next())
+            return null;
+
+        return new User(rs.getString("username"), rs.getBoolean("admin"), rs.getTimestamp("creation_date"));
     }
 
     public ArrayList<Notification> getUserNotifications(String username) throws SQLException {

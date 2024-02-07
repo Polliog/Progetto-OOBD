@@ -10,12 +10,12 @@ public class ContentShortcutsPanel extends JPanel {
     private final Map<String, String> fontTypeMap;
     private JTextArea pageContentArea;
 
-    private JButton linkBtn;
-    private JButton underlineBtn;
-    private JButton italicBtn;
-    private JButton boldBtn;
-    private JComboBox colorComboBox;
-    private JComboBox fontTypeComboBox;
+    private final JButton linkBtn;
+    private final JButton underlineBtn;
+    private final JButton italicBtn;
+    private final JButton boldBtn;
+    private final JComboBox colorComboBox;
+    private final JComboBox fontTypeComboBox;
 
 
     public ContentShortcutsPanel() {

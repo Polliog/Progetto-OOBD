@@ -1,5 +1,6 @@
 package wiki.Models;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 
 public class User {
@@ -7,18 +8,25 @@ public class User {
     private String username;
 
     private ArrayList<Notification> notifications = new ArrayList<>();
-
+    private final boolean isAdmin;
+    private final Timestamp creationDate;
 
 
     //constructor
-    public User(String username) {
+    public User(String username, boolean isAdmin, Timestamp creationDate) {
         this.username = username.toLowerCase();
+        this.isAdmin = isAdmin;
+        this.creationDate = creationDate;
     }
 
     //metodi
 
     public String getUsername() {
         return username;
+    }
+
+    public boolean isAdmin() {
+        return isAdmin;
     }
 
     //getter and setter for updates
