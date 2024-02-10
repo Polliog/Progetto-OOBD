@@ -2,6 +2,8 @@ package wiki.GUI;
 
 import wiki.Controllers.WikiController;
 import wiki.Models.Notification;
+import wiki.Models.Page;
+import wiki.Models.Utils.NotificationUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -23,11 +25,15 @@ public class UserNotifications extends PageBase {
     private JRadioButton anyTypeRadBtn;
     private JRadioButton anyViewedRadBtn;
 
+    ArrayList<Notification> notifications;
+
+
     public UserNotifications(WikiController wikiController, PageBase prevPageRef) {
         super(wikiController, prevPageRef);
         add(mainPanel);
-
         setMinimumSize(new Dimension(600, 700));
+
+        notifications = wikiController.fetchAllUserNotifications();
 
         ButtonGroup typeGroup = new ButtonGroup();
         typeGroup.add(anyTypeRadBtn);
@@ -44,25 +50,24 @@ public class UserNotifications extends PageBase {
 
         usernameLabel.setText("<html>Utente: <b>" + wikiController.getLoggedUser().getUsername() + "</b></html>");
 
+
+
         // Event Listeners
         backBtn.addActionListener(e -> onBackButtonPressed());
+        searchBtn.addActionListener(e -> fetchData());
+        textField1.addActionListener(e -> fetchData());
 
         updateNotificationCounterLabel();
-        createNotificationPanels();
+        updateOrCreateNotificationPanels();
     }
 
     private void onBackButtonPressed() {
         super.goBackToPrevPage();
     }
 
-    private void createNotificationPanels() {
+    private void updateOrCreateNotificationPanels() {
         JPanel notificationsPanel = new JPanel();
         notificationsPanel.setLayout(new BoxLayout(notificationsPanel, BoxLayout.Y_AXIS));
-
-        // Ottenere le notifiche dall'utente loggato
-        ArrayList<Notification> notifications = wikiController.fetchUserNotifications();
-
-        System.out.println(notifications.size());
 
         for (Notification notification : notifications) {
             notificationsPanel.add(new NotificationPanel(
@@ -78,11 +83,41 @@ public class UserNotifications extends PageBase {
         notificationScrollPanel.setViewportView(notificationsPanel);
     }
 
+    private void fetchData() {
+        notifications = wikiController.fetchAllUserNotifications(textField1.getText(), getSelectedType(), getSelectedViewed());
+        updateNotificationCounterLabel();
+        updateOrCreateNotificationPanels();
+    }
+
+
+
+    private Integer getSelectedType() {
+        if (requestUpdateRadBtn.isSelected())
+            return Notification.TYPE_REQUEST_UPDATE;
+        if (updateAcceptedRadBtn.isSelected())
+            return Notification.TYPE_UPDATE_ACCEPTED;
+        if (updateRejectedRadBtn.isSelected())
+            return Notification.TYPE_UPDATE_REJECTED;
+        return null;
+    }
+
+    private Boolean getSelectedViewed() {
+        if (isViewedRadBtn.isSelected())
+            return true;
+        if (notViewedRadBtn.isSelected())
+            return false;
+        return null;
+    }
+
+
+
     private boolean openNotification(Notification notification) {
+        Page p = notification.getUpdate().getPage();
+
         if (notification.getType() == Notification.TYPE_REQUEST_UPDATE)
-            new ReviewUpdates(wikiController, this, notification.getUpdate().getPage());
+            new ReviewUpdates(wikiController, this, p);
         else
-            new PageView(wikiController, this, notification.getUpdate().getPage().getId());
+            new PageView(wikiController, this, p);
 
         // Se la notifica non è stata letta
         // Segna come letta quando viene aperta per la prima volta
@@ -109,8 +144,8 @@ public class UserNotifications extends PageBase {
     }
 
     private void updateNotificationCounterLabel() {
-        notificationsCounterLabel.setText("<html>Hai <b>" + wikiController.getLoggedUser().getNotifications(-1).size() +
-                "</b> notifiche, di cui <b>" + wikiController.getLoggedUser().getNotifications(0).size() +
-                "</b> in sospeso e <b>" + wikiController.getLoggedUser().getNotifications(false).size() + "</b> da leggere.</html>");
+        notificationsCounterLabel.setText("<html>Hai <b>" + notifications.size() +
+                "</b> notifiche, di cui <b>" + NotificationUtils.getTypeRequestUpdateCount(notifications) +
+                "</b> in sospeso e <b>" + NotificationUtils.getUnviewedCount(notifications) + "</b> da leggere.</html>");
     }
 }

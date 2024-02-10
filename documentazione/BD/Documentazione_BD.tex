@@ -369,10 +369,10 @@
 		\item \textbf{User, Page}: sono associazioni {\itshape{uno-a-molti}} che esprimiamo tramite chiave esterna, solo l'entit\`a \textbf{Page} avr\`a come attributo \textbf{author}.
 		\item \textbf{User, PageUpdate}: sono associazioni {\itshape{uno-a-molti}} che esprimiamo tramite chiave esterna, solo l'entit\`a \textbf{PageUpdate} avr\`a come attributo \textbf{author}.
 		\item \textbf{PageText, Page}: sono associazioni {\itshape{uno-a-molti}} che esprimiamo tramite chiave esterna, solo l'entit\`a \textbf{PageText} avr\`a come attributo \textbf{page\_id}.
-		\item \textbf{UpdatedText, PageUpdate}: sono associazioni {\itshape{uno-a-molti}} che espriamiamo tramite chiave esterna, solo l'entit\`a \textbf{UpdatedText} avr\`a come attributo \textbf{update\_id}.
+		\item \textbf{UpdatedText, PageUpdate}: sono associazioni {\itshape{uno-a-molti}} che espriamiamo tramite chiave esterna, solo l'entit\`a \textbf{UpdatedText} avr\`a come attributo \textbf{pageUpdate\_id}.
 		\item \textbf{PageText, User}: sono associazioni {\itshape{uno-a-molti}} che esprimiamo tramite chiave esterna, solo l'entit\`a \textbf{PageText} avr\`a come attributo \textbf{author}.
 		\item \textbf{User, Notification}: sono associazioni {\itshape{uno-a-molti}} che esprimiamo tramite chiave esterna, solo l'entit\`a \textbf{UpdatedText} avr\`a come attributo \textbf{user}.
-		\item \textbf{PageUpdate, Notification}: sono associazioni {\itshape{uno-a-molti}} che esprimiamo tramite chiave esterna, solo l'entit\`a \textbf{Notification} avr\`a come attributo \textbf{update\_id}.
+		\item \textbf{PageUpdate, Notification}: sono associazioni {\itshape{uno-a-molti}} che esprimiamo tramite chiave esterna, solo l'entit\`a \textbf{Notification} avr\`a come attributo \textbf{pageUpdate\_id}.
 		\\\\
 	\end{itemize}
 	
@@ -398,15 +398,15 @@
 		\\
 		- \texttt{author} → USER.username
 		
-		\item \textbf{NOTIFICATION} ($\underline{id}$, \texttt{status}, \texttt{type}, \texttt{viewed}, \texttt{user}↑, \texttt{update\_id}↑, \texttt{creation\_date})
+		\item \textbf{NOTIFICATION} ($\underline{id}$, \texttt{status}, \texttt{type}, \texttt{viewed}, \texttt{user}↑, \texttt{pageUpdate\_id}↑, \texttt{creation\_date})
 		\\
-		- \texttt{update\_id} → UPDATE.id
+		- \texttt{pageUpdate\_id} → UPDATE.id
 		\\
 		- \texttt{user} → USER.username
 		
-		\item \textbf{UPDATEDTEXT} ($\underline{id}$, \texttt{order\_num}, \texttt{text}, \texttt{update\_id}↑)
+		\item \textbf{UPDATEDTEXT} ($\underline{id}$, \texttt{order\_num}, \texttt{text}, \texttt{pageUpdate\_id}↑)
 		\\
-		- \texttt{update\_id} → UPDATE.id
+		- \texttt{pageUpdate\_id} → UPDATE.id
 		\\\\
 	\end{itemize}
 	
@@ -775,7 +775,7 @@ SELECT * FROM search_notifications('Pagina', 1, 0, FALSE);
     	\item \texttt{id}: L'identificativo univoco della notifica.
     	\item \texttt{user\_name}: Lo username dell'utente associato alla notifica.
     	\item \texttt{status}: Lo stato della notifica.
-    	\item \texttt{update\_id}: L'identificativo univoco dell'aggiornamento associato alla notifica.
+    	\item \texttt{pageUpdate\_id}: L'identificativo univoco dell'aggiornamento associato alla notifica.
     	\item \texttt{notification\_type}: Il tipo della notifica.
     	\item \texttt{viewed}: Booleano che indica se la notifica è stata letta o meno.
     	\item \texttt{creation\_date}: La data di creazione della notifica.

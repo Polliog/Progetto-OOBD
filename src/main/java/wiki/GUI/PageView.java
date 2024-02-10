@@ -2,13 +2,12 @@ package wiki.GUI;
 
 import wiki.Controllers.WikiController;
 import wiki.Models.Page;
+import wiki.Models.PageUpdate;
 
 import javax.swing.*;
 import javax.swing.event.HyperlinkEvent;
 
 public class PageView extends PageBase implements IUpdatable {
-    private final int id;
-
     private JPanel mainPanel;
     private JLabel titleLabel;
     private JLabel authorLabel;
@@ -22,14 +21,23 @@ public class PageView extends PageBase implements IUpdatable {
     private JScrollPane pageContentScrollPane;
     private FontSizeComboBox fontSizeComboBox1;
 
-    private Page page = null;
+    private final Page page;
+    private final String pageAllContent;
 
 
-    public PageView(WikiController wikiController, PageBase prevPageRef, int id) {
+    public PageView(WikiController wikiController, PageBase prevPageRef, Page page) {
         super(wikiController, prevPageRef);
         add(mainPanel);
 
-        this.id = id;
+        this.page = page;
+
+        if (page == null) {
+            JOptionPane.showMessageDialog(null, "Pagina non trovata", "Errore", JOptionPane.ERROR_MESSAGE);
+
+            super.goBackToPrevPage();
+        }
+
+        pageAllContent = wikiController.fetchAllPageContent(page.getId());
 
         fontSizeComboBox1.init(editorPane);
 
@@ -45,11 +53,13 @@ public class PageView extends PageBase implements IUpdatable {
 
     @Override
     public void updateGUI() {
-        fetchData(id);
+        fetchData();
     }
 
-    private void fetchData(int id) {
-        page = wikiController.fetchPage(id);
+    private void fetchData() {
+        //
+        // ricarica pagina
+        //
         if (page == null) {
             JOptionPane.showMessageDialog(null, "Pagina non trovata", "Errore", JOptionPane.ERROR_MESSAGE);
 
@@ -63,8 +73,15 @@ public class PageView extends PageBase implements IUpdatable {
                             page != null &&
                             wikiController.getLoggedUser().getUsername().equals(page.getAuthorName());
 
+            boolean isThereAnyAcceptedUpdates =
+                    !wikiController.fetchPageUpdates(page.getId(), PageUpdate.STATUS_ACCEPTED).isEmpty();
+
+            boolean didLoggedUserRequestUpdate =
+                    wikiController.getLoggedUser() != null &&
+                            wikiController.getUpdateRequestCount(page.getId()) > 0;
+
             // Buttons Visibility
-            historyBtn.setEnabled(!page.getUpdates().isEmpty());
+            historyBtn.setEnabled((isLoggedUserAuthor || didLoggedUserRequestUpdate) && isThereAnyAcceptedUpdates);
             editBtn.setVisible(wikiController.getLoggedUser() != null);
             deleteBtn.setVisible(isLoggedUserAuthor);
 
@@ -85,7 +102,7 @@ public class PageView extends PageBase implements IUpdatable {
     }
 
     private void onEditButtonPressed() {
-        new PageEdit(wikiController, this, page);
+        new PageEdit(wikiController, this, page, pageAllContent);
     }
 
     private void onPageHistoryButtonPressed() {
@@ -105,7 +122,7 @@ public class PageView extends PageBase implements IUpdatable {
 
     private void setPageContentText() {
         // Replace the newline with the HTML correspondent
-        String pageContent = page.getAllContent().replace("\n", "<br>");
+        String pageContent = pageAllContent.replace("\n", "<br>");
 
         // Imposta il testo formattato nella JEditorPane
         editorPane.setText(pageContent);
@@ -133,7 +150,7 @@ public class PageView extends PageBase implements IUpdatable {
             }
             catch (NumberFormatException ignored) {}
 
-            new PageView(wikiController, this, id);
+            new PageView(wikiController, this, wikiController.fetchPage(id));
         }
     }
 

@@ -110,7 +110,10 @@ public class MainMenu extends PageBase implements IUpdatable {
 
                 panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
                 for (Page page : pages) {
-                    String intro = page.getAllContent()
+
+                    var pageContentStrings = wikiController.fetchAllPageContent(page.getId());
+
+                    String intro = pageContentStrings
                             .replaceAll("\n", " ")
                             .replaceAll("<.*?>", "")
                             .replaceAll("\\s+", " ");
@@ -125,7 +128,7 @@ public class MainMenu extends PageBase implements IUpdatable {
                             page.getAuthorName(),
                             page.getDateString(),
                             wikiController.getLoggedUser(),
-                            () -> viewPage(page.getId()),
+                            () -> viewPage(page),
                             () -> editPage(page),
                             () -> deletePage(page)
                     ));
@@ -164,14 +167,14 @@ public class MainMenu extends PageBase implements IUpdatable {
         new PageCreate(wikiController, this);
     }
 
-    private boolean viewPage(int id) {
-        new PageView(wikiController, this, id);
+    private boolean viewPage(Page p) {
+        new PageView(wikiController, this, p);
 
         return true;
     }
 
     private boolean editPage(Page page) {
-        new PageEdit(wikiController, this, page);
+        new PageEdit(wikiController, this, page, wikiController.fetchAllPageContent(page.getId()));
         return true;
     }
 

@@ -1,9 +1,11 @@
 package wiki.GUI;
 
+import org.intellij.lang.annotations.Flow;
 import wiki.Controllers.WikiController;
 import wiki.Models.Page;
-import wiki.Models.Update;
+import wiki.Models.PageUpdate;
 import wiki.Models.UpdateContentString;
+import wiki.Models.Utils.ContentStringsUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -24,31 +26,33 @@ public class ReviewUpdates extends PageBase {
     private int updateIndex = 0;
 
     private boolean multipleUpdates = false;
-    ArrayList<Update> updates;
+    ArrayList<PageUpdate> pendingPageUpdates;
 
-    // GUI that rewies the pending updates of a page
+    // GUI that rewies the pending pageUpdates of a page
     public ReviewUpdates(WikiController wikiController, PageBase prevPage, Page page) {
         super(wikiController, prevPage);
         add(mainPanel);
 
-        updates = wikiController.fetchPendingPageUpdates(page.getId());
-        if (updates == null) {
+        pendingPageUpdates = wikiController.fetchPageUpdates(page.getId(), PageUpdate.STATUS_PENDING);
+
+        if (pendingPageUpdates == null) {
             // error message
             super.goBackToPrevPage();
         }
 
-        Collections.reverse(updates);
+        Collections.reverse(pendingPageUpdates);
 
-        multipleUpdates = updates.size() > 1;
+        multipleUpdates = pendingPageUpdates.size() > 1;
 
         backBtn.addActionListener(e -> onBackButtonPressed());
 
         // ? cambiare testo?
-        titleLabel.setText("Revisione della richiesta di modifica dell'utente " + updates.get(0).getAuthor() + " alla pagina \"" + page.getTitle() + "\"");
+        // tetris titolo
+        titleLabel.setText("Revisione della richiesta di modifica dell'utente " + pendingPageUpdates.get(0).getAuthor() + " alla pagina " + page.getTitle());
 
 
         if (multipleUpdates) {
-            statusLabel.setText("Ci sono " + updates.size() + " modifiche in sospeso per questa pagina.");
+            statusLabel.setText("Ci sono " + pendingPageUpdates.size() + " modifiche in sospeso per questa pagina.");
 
             initPagination();
 
@@ -62,11 +66,11 @@ public class ReviewUpdates extends PageBase {
 
         if (multipleUpdates) {
             //mostra un popup che dice che visto che ci sono più modifiche, verranno mostrate tutte di seguito
-            JOptionPane.showMessageDialog(null, "Ci sono " + updates.size() + " modifiche in sospeso per questa pagina. Verranno mostrate tutte di seguito.", "Modifiche multiple", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Ci sono " + pendingPageUpdates.size() + " modifiche in sospeso per questa pagina. Verranno mostrate tutte di seguito.", "Modifiche multiple", JOptionPane.INFORMATION_MESSAGE);
         }
 
         // ???
-        createUIComponents(updates.get(updateIndex));
+        createUIComponents(pendingPageUpdates.get(updateIndex));
     }
 
     public void onBackButtonPressed() {
@@ -75,138 +79,65 @@ public class ReviewUpdates extends PageBase {
 
     private void initPagination() {
         indietroButton.setEnabled(updateIndex != 0);
-        avantiButton.setEnabled(updateIndex != updates.size() - 1);
+        avantiButton.setEnabled(updateIndex != pendingPageUpdates.size() - 1);
 
-        paginationLabel.setText("Modifica " + (updateIndex + 1) + " di " + updates.size());
+        paginationLabel.setText("Modifica " + (updateIndex + 1) + " di " + pendingPageUpdates.size());
     }
 
     private void nextUpdate() {
         updateIndex++;
         initPagination();
-        createUIComponents(updates.get(updateIndex));
+        createUIComponents(pendingPageUpdates.get(updateIndex));
     }
 
     private void previousUpdate() {
         updateIndex--;
         initPagination();
-        createUIComponents(updates.get(updateIndex));
+        createUIComponents(pendingPageUpdates.get(updateIndex));
     }
 
-    private void createUIComponents(Update update) {
+    private void createUIComponents(PageUpdate pageUpdate) {
         // Creazione del pannello principale
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new BorderLayout());
-
-        // Creazione del pannello per il testo
-        JPanel textPanel = new JPanel();
-        textPanel.setLayout(new GridLayout(1, 2));
-        textPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Aggiunta del bordo
-
-        // Creazione delle etichette
-        JLabel currentTextLabel = new JLabel("Testo Attuale");
-        JLabel newTextLabel = new JLabel("Testo Nuovo");
-
-        // Creazione delle aree di testo
-        JTextPane currentText = new JTextPane();
-        currentText.setContentType("text/html"); // Impostazione del tipo di contenuto su HTML
-        currentText.setText(update.getPage().getAllContentHtml()); // Utilizzo del contenuto della pagina come testo attuale
-        currentText.setEditable(false);
-        currentText.setFont(new Font("Arial", Font.PLAIN, 14)); // Impostazione del font
-
-        JTextPane newText = new JTextPane();
-        newText.setContentType("text/html"); // Impostazione del tipo di contenuto su HTML
-        newText.setEditable(false);
-        newText.setFont(new Font("Arial", Font.PLAIN, 14)); // Impostazione del font
-
-        // Creazione dei pannelli per le etichette e le aree di testo
-        JPanel currentTextPanel = new JPanel(new BorderLayout());
-        currentTextPanel.add(currentTextLabel, BorderLayout.NORTH);
-        currentTextPanel.add(currentText, BorderLayout.CENTER);
-
-        JPanel newTextPanel = new JPanel(new BorderLayout());
-        newTextPanel.add(newTextLabel, BorderLayout.NORTH);
-        newTextPanel.add(newText, BorderLayout.CENTER);
-
-        // Confronto del vecchio e del nuovo testo
-        ArrayList<UpdateContentString> contentStrings = update.getContentStrings();
-        StringBuilder allContent = new StringBuilder();
-        for (UpdateContentString contentString : contentStrings) {
-            String line = contentString.getText();
-
-            if (contentString.getType() == 0 || contentString.getType() == 3) {
-                line = update.getPage().getLine(contentString.getOrderNum());
-            }
-
-            allContent.append(line).append("<br>");
-
-            switch (contentString.getType()) {
-                case 0: // Il testo è uguale, non colorare
-                    break;
-                case 2:  // Il testo è nuovo, quindi colora la riga di verde
-                    allContent.insert(allContent.length() - line.length() - 4, "<font color='#CCCC00'>");
-                    allContent.append("</font>");
-                    break;
-                case 1:// Il testo è diverso, quindi colora la riga di giallo scuro
-                    allContent.insert(allContent.length() - line.length() - 4, "<font color='green'>");
-                    allContent.append("</font>");
-                    break;
-                case 3: // Il testo è stato rimosso, quindi colora la riga di rosso
-                    allContent.insert(allContent.length() - line.length() - 4, "<font color='red'>");
-                    allContent.append("</font>");
-                    break;
-            }
-        }
-
-        newText.setText(allContent.toString());
-
-        // Aggiunta dei pannelli al pannello del testo
-        textPanel.add(currentTextPanel);
-        textPanel.add(newTextPanel);
-
-        // Creazione del pannello per i pulsanti
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new FlowLayout());
+        String currentText = wikiController.fetchAllPageContent(pageUpdate.getPage().getId()).replace("\n", "<br>");;
+        String newText = ContentStringsUtils.getPageUpdateComparedContentHtml(wikiController.fetchPageUpdateContentStrings(pageUpdate.getId()));
 
         // Creazione dei pulsanti
         JButton acceptButton = new JButton("Accetta");
-
-        acceptButton.addActionListener(e -> onAcceptUpdate(update));
-
+        acceptButton.addActionListener(e -> onAcceptUpdate(pageUpdate));
         JButton rejectButton = new JButton("Rifiuta");
+        rejectButton.addActionListener(e -> onRejectUpdate(pageUpdate));
 
-        rejectButton.addActionListener(e -> onRejectUpdate(update));
+        // Panel per i bottoni
+        JPanel buttonsPanel = new JPanel();
+        buttonsPanel.setLayout(new FlowLayout());
+        buttonsPanel.add(acceptButton);
+        buttonsPanel.add(rejectButton);
 
-        // Aggiunta dei pulsanti al pannello dei pulsanti
-        buttonPanel.add(acceptButton);
-        buttonPanel.add(rejectButton);
+        // Creazione del pannello di comparazione
+        var panel = new UpdateTextComparatorPanel(newText, currentText);
+        panel.add(buttonsPanel, BorderLayout.SOUTH);
 
-        // Aggiunta dei pannelli al pannello principale
-        mainPanel.add(textPanel, BorderLayout.CENTER);
-        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
-
-        updatesView.setViewportView(mainPanel);
+        updatesView.setViewportView(panel);
     }
 
     private void onAcceptAllUpdates() {
-        if (wikiController.acceptAllPageUpdates(updates))
+        if (wikiController.acceptAllPageUpdates(pendingPageUpdates))
             super.goBackToPrevPage();
-        // aggiornamento locale degli updates?
+        // aggiornamento locale degli pageUpdates?
     }
 
-    private void onAcceptUpdate(Update update) {
-        if (wikiController.acceptPageUpdate(update)) {
-            if (!multipleUpdates || updateIndex == updates.size() - 1)
+    private void onAcceptUpdate(PageUpdate pageUpdate) {
+        if (wikiController.acceptPageUpdate(pageUpdate)) {
+            if (!multipleUpdates || updateIndex == pendingPageUpdates.size() - 1)
                 super.goBackToPrevPage();
             else
                 nextUpdate();
         }
     }
 
-    private void onRejectUpdate(Update update) {
-        if (wikiController.rejectPageUpdate(update)) {
-            // local update??
-            // serve davvero?
-            if (!multipleUpdates || updateIndex == updates.size() - 1)
+    private void onRejectUpdate(PageUpdate pageUpdate) {
+        if (wikiController.rejectPageUpdate(pageUpdate)) {
+            if (!multipleUpdates || updateIndex == pendingPageUpdates.size() - 1)
                 super.goBackToPrevPage();
             else
                 nextUpdate();

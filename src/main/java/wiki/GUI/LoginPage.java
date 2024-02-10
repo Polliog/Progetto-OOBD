@@ -44,14 +44,14 @@ public class LoginPage extends PageBase implements IUpdatable {
                 var mainMenu = new MainMenu(wikiController, this);
 
                 // Check for any new notification
-                if (wikiController.fetchNotifications())
+                if (wikiController.doesUserHaveNewNotifications())
                     new UserNotifications(wikiController, mainMenu);
 
                 // No longer need for the LoginPage GUI
                 this.dispose();
             }
             else {
-                if (wikiController.fetchNotifications()) {
+                if (wikiController.doesUserHaveNewNotifications()) {
                     new UserNotifications(wikiController, prevPage);
 
                     // No longer need for the LoginPage GUI
