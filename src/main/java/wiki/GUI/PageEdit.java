@@ -17,15 +17,23 @@ public class PageEdit extends PageBase {
     private ContentShortcutsPanel contentShortcutsPanel1;
 
     private Page page;
+    private String pageContent;
 
 
-    public PageEdit(WikiController wikiController, PageBase prevPageRef, Page page) {
+    public PageEdit(WikiController wikiController, PageBase prevPageRef, Page page, String pageContent) {
         super(wikiController, prevPageRef);
         add(mainPanel);
 
         setMinimumSize(new Dimension(700, 700));
 
         this.page = page;
+        this.pageContent = pageContent;
+
+        if (page == null) {
+            JOptionPane.showMessageDialog(null, "Pagina non trovata", "Errore", JOptionPane.ERROR_MESSAGE);
+
+            super.goBackToPrevPage();
+        }
 
         fontSizeComboBox1.init(pageContentArea);
         contentShortcutsPanel1.init(pageContentArea);
@@ -44,7 +52,9 @@ public class PageEdit extends PageBase {
         }
 
         titleLabel.setText(page.getTitle());
-        pageContentArea.setText(page.getAllContent());
+
+        pageContentArea.setText(pageContent);
+
         saveBtn.setText(Objects.equals(page.getAuthorName(), wikiController.getLoggedUser().getUsername()) ? "Salva Modifiche" : "Richiedi Modifiche");
     }
 

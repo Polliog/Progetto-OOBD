@@ -2,7 +2,7 @@ package wiki.GUI;
 
 import wiki.Models.Notification;
 import wiki.Models.Page;
-import wiki.Models.Update;
+import wiki.Models.PageUpdate;
 
 import javax.swing.*;
 import java.awt.*;
@@ -45,8 +45,8 @@ public class NotificationPanel extends JPanel {
         internalPanel.setLayout(new BoxLayout(internalPanel, BoxLayout.Y_AXIS));
         internalPanel.setBackground(backgroundColor);
 
-        Update update = notification.getUpdate();
-        Page page = update.getPage();
+        PageUpdate pageUpdate = notification.getUpdate();
+        Page page = pageUpdate.getPage();
 
         String notificationContent = "";
 
