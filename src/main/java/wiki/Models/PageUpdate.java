@@ -1,8 +1,6 @@
 package wiki.Models;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
 
 public class PageUpdate {
     public static final int STATUS_REJECTED = 0;
@@ -14,15 +12,15 @@ public class PageUpdate {
     private final String author;
     private final int status;
     private final String oldText;
-    private final Timestamp creation;
+    private final Timestamp creationDate;
 
 
-    public PageUpdate(int id, Page page, String author, int status, Timestamp creation, String oldText) {
+    public PageUpdate(int id, Page page, String author, int status, Timestamp creationDate, String oldText) {
         this.id = id;
         this.page = page;
         this.author = author;
         this.status = status;
-        this.creation = creation;
+        this.creationDate = creationDate;
         this.oldText = oldText;
     }
 
@@ -49,6 +47,6 @@ public class PageUpdate {
         return oldText.split("\n")[index];
     }
     public String getCreationDateString() {
-        return creation.toString().substring(0, 16);
+        return creationDate.toString().substring(0, 16);
     }
 }

@@ -25,7 +25,7 @@ public class PageContentString {
     public int getOrderNum() {
         return order_num;
     }
-    public String getAuthor() {
+    public String getAuthorName() {
         return author;
     }
 }

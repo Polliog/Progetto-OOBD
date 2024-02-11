@@ -3,26 +3,26 @@ package wiki.GUI;
 import wiki.Controllers.WikiController;
 import wiki.Models.Page;
 import wiki.Models.PageUpdate;
-import wiki.Models.UpdateContentString;
 import wiki.Models.Utils.ContentStringsUtils;
 
 import javax.swing.*;
+import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.util.ArrayList;
 
 public class PageHistory extends PageBase {
     private JPanel mainPanel;
     private JButton backBtn;
-    private JLabel infoLabel;
-    private JLabel paginationLabel;
-    private JScrollPane historyView;
     private JButton nextBtn;
     private JButton previousBtn;
 
-    private int index = 0;
-    private final Page page;
+    private JLabel infoLabel;
+    private JLabel paginationLabel;
+    private JScrollPane historyScrollPane;
+    private FontSizeComboBox fontSizeComboBox;
 
-    ArrayList<PageUpdate> acceptedPageUpdates;
+    private int index = 0;
+    private ArrayList<PageUpdate> acceptedPageUpdates;
 
     public PageHistory(WikiController wikiController, PageBase prevPageRef, Page page) {
         super(wikiController, prevPageRef);
@@ -30,15 +30,14 @@ public class PageHistory extends PageBase {
 
         setMinimumSize(new Dimension(700, 700));
 
-        this.page = page;
         acceptedPageUpdates = wikiController.fetchPageUpdates(page.getId(), PageUpdate.STATUS_ACCEPTED);
 
 
         updatePaginationLabel();
         updateInfoLabel();
-        createUIComponents();
+        createTextComparatorPanel();
 
-        backBtn.addActionListener(e -> onBackPressed());
+        backBtn.addActionListener(e -> onBackButtonPressed());
         nextBtn.addActionListener(e -> onNextPressed());
         previousBtn.addActionListener(e -> onPreviousPressed());
 
@@ -54,9 +53,8 @@ public class PageHistory extends PageBase {
         }
     }
 
-    private void onBackPressed() {
-        prevPage.setVisible(true);
-        this.dispose();
+    private void onBackButtonPressed() {
+        super.goBackToPrevPage();
     }
 
     private void onNextPressed() {
@@ -64,7 +62,7 @@ public class PageHistory extends PageBase {
             index++;
             updatePaginationLabel();
             updateInfoLabel();
-            createUIComponents();
+            createTextComparatorPanel();
         }
     }
 
@@ -73,7 +71,7 @@ public class PageHistory extends PageBase {
             index--;
             updatePaginationLabel();
             updateInfoLabel();
-            createUIComponents();
+            createTextComparatorPanel();
         }
     }
 
@@ -86,13 +84,24 @@ public class PageHistory extends PageBase {
         infoLabel.setText("<html>Modifica proposta da: <b>" + acceptedPageUpdates.get(index).getAuthor() + "</b>  -  " + acceptedPageUpdates.get(index).getCreationDateString() + "</html>");
     }
 
-    private void createUIComponents() {
+    private void createTextComparatorPanel() {
         PageUpdate pageUpdate = acceptedPageUpdates.get(index);
 
         String currentText = pageUpdate.getOldTextFormatted();
         String newText = ContentStringsUtils.getPageUpdateComparedContentHtml(wikiController.fetchPageUpdateContentStrings(pageUpdate.getId()));
 
         var textCompPanel = new UpdateTextComparatorPanel(newText, currentText);
-        historyView.setViewportView(textCompPanel);
+        ArrayList<JTextComponent> textComponents = new ArrayList<>();
+        textComponents.add(textCompPanel.getFirstTextPane());
+        textComponents.add(textCompPanel.getSecondTextPane());
+
+        // Inizializza la combo box per la selezione della grandezza del font
+        fontSizeComboBox.init(textComponents);
+
+        historyScrollPane.setViewportView(textCompPanel);
+    }
+
+    private void createUIComponents() {
+        fontSizeComboBox = new FontSizeComboBox();
     }
 }

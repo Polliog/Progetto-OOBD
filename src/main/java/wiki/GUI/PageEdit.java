@@ -10,9 +10,9 @@ import java.util.Objects;
 public class PageEdit extends PageBase {
     private JPanel mainPanel;
     private JButton backBtn;
+    private JButton saveBtn;
     private JLabel titleLabel;
     private JTextArea pageContentArea;
-    private JButton saveBtn;
     private FontSizeComboBox fontSizeComboBox1;
     private ContentShortcutsPanel contentShortcutsPanel1;
 
@@ -38,8 +38,8 @@ public class PageEdit extends PageBase {
         fontSizeComboBox1.init(pageContentArea);
         contentShortcutsPanel1.init(pageContentArea);
 
-        backBtn.addActionListener(e -> onBackPressed());
-        saveBtn.addActionListener(e -> onSavePressed());
+        backBtn.addActionListener(e -> onBackButtonPressed());
+        saveBtn.addActionListener(e -> onSaveButtonPressed());
 
         fetchData();
     }
@@ -58,11 +58,11 @@ public class PageEdit extends PageBase {
         saveBtn.setText(Objects.equals(page.getAuthorName(), wikiController.getLoggedUser().getUsername()) ? "Salva Modifiche" : "Richiedi Modifiche");
     }
 
-    private void onBackPressed() {
-        goBackToPrevPage();
+    private void onBackButtonPressed() {
+        super.goBackToPrevPage();
     }
 
-    private void onSavePressed() {
+    private void onSaveButtonPressed() {
         // Confirmation dialog
         int dialogResult = JOptionPane.showConfirmDialog (null, "Vuoi salvare le modifiche?","Conferma di salvataggio", JOptionPane.YES_NO_OPTION);
         if (dialogResult == JOptionPane.YES_OPTION){

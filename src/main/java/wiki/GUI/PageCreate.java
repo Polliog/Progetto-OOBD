@@ -22,12 +22,12 @@ public class PageCreate extends PageBase {
 
         contentShortcutsPanel1.init(pageContentArea);
 
-        createPageBtn.addActionListener(e -> onCreatePage());
+        createPageBtn.addActionListener(e -> onCreatePagePressed());
         backBtn.addActionListener(e -> onBackButtonPressed());
     }
 
 
-    private void onCreatePage() {
+    private void onCreatePagePressed() {
         // -> Goes back to the Main Menu Page
         if (wikiController.createPage(pageTitleField.getText(), pageContentArea.getText())) {
             goBackToPrevPage();

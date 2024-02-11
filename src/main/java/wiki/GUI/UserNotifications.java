@@ -10,13 +10,14 @@ import java.awt.*;
 import java.util.ArrayList;
 
 public class UserNotifications extends PageBase {
-    private JButton backBtn;
     private JPanel mainPanel;
+    private JButton backBtn;
+    private JButton searchBtn;
     private JLabel usernameLabel;
     private JLabel notificationsCounterLabel;
     private JScrollPane notificationScrollPanel;
     private JTextField textField1;
-    private JButton searchBtn;
+
     private JRadioButton requestUpdateRadBtn;
     private JRadioButton updateAcceptedRadBtn;
     private JRadioButton updateRejectedRadBtn;
@@ -25,7 +26,7 @@ public class UserNotifications extends PageBase {
     private JRadioButton anyTypeRadBtn;
     private JRadioButton anyViewedRadBtn;
 
-    ArrayList<Notification> notifications;
+    private ArrayList<Notification> notifications;
 
 
     public UserNotifications(WikiController wikiController, PageBase prevPageRef) {
@@ -51,21 +52,20 @@ public class UserNotifications extends PageBase {
         usernameLabel.setText("<html>Utente: <b>" + wikiController.getLoggedUser().getUsername() + "</b></html>");
 
 
-
         // Event Listeners
         backBtn.addActionListener(e -> onBackButtonPressed());
         searchBtn.addActionListener(e -> fetchData());
         textField1.addActionListener(e -> fetchData());
 
         updateNotificationCounterLabel();
-        updateOrCreateNotificationPanels();
+        createNotificationPanels();
     }
 
     private void onBackButtonPressed() {
         super.goBackToPrevPage();
     }
 
-    private void updateOrCreateNotificationPanels() {
+    private void createNotificationPanels() {
         JPanel notificationsPanel = new JPanel();
         notificationsPanel.setLayout(new BoxLayout(notificationsPanel, BoxLayout.Y_AXIS));
 
@@ -86,10 +86,8 @@ public class UserNotifications extends PageBase {
     private void fetchData() {
         notifications = wikiController.fetchAllUserNotifications(textField1.getText(), getSelectedType(), getSelectedViewed());
         updateNotificationCounterLabel();
-        updateOrCreateNotificationPanels();
+        createNotificationPanels();
     }
-
-
 
     private Integer getSelectedType() {
         if (requestUpdateRadBtn.isSelected())
@@ -110,9 +108,11 @@ public class UserNotifications extends PageBase {
     }
 
 
-
     private boolean openNotification(Notification notification) {
         Page p = notification.getUpdate().getPage();
+
+        if (p == null)
+            return false;
 
         if (notification.getType() == Notification.TYPE_REQUEST_UPDATE)
             new ReviewUpdates(wikiController, this, p);
