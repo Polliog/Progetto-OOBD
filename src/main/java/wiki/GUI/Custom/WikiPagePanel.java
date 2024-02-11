@@ -7,6 +7,8 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+
+/** Pannello per la visualizzazione delle pagine wiki */
 public class WikiPagePanel extends JPanel {
     private final JPanel internalPanel;
     private final Action onClick;

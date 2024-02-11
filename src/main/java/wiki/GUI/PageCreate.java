@@ -6,6 +6,7 @@ import wiki.GUI.Custom.ContentShortcutsPanel;
 import javax.swing.*;
 import java.awt.*;
 
+/** Questa classe rappresenta la pagina di creazione di una nuova pagina */
 public class PageCreate extends PageBase {
     private JPanel mainPanel;
     private JTextField pageTitleField;
@@ -28,6 +29,7 @@ public class PageCreate extends PageBase {
     }
 
 
+    /** Metodo che viene chiamato quando viene premuto il pulsante di creazione di una pagina */
     private void onCreatePagePressed() {
         // -> Goes back to the Main Menu Page
         if (wikiController.createPage(pageTitleField.getText(), pageContentArea.getText())) {
@@ -35,6 +37,7 @@ public class PageCreate extends PageBase {
         }
     }
 
+    /** Metodo che viene chiamato quando viene premuto il pulsante di ritorno */
     private void onBackButtonPressed() {
         goBackToPrevPage();
     }

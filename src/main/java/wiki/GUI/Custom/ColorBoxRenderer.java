@@ -4,6 +4,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.Map;
 
+
+/**
+ * Renderer customizzato per la JComboBox che mostra un quadratino di colore accanto al testo
+ */
 public class ColorBoxRenderer extends DefaultListCellRenderer {
     private Map<String, Color> colorMap;
 

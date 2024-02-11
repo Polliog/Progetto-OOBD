@@ -12,6 +12,10 @@ import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.util.ArrayList;
 
+/**
+ * La classe PageHistory estende PageBase e rappresenta la pagina di visualizzazione della storia di una pagina.
+ * Ogni PageHistory ha un indice, una lista di aggiornamenti di pagina accettati e vari componenti dell'interfaccia utente.
+ */
 public class PageHistory extends PageBase {
     private JPanel mainPanel;
     private JButton backBtn;
@@ -26,6 +30,13 @@ public class PageHistory extends PageBase {
     private int index = 0;
     private ArrayList<PageUpdate> acceptedPageUpdates;
 
+    /**
+     * Costruisce una nuova PageHistory con i dettagli specificati.
+     *
+     * @param wikiController Il controller del wiki.
+     * @param prevPageRef La pagina precedente.
+     * @param page La pagina di cui visualizzare la storia.
+     */
     public PageHistory(WikiController wikiController, PageBase prevPageRef, Page page) {
         super(wikiController, prevPageRef);
         add(mainPanel);
@@ -59,6 +70,7 @@ public class PageHistory extends PageBase {
         super.goBackToPrevPage();
     }
 
+    // Metodi privati per gestire le azioni dell'utente e aggiornare l'interfaccia utente
     private void onNextPressed() {
         if (index < acceptedPageUpdates.size() - 1) {
             index++;
@@ -103,6 +115,10 @@ public class PageHistory extends PageBase {
         historyScrollPane.setViewportView(textCompPanel);
     }
 
+
+    /**
+     * Crea i componenti dell'interfaccia utente personalizzati.
+     */
     private void createUIComponents() {
         fontSizeComboBox = new FontSizeComboBox();
     }

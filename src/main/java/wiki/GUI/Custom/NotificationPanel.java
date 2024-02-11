@@ -10,6 +10,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Objects;
 
+
+/** Pannello per la visualizzazione delle notifiche */
 public class NotificationPanel extends JPanel {
     private final JPanel internalPanel;
     private final Action onClick;

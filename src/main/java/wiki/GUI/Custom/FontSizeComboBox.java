@@ -7,6 +7,8 @@ import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.util.ArrayList;
 
+
+/** ComboBox per la selezione della grandezza del font */
 public class FontSizeComboBox extends JComboBox {
     private final int[] fontSizeArray = {10, 12, 14, 16, 18, 20, 24, 28, 32, 36};
 

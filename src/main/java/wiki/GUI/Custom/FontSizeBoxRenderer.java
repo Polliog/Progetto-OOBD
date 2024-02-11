@@ -4,6 +4,7 @@ package wiki.GUI.Custom;
 import javax.swing.*;
 import java.awt.*;
 
+/** Rendered della ComboBox per la selezione della grandezza del font */
 public class FontSizeBoxRenderer extends DefaultListCellRenderer {
     public FontSizeBoxRenderer() {}
 

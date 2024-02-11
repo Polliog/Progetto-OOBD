@@ -8,6 +8,11 @@ import wiki.Models.PageUpdate;
 import javax.swing.*;
 import javax.swing.event.HyperlinkEvent;
 
+/**
+ * La classe PageView estende PageBase e implementa IUpdatable.
+ * Rappresenta la pagina di visualizzazione di una pagina specifica.
+ * Ogni PageView ha vari componenti dell'interfaccia utente, una pagina e il contenuto di una pagina.
+ */
 public class PageView extends PageBase implements IUpdatable {
     private JPanel mainPanel;
     private JLabel titleLabel;
@@ -26,6 +31,13 @@ public class PageView extends PageBase implements IUpdatable {
     private String pageAllContent;
 
 
+    /**
+     * Costruisce una nuova PageView con i dettagli specificati.
+     *
+     * @param wikiController Il controller del wiki.
+     * @param prevPageRef La pagina precedente.
+     * @param page La pagina da visualizzare.
+     */
     public PageView(WikiController wikiController, PageBase prevPageRef, Page page) {
         super(wikiController, prevPageRef);
         add(mainPanel);
@@ -48,6 +60,9 @@ public class PageView extends PageBase implements IUpdatable {
         updateGUI();
     }
 
+    /**
+     * Aggiorna l'interfaccia utente.
+     */
     @Override
     public void updateGUI() {
         // Fetch il contenuto della pagina di nuovo per ottenere i dati più recenti
@@ -60,6 +75,8 @@ public class PageView extends PageBase implements IUpdatable {
 
         initViewComponents();
     }
+
+    // Metodi privati per gestire le azioni dell'utente e aggiornare l'interfaccia utente
 
     private void initViewComponents() {
         boolean isLoggedUserAuthor =
@@ -147,6 +164,9 @@ public class PageView extends PageBase implements IUpdatable {
         }
     }
 
+    /**
+     * Crea i componenti dell'interfaccia utente personalizzati.
+     */
     private void createUIComponents() {
         fontSizeComboBox = new FontSizeComboBox();
     }

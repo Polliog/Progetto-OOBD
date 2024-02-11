@@ -10,26 +10,36 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 
+/**
+ * La classe UserNotifications estende PageBase e implementa IUpdatable.
+ * Rappresenta la pagina delle notifiche dell'utente.
+ * Ogni UserNotifications ha vari componenti dell'interfaccia utente e una lista di notifiche.
+ */
 public class UserNotifications extends PageBase implements IUpdatable {
-    private JPanel mainPanel;
-    private JButton backBtn;
-    private JButton searchBtn;
-    private JLabel usernameLabel;
-    private JLabel notificationsCounterLabel;
-    private JScrollPane notificationScrollPanel;
-    private JTextField textField1;
+    private JPanel mainPanel; // Il pannello principale della pagina delle notifiche
+    private JButton backBtn; // Il pulsante per tornare indietro
+    private JButton searchBtn; // Il pulsante per la ricerca
+    private JLabel usernameLabel; // L'etichetta per il nome utente
+    private JLabel notificationsCounterLabel; // L'etichetta per il conteggio delle notifiche
+    private JScrollPane notificationScrollPanel; // Il pannello di scorrimento per la visualizzazione delle notifiche
+    private JTextField textField1; // Il campo di testo per la ricerca
 
-    private JRadioButton requestUpdateRadBtn;
-    private JRadioButton updateAcceptedRadBtn;
-    private JRadioButton updateRejectedRadBtn;
-    private JRadioButton isViewedRadBtn;
-    private JRadioButton notViewedRadBtn;
-    private JRadioButton anyTypeRadBtn;
-    private JRadioButton anyViewedRadBtn;
+    private JRadioButton requestUpdateRadBtn; // Il pulsante radio per la richiesta di aggiornamento
+    private JRadioButton updateAcceptedRadBtn; // Il pulsante radio per l'aggiornamento accettato
+    private JRadioButton updateRejectedRadBtn; // Il pulsante radio per l'aggiornamento rifiutato
+    private JRadioButton isViewedRadBtn; // Il pulsante radio per le notifiche visualizzate
+    private JRadioButton notViewedRadBtn; // Il pulsante radio per le notifiche non visualizzate
+    private JRadioButton anyTypeRadBtn; // Il pulsante radio per qualsiasi tipo di notifica
+    private JRadioButton anyViewedRadBtn; // Il pulsante radio per qualsiasi stato di visualizzazione
 
-    private ArrayList<Notification> notifications;
+    private ArrayList<Notification> notifications; // La lista di notifiche
 
-
+    /**
+     * Costruisce una nuova UserNotifications con i dettagli specificati.
+     *
+     * @param wikiController Il controller del wiki.
+     * @param prevPageRef La pagina precedente.
+     */
     public UserNotifications(WikiController wikiController, PageBase prevPageRef) {
         super(wikiController, prevPageRef);
         add(mainPanel);
@@ -62,11 +72,15 @@ public class UserNotifications extends PageBase implements IUpdatable {
         createNotificationPanels();
     }
 
+    /**
+     * Aggiorna l'interfaccia utente.
+     */
     @Override
     public void updateGUI() {
         fetchData();
     }
 
+    // Metodi privati per gestire le azioni dell'utente e aggiornare l'interfaccia utente
     private void onBackButtonPressed() {
         super.goBackToPrevPage();
     }
