@@ -5,6 +5,7 @@ import wiki.Controllers.WikiController;
 import javax.swing.*;
 import java.awt.*;
 
+/** Classe astratta che rappresenta una pagina della GUI */
 public abstract class PageBase extends JFrame {
     protected WikiController wikiController;
     protected PageBase prevPage;
@@ -32,6 +33,8 @@ public abstract class PageBase extends JFrame {
         setVisible(true);
     }
 
+
+    /** Metodo che permette di tornare alla pagina precedente */
     protected void goBackToPrevPage() {
         prevPage.setVisible(true);
 

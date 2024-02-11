@@ -6,6 +6,8 @@ import java.awt.*;
 import java.util.Map;
 import java.util.Objects;
 
+
+/** Rendered della ComboBox per la selezione del tipo di font */
 public class FontTypeBoxRenderer extends DefaultListCellRenderer {
     private Map<String, String> fontTypeMap;
 

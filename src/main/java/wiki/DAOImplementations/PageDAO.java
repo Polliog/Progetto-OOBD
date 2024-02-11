@@ -16,6 +16,7 @@ import javax.swing.*;
 
 public class PageDAO implements IPageDAO {
     // Page related methods
+
     public void insertPage(String pageTitle, String pageContent, User user) throws SQLException {
         Connection conn = DatabaseConnection.getConnection();
         conn.setAutoCommit(false);
@@ -389,6 +390,11 @@ public class PageDAO implements IPageDAO {
         rs.next();
         return rs.getInt("count");
     }
+
+    /** Inserisce un nuovo aggiornamento nella tabella "PageUpdate" e restituisce l'id dell'aggiornamento *
+     * @param pageId id della pagina
+     * @param username username dell'utente che ha richiesto l'aggiornamento
+     */
     private int insertUpdate(int pageId, String username) throws SQLException {
         Connection conn = DatabaseConnection.getConnection();
         conn.setAutoCommit(false);
@@ -414,6 +420,13 @@ public class PageDAO implements IPageDAO {
         }
         return updateId;
     }
+
+    /** Inserisce un nuovo testo aggiornato nella tabella "UpdatedText" *
+     * @param updateId id dell'aggiornamento
+     * @param text testo aggiornato
+     * @param orderNum numero di riga
+     * @param type tipo di aggiornamento
+     */
     private void insertUpdatedText(int updateId, String text, int orderNum, int type) throws SQLException {
         Connection conn = DatabaseConnection.getConnection();
         conn.setAutoCommit(false);

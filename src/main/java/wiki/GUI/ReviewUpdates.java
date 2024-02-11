@@ -13,23 +13,32 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
 
+/**
+ * La classe ReviewUpdates estende PageBase e rappresenta la pagina di revisione degli aggiornamenti.
+ * Ogni ReviewUpdates ha un indice, un flag per indicare se ci sono aggiornamenti multipli, una lista di aggiornamenti di pagina in sospeso e vari componenti dell'interfaccia utente.
+ */
 public class ReviewUpdates extends PageBase {
-    private JPanel mainPanel;
-    private JButton backBtn;
-    private JButton prevBtn;
-    private JButton nextBtn;
-    private JButton acceptAllBtn;
-    private JLabel infoLabel;
-    private JLabel statusLabel;
-    private JLabel paginationLabel;
-    private JScrollPane updatesViewScrollPane;
-    private FontSizeComboBox fontSizeComboBox;
+    private JPanel mainPanel; // Il pannello principale della pagina di revisione degli aggiornamenti
+    private JButton backBtn; // Il pulsante per tornare indietro
+    private JButton prevBtn; // Il pulsante per andare all'aggiornamento precedente
+    private JButton nextBtn; // Il pulsante per andare all'aggiornamento successivo
+    private JButton acceptAllBtn; // Il pulsante per accettare tutti gli aggiornamenti
+    private JLabel infoLabel; // L'etichetta per le informazioni sulla pagina
+    private JLabel statusLabel; // L'etichetta per lo stato degli aggiornamenti
+    private JLabel paginationLabel; // L'etichetta per la paginazione degli aggiornamenti
+    private JScrollPane updatesViewScrollPane; // Il pannello di scorrimento per la visualizzazione degli aggiornamenti
+    private FontSizeComboBox fontSizeComboBox; // La combo box per la selezione della dimensione del font
+    private int updateIndex = 0; // L'indice corrente nella lista di aggiornamenti di pagina
+    private boolean multipleUpdates; // Flag per indicare se ci sono aggiornamenti multipli
+    private ArrayList<PageUpdate> pendingPageUpdates; // La lista di aggiornamenti di pagina in sospeso
 
-    private int updateIndex = 0;
-    private boolean multipleUpdates;
-    private ArrayList<PageUpdate> pendingPageUpdates;
-
-
+    /**
+     * Costruisce una nuova ReviewUpdates con i dettagli specificati.
+     *
+     * @param wikiController Il controller del wiki.
+     * @param prevPage La pagina precedente.
+     * @param page La pagina di cui revisionare gli aggiornamenti.
+     */
     public ReviewUpdates(WikiController wikiController, PageBase prevPage, Page page) {
         super(wikiController, prevPage);
         add(mainPanel);
@@ -63,6 +72,7 @@ public class ReviewUpdates extends PageBase {
     }
 
 
+    // Metodi privati per gestire le azioni dell'utente e aggiornare l'interfaccia utente
     private void initPaginationButtons() {
         prevBtn.addActionListener(e -> onPrevButtonPressed());
         nextBtn.addActionListener(e -> onNextButtonPressed());
@@ -71,29 +81,35 @@ public class ReviewUpdates extends PageBase {
         nextBtn.setVisible(true);
         acceptAllBtn.setVisible(true);
     }
+
     private void updatePaginationLabel() {
         prevBtn.setEnabled(updateIndex != 0);
         nextBtn.setEnabled(updateIndex != pendingPageUpdates.size() - 1);
 
         paginationLabel.setText("Modifica " + (updateIndex + 1) + " di " + pendingPageUpdates.size());
     }
+
     public void onBackButtonPressed() {
         super.goBackToPrevPage();
     }
+
     private void onAcceptAllButtonPressed() {
         if (wikiController.acceptAllPageUpdates(pendingPageUpdates))
             super.goBackToPrevPage();
     }
+
     private void onNextButtonPressed() {
         updateIndex++;
         updatePaginationLabel();
         createComparatorPanel(pendingPageUpdates.get(updateIndex));
     }
+
     private void onPrevButtonPressed() {
         updateIndex--;
         updatePaginationLabel();
         createComparatorPanel(pendingPageUpdates.get(updateIndex));
     }
+
     private void onAcceptUpdate(PageUpdate pageUpdate) {
         if (wikiController.acceptPageUpdate(pageUpdate)) {
             if (!multipleUpdates || updateIndex == pendingPageUpdates.size() - 1)
@@ -102,6 +118,7 @@ public class ReviewUpdates extends PageBase {
                 onNextButtonPressed();
         }
     }
+
     private void onRejectUpdate(PageUpdate pageUpdate) {
         if (wikiController.rejectPageUpdate(pageUpdate)) {
             if (!multipleUpdates || updateIndex == pendingPageUpdates.size() - 1)
@@ -110,9 +127,11 @@ public class ReviewUpdates extends PageBase {
                 onNextButtonPressed();
         }
     }
+
     private void createComparatorPanel(PageUpdate pageUpdate) {
         // Creazione del pannello principale
-        String currentText = wikiController.fetchAllPageContent(pageUpdate.getPage().getId()).replace("\n", "<br>");;
+        String currentText = wikiController.fetchAllPageContent(pageUpdate.getPage().getId()).replace("\n", "<br>");
+        ;
         String newText = ContentStringsUtils.getUpdateComparedContentHtml(wikiController.fetchPageUpdateContentStrings(pageUpdate.getId()));
 
         // Creazione dei pulsanti
@@ -140,6 +159,11 @@ public class ReviewUpdates extends PageBase {
 
         updatesViewScrollPane.setViewportView(panel);
     }
+
+
+    /**
+     * Crea i componenti dell'interfaccia utente personalizzati.
+     */
     private void createUIComponents() {
         fontSizeComboBox = new FontSizeComboBox();
     }

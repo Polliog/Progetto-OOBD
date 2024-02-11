@@ -9,6 +9,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.Objects;
 
+/** Questa classe rappresenta la pagina di modifica di una pagina */
 public class PageEdit extends PageBase {
     private JPanel mainPanel;
     private JButton backBtn;
@@ -20,7 +21,6 @@ public class PageEdit extends PageBase {
 
     private Page page;
     private String pageContent;
-
 
     public PageEdit(WikiController wikiController, PageBase prevPageRef, Page page, String pageContent) {
         super(wikiController, prevPageRef);
@@ -47,6 +47,8 @@ public class PageEdit extends PageBase {
     }
 
 
+
+    /* fetch dei dati della pagina */
     private void fetchData() {
         if (page == null) {
             JOptionPane.showMessageDialog(null, "Pagina non trovata", "Errore", JOptionPane.ERROR_MESSAGE);
@@ -60,10 +62,12 @@ public class PageEdit extends PageBase {
         saveBtn.setText(Objects.equals(page.getAuthorName(), wikiController.getLoggedUser().getUsername()) ? "Salva Modifiche" : "Richiedi Modifiche");
     }
 
+    /* Metodo che viene chiamato quando viene premuto il pulsante di ritorno */
     private void onBackButtonPressed() {
         super.goBackToPrevPage();
     }
 
+    /* Metodo che viene chiamato quando viene premuto il pulsante di salvataggio */
     private void onSaveButtonPressed() {
         // Confirmation dialog
         int dialogResult = JOptionPane.showConfirmDialog (null, "Vuoi salvare le modifiche?","Conferma di salvataggio", JOptionPane.YES_NO_OPTION);

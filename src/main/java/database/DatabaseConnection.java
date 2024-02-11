@@ -10,6 +10,12 @@ public final class DatabaseConnection {
     private static final String DATABASE_PASSWORD = "root";
     private static Connection connection = null;
 
+    /**
+     * Questo metodo restituisce una connessione al database.
+     * Se la connessione è chiusa o non è mai stata aperta, viene aperta una nuova connessione.
+     * @return la connessione al database
+     * @throws SQLException se si verifica un errore durante la connessione al database
+     */
     public static Connection getConnection() throws SQLException {
         if (connection == null || connection.isClosed()) {
             System.out.println("db connecting...");

@@ -5,6 +5,10 @@ import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 
+
+/**
+ * Pannello con pulsanti per aggiungere velocemente tag HTML al contenuto della pagina
+ */
 public class ContentShortcutsPanel extends JPanel {
     private final Map<String, Color> colorMap;
     private final Map<String, String> fontTypeMap;

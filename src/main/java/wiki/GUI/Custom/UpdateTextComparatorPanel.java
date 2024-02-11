@@ -3,6 +3,7 @@ package wiki.GUI.Custom;
 import javax.swing.*;
 import java.awt.*;
 
+/** Pannello per la comparazione di due testi */
 public class UpdateTextComparatorPanel extends JPanel {
 
     private final JPanel internalPanel;
