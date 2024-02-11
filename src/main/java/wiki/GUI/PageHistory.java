@@ -1,68 +1,82 @@
 package wiki.GUI;
 
 import wiki.Controllers.WikiController;
+import wiki.GUI.Custom.FontSizeComboBox;
+import wiki.GUI.Custom.UpdateTextComparatorPanel;
 import wiki.Models.Page;
-import wiki.Models.Update;
-import wiki.Models.UpdateContentString;
+import wiki.Models.PageUpdate;
+import wiki.Models.Utils.ContentStringsUtils;
 
 import javax.swing.*;
+import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.util.ArrayList;
 
+/**
+ * La classe PageHistory estende PageBase e rappresenta la pagina di visualizzazione della storia di una pagina.
+ * Ogni PageHistory ha un indice, una lista di aggiornamenti di pagina accettati e vari componenti dell'interfaccia utente.
+ */
 public class PageHistory extends PageBase {
     private JPanel mainPanel;
     private JButton backBtn;
-    private JLabel infoLabel;
-    private JLabel paginationLabel;
-    private JScrollPane historyView;
     private JButton nextBtn;
     private JButton previousBtn;
 
-    private int index = 0;
-    private Page page = null;
+    private JLabel infoLabel;
+    private JLabel paginationLabel;
+    private JScrollPane historyScrollPane;
+    private FontSizeComboBox fontSizeComboBox;
 
+    private int index = 0;
+    private ArrayList<PageUpdate> acceptedPageUpdates;
+
+    /**
+     * Costruisce una nuova PageHistory con i dettagli specificati.
+     *
+     * @param wikiController Il controller del wiki.
+     * @param prevPageRef La pagina precedente.
+     * @param page La pagina di cui visualizzare la storia.
+     */
     public PageHistory(WikiController wikiController, PageBase prevPageRef, Page page) {
         super(wikiController, prevPageRef);
         add(mainPanel);
 
         setMinimumSize(new Dimension(700, 700));
 
-        this.page = page;
+        acceptedPageUpdates = wikiController.fetchPageUpdates(page.getId(), PageUpdate.STATUS_ACCEPTED);
 
 
         updatePaginationLabel();
         updateInfoLabel();
-        createUIComponents();
+        createTextComparatorPanel();
 
-        backBtn.addActionListener(e -> onBackPressed());
+        backBtn.addActionListener(e -> onBackButtonPressed());
         nextBtn.addActionListener(e -> onNextPressed());
         previousBtn.addActionListener(e -> onPreviousPressed());
 
         if (page == null) {
             JOptionPane.showMessageDialog(null, "Pagina non trovata", "Errore", JOptionPane.ERROR_MESSAGE);
 
-            prevPageRef.setVisible(true);
-            this.dispose();
-            return;
+            super.goBackToPrevPage();
         }
 
-        if (page.getUpdates().size() <= 1) {
+        if (acceptedPageUpdates.size() <= 1) {
             previousBtn.setEnabled(false);
             nextBtn.setEnabled(false);
         }
     }
 
-    private void onBackPressed() {
-        prevPage.setVisible(true);
-        this.dispose();
+    private void onBackButtonPressed() {
+        super.goBackToPrevPage();
     }
 
+    // Metodi privati per gestire le azioni dell'utente e aggiornare l'interfaccia utente
     private void onNextPressed() {
-        if (index < page.getUpdates().size() - 1) {
+        if (index < acceptedPageUpdates.size() - 1) {
             index++;
             updatePaginationLabel();
             updateInfoLabel();
-            createUIComponents();
+            createTextComparatorPanel();
         }
     }
 
@@ -71,98 +85,41 @@ public class PageHistory extends PageBase {
             index--;
             updatePaginationLabel();
             updateInfoLabel();
-            createUIComponents();
+            createTextComparatorPanel();
         }
     }
 
 
     private void updatePaginationLabel() {
-        paginationLabel.setText("Pagina " + (index + 1) + " di " + page.getUpdates().size());
+        paginationLabel.setText("Pagina " + (index + 1) + " di " + acceptedPageUpdates.size());
     }
 
     private void updateInfoLabel() {
-        infoLabel.setText("Autore: " + page.getUpdates().get(index).getAuthor() + " - " + page.getUpdates().get(index).getCreation().toString().substring(0, 10));
+        infoLabel.setText("<html>Modifica proposta da: <b>" + acceptedPageUpdates.get(index).getAuthorName() + "</b>  -  " + acceptedPageUpdates.get(index).getCreationDateString() + "</html>");
     }
 
+    private void createTextComparatorPanel() {
+        PageUpdate pageUpdate = acceptedPageUpdates.get(index);
+
+        String currentText = pageUpdate.getOldTextFormatted();
+        String newText = ContentStringsUtils.getUpdateComparedContentHtml(wikiController.fetchPageUpdateContentStrings(pageUpdate.getId()));
+
+        var textCompPanel = new UpdateTextComparatorPanel(newText, currentText);
+        ArrayList<JTextComponent> textComponents = new ArrayList<>();
+        textComponents.add(textCompPanel.getFirstTextPane());
+        textComponents.add(textCompPanel.getSecondTextPane());
+
+        // Inizializza la combo box per la selezione della grandezza del font
+        fontSizeComboBox.init(textComponents);
+
+        historyScrollPane.setViewportView(textCompPanel);
+    }
+
+
+    /**
+     * Crea i componenti dell'interfaccia utente personalizzati.
+     */
     private void createUIComponents() {
-        Update update = page.getUpdates().get(index);
-        // Creazione del pannello principale
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new BorderLayout());
-
-        // Creazione del pannello per il testo
-        JPanel textPanel = new JPanel();
-        textPanel.setLayout(new GridLayout(1, 2));
-        textPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Aggiunta del bordo
-
-        // Creazione delle etichette
-        JLabel currentTextLabel = new JLabel("Testo Precedente");
-        JLabel newTextLabel = new JLabel("Testo Nuovo");
-
-        // Creazione delle aree di testo
-        JTextPane currentText = new JTextPane();
-        currentText.setContentType("text/html"); // Impostazione del tipo di contenuto su HTML
-        currentText.setText(update.getOldTextFormatted()); // Utilizzo del contenuto della pagina come testo attuale
-        currentText.setEditable(false);
-        currentText.setFont(new Font("Arial", Font.PLAIN, 14)); // Impostazione del font
-
-        JTextPane newText = new JTextPane();
-        newText.setContentType("text/html"); // Impostazione del tipo di contenuto su HTML
-        newText.setEditable(false);
-        newText.setFont(new Font("Arial", Font.PLAIN, 14)); // Impostazione del font
-
-        // Creazione dei pannelli per le etichette e le aree di testo
-        JPanel currentTextPanel = new JPanel(new BorderLayout());
-        currentTextPanel.add(currentTextLabel, BorderLayout.NORTH);
-        currentTextPanel.add(currentText, BorderLayout.CENTER);
-
-        JPanel newTextPanel = new JPanel(new BorderLayout());
-        newTextPanel.add(newTextLabel, BorderLayout.NORTH);
-        newTextPanel.add(newText, BorderLayout.CENTER);
-
-        // Confronto del vecchio e del nuovo testo
-        ArrayList<UpdateContentString> contentStrings = update.getContentStrings();
-        StringBuilder allContent = new StringBuilder();
-        for (UpdateContentString contentString : contentStrings) {
-            String line = contentString.getText();
-
-            if (contentString.getType() == 0 || contentString.getType() == 3) {
-                try {
-                    line = update.getOldTextLine(contentString.getOrderNum());
-                } catch (Exception e) {
-                    line = "";
-                }
-            }
-
-            allContent.append(line).append("<br>");
-
-            switch (contentString.getType()) {
-                case 0: // Il testo è uguale, non colorare
-                    break;
-                case 2:  // Il testo è nuovo, quindi colora la riga di verde
-                    allContent.insert(allContent.length() - line.length() - 4, "<font color='#CCCC00'>");
-                    allContent.append("</font>");
-                    break;
-                case 1:// Il testo è diverso, quindi colora la riga di giallo scuro
-                    allContent.insert(allContent.length() - line.length() - 4, "<font color='green'>");
-                    allContent.append("</font>");
-                    break;
-                case 3: // Il testo è stato rimosso, quindi colora la riga di rosso
-                    allContent.insert(allContent.length() - line.length() - 4, "<font color='red'>");
-                    allContent.append("</font>");
-                    break;
-            }
-        }
-
-        newText.setText(allContent.toString());
-
-        // Aggiunta dei pannelli al pannello del testo
-        textPanel.add(currentTextPanel);
-        textPanel.add(newTextPanel);
-
-        // Aggiunta dei pannelli al pannello principale
-        mainPanel.add(textPanel, BorderLayout.CENTER);
-
-        historyView.setViewportView(mainPanel);
+        fontSizeComboBox = new FontSizeComboBox();
     }
 }

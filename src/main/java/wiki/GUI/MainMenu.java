@@ -1,6 +1,7 @@
 package wiki.GUI;
 
 import wiki.Controllers.WikiController;
+import wiki.GUI.Custom.WikiPagePanel;
 import wiki.Models.Page;
 import wiki.Models.PaginationPage;
 import wiki.Models.User;
@@ -9,6 +10,7 @@ import javax.swing.*;
 import java.util.ArrayList;
 
 
+/** Classe che rappresenta la pagina principale dell'applicazione */
 public class MainMenu extends PageBase implements IUpdatable {
     private final int PAGINATION_COUNT = 5;
     private final int MAX_CHARACTER_INTRO_DISPLAY = 75;
@@ -44,7 +46,7 @@ public class MainMenu extends PageBase implements IUpdatable {
         loginBtn.addActionListener(e -> onLoginPressed());
         logoutBtn.addActionListener(e -> onLogoutPressed());
         createPageBtn.addActionListener(e -> onCreatePagePressed());
-        notificationBtn.addActionListener(e -> onNotificationPressed());
+        notificationBtn.addActionListener(e -> onNotificationPagePressed());
         previousPageBtn.addActionListener(e -> previousPage());
         nextPageBtn.addActionListener(e -> nextPage());
         searchPageBtn.addActionListener(e -> fetchData());
@@ -59,6 +61,7 @@ public class MainMenu extends PageBase implements IUpdatable {
         fetchData();
     }
 
+    /** Metodo che aggiorna la label dell'utente loggato */
     private void updateUserLabel() {
         User loggedUser = wikiController.getLoggedUser();
 
@@ -80,6 +83,7 @@ public class MainMenu extends PageBase implements IUpdatable {
         }
     }
 
+    /** Metodo che effettua il fetch dei dati */
     private void fetchData() {
         PaginationPage response = wikiController.fetchPages(searchField.getText(), currentPage, PAGINATION_COUNT, authorRadio.isSelected() ? 1 : 0);
 
@@ -92,12 +96,14 @@ public class MainMenu extends PageBase implements IUpdatable {
         updateSearchResultListUI(response.pages);
     }
 
+    /** Metodo che aggiorna l'interfaccia grafica della paginazione */
     private void updatePaginationUI() {
         previousPageBtn.setEnabled(currentPage > 1);
         nextPageBtn.setEnabled(currentPage < totalPages);
         paginationLabel.setText("Pagina " + currentPage + " di " + totalPages);
     }
 
+    /** Metodo che aggiorna l'interfaccia grafica dei risultati della ricerca */
     private void updateSearchResultListUI(ArrayList<Page> pages) {
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
             @Override
@@ -110,7 +116,10 @@ public class MainMenu extends PageBase implements IUpdatable {
 
                 panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
                 for (Page page : pages) {
-                    String intro = page.getAllContent()
+
+                    var pageContentStrings = wikiController.fetchAllPageContent(page.getId());
+
+                    String intro = pageContentStrings
                             .replaceAll("\n", " ")
                             .replaceAll("<.*?>", "")
                             .replaceAll("\\s+", " ");
@@ -123,9 +132,9 @@ public class MainMenu extends PageBase implements IUpdatable {
                             page.getTitle(),
                             intro,
                             page.getAuthorName(),
-                            page.getDateString(),
+                            page.getCreationDateString(),
                             wikiController.getLoggedUser(),
-                            () -> viewPage(page.getId()),
+                            () -> viewPage(page),
                             () -> editPage(page),
                             () -> deletePage(page)
                     ));
@@ -147,36 +156,25 @@ public class MainMenu extends PageBase implements IUpdatable {
         worker.execute();
     }
 
+    /** Metodo che gestisce l'evento di pressione del bottone di login */
     private void onLoginPressed() {
         new LoginPage(wikiController, this);
     }
 
+    /** Metodo che gestisce l'evento di pressione del bottone di logout */
     private void onLogoutPressed() {
         wikiController.disconnectUser();
         updateUserLabel();
     }
 
-    private void onNotificationPressed() {
+    /** Metodo che gestisce l'evento di pressione del bottone delle notifiche */
+    private void onNotificationPagePressed() {
         new UserNotifications(wikiController, this);
     }
 
+    /** Metodo che gestisce l'evento di pressione del bottone di creazione di una nuova pagina */
     private void onCreatePagePressed() {
         new PageCreate(wikiController, this);
-    }
-
-    private boolean viewPage(int id) {
-        new PageView(wikiController, this, id);
-
-        return true;
-    }
-
-    private boolean editPage(Page page) {
-        new PageEdit(wikiController, this, page);
-        return true;
-    }
-
-    private boolean deletePage(Page page) {
-        return wikiController.deletePage(page);
     }
 
     private void nextPage() {
@@ -188,4 +186,24 @@ public class MainMenu extends PageBase implements IUpdatable {
         currentPage--;
         fetchData();
     }
+
+    /** Metodo che gestisce l'evento di pressione del bottone di visualizzazione di una pagina */
+    private boolean viewPage(Page p) {
+        new PageView(wikiController, this, p);
+
+        return true;
+    }
+
+    /** Metodo che gestisce l'evento di pressione del bottone di modifica di una pagina */
+    private boolean editPage(Page page) {
+        new PageEdit(wikiController, this, page, wikiController.fetchAllPageContent(page.getId()));
+        return true;
+    }
+
+    /** Metodo che gestisce l'evento di pressione del bottone di eliminazione di una pagina */
+    private boolean deletePage(Page page) {
+        return wikiController.deletePage(page);
+    }
+
+
 }

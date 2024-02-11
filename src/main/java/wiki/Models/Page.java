@@ -1,116 +1,65 @@
 package wiki.Models;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
 
+/**
+ * La classe Page rappresenta una pagina.
+ * Ogni pagina ha un id, un titolo, un nome autore e una data di creazione.
+ */
 public class Page {
-    private int id;
-    private String title;
-    private ArrayList<PageContentString> content = new ArrayList<>();
-    private String author;
-    private Timestamp date;
+    private final int id; // L'ID della pagina
+    private final String title; // Il titolo della pagina
+    private final String authorName; // Il nome dell'autore della pagina
+    private final Timestamp creationDate; // La data di creazione della pagina
 
-    private ArrayList<Update> updates = new ArrayList<>();
-
-    public Page(int id, String title, String author, Timestamp date) {
+    /**
+     * Costruisce una nuova pagina con i dettagli specificati.
+     *
+     * @param id L'ID della pagina.
+     * @param title Il titolo della pagina.
+     * @param authorName Il nome dell'autore della pagina.
+     * @param creationDate La data di creazione della pagina.
+     */
+    public Page(int id, String title, String authorName, Timestamp creationDate) {
         this.id = id;
         this.title = title;
-        this.author = author;
-        this.date = date;
+        this.authorName = authorName;
+        this.creationDate = creationDate;
     }
 
+    /**
+     * Restituisce l'ID di questa pagina.
+     *
+     * @return L'ID di questa pagina.
+     */
     public int getId() {
         return id;
     }
+
+    /**
+     * Restituisce il titolo di questa pagina.
+     *
+     * @return Il titolo di questa pagina.
+     */
     public String getTitle() {
         return title;
     }
 
+    /**
+     * Restituisce il nome dell'autore di questa pagina.
+     *
+     * @return Il nome dell'autore di questa pagina.
+     */
     public String getAuthorName() {
-        return author;
+        return authorName;
     }
 
-    public String getDateString() {
-        return date.toString().substring(0, 16);
-    }
-
-    public void setContent(ArrayList<PageContentString> content) {
-        this.content = content;
-    }
-
-    public void addContent(PageContentString content) {
-        this.content.add(content);
-    }
-
-    public void removeContent(int index) {
-        this.content.remove(index);
-    }
-
-    public void removeContent(PageContentString content) {
-        this.content.remove(content);
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
-
-    public String getAllContent() {
-        StringBuilder sb = new StringBuilder();
-
-        this.content.forEach(content -> {
-            sb.append(content.content);
-            sb.append("\n");
-        });
-
-        return sb.toString();
-    }
-
-    public String getAllContentHtml() {
-        StringBuilder sb = new StringBuilder();
-
-        this.content.forEach(content -> {
-            sb.append(content.content);
-            sb.append("<br>");
-        });
-
-        return sb.toString();
-    }
-
-    public String getLine(int line) {
-        for (PageContentString content : this.content) {
-            if (content.order_num == line) {
-                return content.content;
-            }
-        }
-        return null;
-    }
-
-    public String toString() {
-        return "Page{" +
-                "id=" + id +
-                ", title='" + title + '\'' +
-                ", content=" + content +
-                ", author='" + author + '\'' +
-                ", creation=" + date + '\'' +
-                ", updates=" + updates +
-                '}';
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public ArrayList<Update> getUpdates() {
-        return updates;
-    }
-
-    public void setUpdates(ArrayList<Update> updates) {
-        this.updates = updates;
+    /**
+     * Restituisce la data di creazione di questa pagina come stringa.
+     *
+     * @return La data di creazione di questa pagina come stringa.
+     */
+    public String getCreationDateString() {
+        return creationDate.toString().substring(0, 16);
     }
 }

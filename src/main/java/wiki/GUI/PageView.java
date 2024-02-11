@@ -1,83 +1,110 @@
 package wiki.GUI;
 
 import wiki.Controllers.WikiController;
+import wiki.GUI.Custom.FontSizeComboBox;
 import wiki.Models.Page;
+import wiki.Models.PageUpdate;
 
 import javax.swing.*;
 import javax.swing.event.HyperlinkEvent;
 
+/**
+ * La classe PageView estende PageBase e implementa IUpdatable.
+ * Rappresenta la pagina di visualizzazione di una pagina specifica.
+ * Ogni PageView ha vari componenti dell'interfaccia utente, una pagina e il contenuto di una pagina.
+ */
 public class PageView extends PageBase implements IUpdatable {
-    private final int id;
-
     private JPanel mainPanel;
     private JLabel titleLabel;
     private JLabel authorLabel;
     private JLabel dateLabel;
+    private JLabel pageIdLabel;
     private JButton backBtn;
     private JButton editBtn;
     private JButton deleteBtn;
     private JButton historyBtn;
-    private JLabel pageIdLabel;
     private JEditorPane editorPane;
     private JScrollPane pageContentScrollPane;
-    private FontSizeComboBox fontSizeComboBox1;
+    private FontSizeComboBox fontSizeComboBox;
 
-    private Page page = null;
+    private Page page;
+    private String pageAllContent;
 
 
-    public PageView(WikiController wikiController, PageBase prevPageRef, int id) {
+    /**
+     * Costruisce una nuova PageView con i dettagli specificati.
+     *
+     * @param wikiController Il controller del wiki.
+     * @param prevPageRef La pagina precedente.
+     * @param page La pagina da visualizzare.
+     */
+    public PageView(WikiController wikiController, PageBase prevPageRef, Page page) {
         super(wikiController, prevPageRef);
         add(mainPanel);
 
-        this.id = id;
+        fontSizeComboBox.init(editorPane);
 
-        fontSizeComboBox1.init(editorPane);
+        this.page = page;
+
+        if (page == null) {
+            JOptionPane.showMessageDialog(null, "Pagina non trovata", "Errore", JOptionPane.ERROR_MESSAGE);
+            super.goBackToPrevPage();
+        }
 
         backBtn.addActionListener(e -> onBackButtonPressed());
         editBtn.addActionListener(e -> onEditButtonPressed());
         historyBtn.addActionListener(e -> onPageHistoryButtonPressed());
         deleteBtn.addActionListener(e -> onDeleteButtonPressed());
-
         editorPane.addHyperlinkListener(this::onHyperlinkPressed);
 
         updateGUI();
     }
 
+    /**
+     * Aggiorna l'interfaccia utente.
+     */
     @Override
     public void updateGUI() {
-        fetchData(id);
-    }
+        // Fetch il contenuto della pagina di nuovo per ottenere i dati più recenti
+        pageAllContent = wikiController.fetchAllPageContent(page.getId());
 
-    private void fetchData(int id) {
-        page = wikiController.fetchPage(id);
-        if (page == null) {
-            JOptionPane.showMessageDialog(null, "Pagina non trovata", "Errore", JOptionPane.ERROR_MESSAGE);
-
-            System.out.println("dio cane");
-
+        if (pageAllContent == null) {
+            JOptionPane.showMessageDialog(null, "Errore durante il fetch del contenuto della pagina", "Errore", JOptionPane.ERROR_MESSAGE);
             super.goBackToPrevPage();
         }
-        else {
-            boolean isLoggedUserAuthor =
-                    wikiController.getLoggedUser() != null &&
-                            page != null &&
-                            wikiController.getLoggedUser().getUsername().equals(page.getAuthorName());
 
-            // Buttons Visibility
-            historyBtn.setEnabled(!page.getUpdates().isEmpty());
-            editBtn.setVisible(wikiController.getLoggedUser() != null);
-            deleteBtn.setVisible(isLoggedUserAuthor);
+        initViewComponents();
+    }
 
-            editBtn.setText(isLoggedUserAuthor ? "Modifica": "Proponi modifica");
+    // Metodi privati per gestire le azioni dell'utente e aggiornare l'interfaccia utente
 
-            // Page Text
-            titleLabel.setText(page.getTitle());
-            authorLabel.setText("<html>Autore: <b>" + page.getAuthorName() + "</b></html>");
-            dateLabel.setText("Creato il: " + page.getDateString());
-            pageIdLabel.setText("ID Pagina: " + page.getId());
+    private void initViewComponents() {
+        boolean isLoggedUserAuthor =
+                wikiController.getLoggedUser() != null &&
+                        page != null &&
+                        wikiController.getLoggedUser().getUsername().equals(page.getAuthorName());
 
-            setPageContentText();
-        }
+        boolean isThereAnyAcceptedUpdates =
+                !wikiController.fetchPageUpdates(page.getId(), PageUpdate.STATUS_ACCEPTED).isEmpty();
+
+        boolean didLoggedUserRequestUpdate =
+                wikiController.getLoggedUser() != null &&
+                        wikiController.fetchUpdateRequestCount(page.getId()) > 0;
+
+        // Buttons Visibility
+        historyBtn.setEnabled((isLoggedUserAuthor || didLoggedUserRequestUpdate) && isThereAnyAcceptedUpdates);
+        editBtn.setVisible(wikiController.getLoggedUser() != null);
+        deleteBtn.setVisible(isLoggedUserAuthor);
+
+        editBtn.setText(isLoggedUserAuthor ? "Modifica": "Proponi modifica");
+
+        // Page Text
+        titleLabel.setText(page.getTitle());
+        authorLabel.setText("<html>Autore: <b>" + page.getAuthorName() + "</b></html>");
+        dateLabel.setText("Creato il: " + page.getCreationDateString());
+        pageIdLabel.setText("ID Pagina: " + page.getId());
+
+        setPageContentText();
     }
 
     private void onBackButtonPressed() {
@@ -85,7 +112,7 @@ public class PageView extends PageBase implements IUpdatable {
     }
 
     private void onEditButtonPressed() {
-        new PageEdit(wikiController, this, page);
+        new PageEdit(wikiController, this, page, pageAllContent);
     }
 
     private void onPageHistoryButtonPressed() {
@@ -105,7 +132,7 @@ public class PageView extends PageBase implements IUpdatable {
 
     private void setPageContentText() {
         // Replace the newline with the HTML correspondent
-        String pageContent = page.getAllContent().replace("\n", "<br>");
+        String pageContent = pageAllContent.replace("\n", "<br>");
 
         // Imposta il testo formattato nella JEditorPane
         editorPane.setText(pageContent);
@@ -133,11 +160,14 @@ public class PageView extends PageBase implements IUpdatable {
             }
             catch (NumberFormatException ignored) {}
 
-            new PageView(wikiController, this, id);
+            new PageView(wikiController, this, wikiController.fetchPage(id));
         }
     }
 
+    /**
+     * Crea i componenti dell'interfaccia utente personalizzati.
+     */
     private void createUIComponents() {
-        fontSizeComboBox1 = new FontSizeComboBox();
+        fontSizeComboBox = new FontSizeComboBox();
     }
 }

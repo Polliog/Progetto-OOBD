@@ -105,7 +105,7 @@
               <visible value="false"/>
             </properties>
           </component>
-          <component id="64e0b" class="wiki.GUI.FontSizeComboBox" binding="fontSizeComboBox1" custom-create="true" default-binding="true">
+          <component id="64e0b" class="wiki.GUI.Custom.FontSizeComboBox" binding="fontSizeComboBox" custom-create="true">
             <constraints>
               <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>

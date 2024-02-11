@@ -4,6 +4,7 @@ import javax.swing.*;
 
 import wiki.Controllers.WikiController;
 
+/** Classe che rappresenta la pagina di login */
 public class LoginPage extends PageBase implements IUpdatable {
     private JPanel mainPanel;
     private JTextField usernameField;
@@ -31,12 +32,14 @@ public class LoginPage extends PageBase implements IUpdatable {
         usernameField.requestFocusInWindow();
     }
 
+    /** Metodo che gestisce l'evento di pressione del bottone di registrazione */
     private void onRegisterPressed() {
         // -> Goes to RegisterPage
         // From that page you can only come back to the LoginPage
         new RegisterPage(wikiController, this);
     }
 
+    /** Metodo che gestisce l'evento di pressione del bottone di login */
     private void onLoginPressed() {
         // -> Goes to MainMenu on Login Success
         if (wikiController.onTryLogin(usernameField.getText(), passwordField.getText())) {
@@ -44,14 +47,14 @@ public class LoginPage extends PageBase implements IUpdatable {
                 var mainMenu = new MainMenu(wikiController, this);
 
                 // Check for any new notification
-                if (wikiController.fetchNotifications())
+                if (wikiController.doesUserHaveNewNotifications())
                     new UserNotifications(wikiController, mainMenu);
 
                 // No longer need for the LoginPage GUI
                 this.dispose();
             }
             else {
-                if (wikiController.fetchNotifications()) {
+                if (wikiController.doesUserHaveNewNotifications()) {
                     new UserNotifications(wikiController, prevPage);
 
                     // No longer need for the LoginPage GUI
@@ -63,6 +66,7 @@ public class LoginPage extends PageBase implements IUpdatable {
         }
     }
 
+    /** Metodo che gestisce l'evento di pressione del bottone di login come ospite */
     private void onGuestLoginPressed() {
         new MainMenu(wikiController, this);
     }
