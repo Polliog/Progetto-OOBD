@@ -44,9 +44,6 @@
 	\newpage
 	
 	\section{Dominio del problema}
-	\subsection{Introduzione}
-	In questa soluzione, esaminiamo attentamente il problema per identificarne il dominio, con l'intento di sviluppare un diagramma che orienterà le nostre decisioni di progettazione a livello di codice.
-	
 		\subsection{Analisi dei requisiti}
 		In questa sezione si analizza la traccia in maniera specifica con lo scopo di definire le funzionalità
 		che la base di dati deve soddisfare. Individueremo le entità e le associazioni
@@ -209,44 +206,47 @@
 		
 		\section{Impementazione e Dominio della Soluzione}
 		
-		In questa sezione, illustreremo l'architettura dell'applicazione e i vari pattern utilizzati, fornendo occasionali annotazioni implementative. Abbiamo scelto di escludere la trattazione del codice effettivo, il quale è disponibile nella documentazione JavaDoc del codice sorgente e, naturalmente, nel sorgente stesso.
+		In questa sezione esploriamo l'architettura dell'applicazione e i vari pattern utilizzati, fornendo occasionali annotazioni implementative. Abbiamo scelto di escludere la trattazione del codice effettivo, il quale è disponibile nella documentazione JavaDoc del codice sorgente e, naturalmente, nel sorgente stesso.
 		
 		\subsection{Architettura BCED}
 		
-		L'applicazione è stata progettata seguendo i principi dell'architettura {\itshape {Boundary-Control-Entity con estensione Database}}, nota come BCED. Il pattern BCED fornisce una struttura ben organizzata per separare le diverse responsabilità all'interno di un software, basandosi su quattro componenti principali
+		L'applicazione è stata progettata seguendo i principi dell'architettura {\itshape {Boundary-Control-Entity con estensione Database}}, nota come BCED. Il pattern BCED fornisce una struttura ben organizzata per separare le diverse responsabilità all'interno di un software, basandosi su quattro componenti principali:
 		
 		
 		\subsubsection{Boundary}
 		Il componente boundary corrisponde all'interfaccia dell'applicazione che si occupa di far comunicare applicazione e utente attravero il controller. All'interno del codice della wiki questo componente \`e implementato attraverso il package \textbf{GUI}.
 
-		\subsubsection{Control} Questo componente implementato attraverso il package \textbf{Controllers} gestisce un ruolo di controllo  e coordinazione sull'intera applicazione. Né la Boundary né l'Entity sono autorizzate a comunicare se non tramite il controller.
+		\subsubsection{Control} Il componente \textit{control} gestisce il ruolo chiave di coordinare le comunicazioni tra  i componenti \textit{Boundary} e \textit{Entity}. Il control è il cuore di un software che basato sull'architettura BCED, avendo un ruolo di controllo sull'intera applicazione. Nella nostra soluzione abbiamo scelto di avere un solo Controller \texttt{WikiController} per facilità implementative e di gestione del codice. Questo componente \`e implementato attraverso il package \textbf{Controllers}. 
 		
 		\subsubsection{Entity}
-		Per Entity si intende l'insieme delle informazioni da memorizzare durante l'esecuzione che sono di interesse nel dominio. Nel contesto di un'applicazione, essa è rappresentata dal modello di dati interno. \\\\
-		Questo componente \`e stato definito attravero il pagacke \textbf{Model}.
+		Il componente Entity costituisce l'insieme delle informazioni da memorizzare durante l'esecuzione che sono di interesse nel dominio. Nel contesto di un'applicazione, essa è rappresentata dal modello di dati interno. \\\\
+		Questo componente \`e stato definito attravero il package \textbf{Model}. 
 		
 		\subsubsection{Database}
-		Nel contesto della nostra applicazione usiamo come database Postgres. Il database funge da posto in cui conservare i dati nel lungo termine, la connessione tramite dabtabase \`e stata implementata tramite due package: \textbf{wiki.DAOImplementations} e \textbf{database}
+		Nel contesto della nostra applicazione usiamo come database Postgres. Il database funge da posto in cui conservare i dati nel lungo termine. La connessione tramite dabtabase \`e stata implementata tramite il package: \textbf{Database}. Le chiamate al database invece vengono gestite tramite l'uso di un altro pattern Architetturale chiamato DAO, cioè \texttt{Data access objects}, che viene implementato tramite i package: \textbf{DAO} e \textbf{DAOImplementations}. 
+		Il pattern DAO verrà approfondito nella sezione dedicata di questo documento.
 		
 		
 	\subsection {Controller}
-	Il controller come gi\`a detto precedentemente \`e si occupa di gestire tutta la logica dell'applicazione, nell'applicazione questa componente \`e stata integrata tramite il package \textbf{Controllers} a sua volta contente una singola classe: \textbf{WikiController.java}. Nello specifico nella nostra applicazione le funzioni principali dell'WikiController sono:
+	Il controller come gi\`a detto precedentemente \`e si occupa di gestire tutta la logica dell'applicazione, nell'applicazione questa componente \`e stata integrata tramite il package \textbf{Controllers} a sua volta contente una singola classe: \textbf{WikiController.java}. Nello specifico nella nostra applicazione le funzioni principali del WikiController sono:
 	
 	\begin{itemize}
-		\item \textbf{Gestione e Controllo del model}: Nel controller sono contenuto tutte le istanze di classi del model durante l'esecuzione.
+		\item \textbf{Gestione e Controllo del model}: Nel Controller sono contenute tutte le istanze di classi Model necessarie durante l'esecuzione.
 		
-		\item \textbf{Comunicazione r/w col Database}: Il controller si occupa di comunicare col database e di inserire o prendere dati da esso per poi salvarli in locale, in maniera temporanea.
+		\item \textbf{Comunicazione r/w col Database}: Il Controller si occupa di comunicare col database dando la possibilità di inserire nuovi record, ottenere i Models già salvati e aggiornando i record esistenti.
 		
-		\item \textbf{Comunicazione della GUI}: La GUI tramite callback invia informazioni al controller, in modo da poter poi eseguire azioni sul database e/o model.
+		\item \textbf{Comunicazione della GUI}: La GUI invia informazioni al Controller in modo da poter poi eseguire azioni sul database e/o model. E viceversa, il Controller invierà le informazioni necessarie per mostrare una determinata GUI.
 		\\\\
-		La GUI vicevera riceve informazioni dal controller rispetto a cosa deve mostrare all'utente
+	
 	\end{itemize}
 	
 	
 	\subsection{Model}
-	Tutte le entit\`a che sono state identificate nel dominio nella sezione \textbf{Dominio del problema} sono state tradotte in classi all'interno del package \textbf{Models} tuttavia non sono state tradotte esplicitamente le relazioni fra di esse. L'organizzazione del model piuttosto che essere come visto spesso un "carica tutto" si \`e deciso di utilizzare la tecnica del lazy loading, ossia piuttosto che prendere tutti i dati dal database assieme, si andranno a prendere solo i dati che saranno necessari in quel momento, questa tecnica molto utilizzata nei programmi pi\`u moderni permette di limitare l'utilizzo di memoria e i tempi di caricamento.
+	Tutte le entit\`a che sono state identificate nel dominio nella sezione \textbf{Dominio del problema} sono state tradotte in classi all'interno del package \textbf{Models} tuttavia non sono state tradotte esplicitamente le relazioni fra di esse. 
+	Nella nostra soluzione abbiamo deciso di optare per una tecnica di ottimizzazione del caricamento dei dati dal database,
+	piuttosto che caricare tutti i Models in una volta sola si \`e deciso di utilizzare la tecnica del lazy loading, ossia piuttosto che prendere tutti i dati dal database assieme, si andranno a prendere solo i dati che saranno necessari in quel momento, questa tecnica molto utilizzata nei programmi pi\`u moderni permette di limitare l'utilizzo di memoria e i tempi di caricamento.
 	\\
-	Dato l'utilizzo del lazy loading l'unica istanza presente all'interno del controller \`e:
+	Dato l'utilizzo del lazy loading l'unica istanza di Model presente all'interno del Controller, e dunque persistente per tutta l'esecuzione del programma \`e:
 	
 	\begin{itemize}
 		\item \textbf{User loggedUser}: Istanza di \textbf{User} che rappresenta l'utente attualmente loggato. All'interno dell'istanza sono presenti anche le notifiche.
@@ -256,14 +256,41 @@
 
 
 	\subsection{Database e DAO}
-	Per implementare la comunicazione tra l'applicazione e il database, è stato scelto il pattern DAO (\textit{Data Access Object}). Questo pattern propone la creazione di un'interfaccia astratta di comunicazione tra l'applicativo e il database. Il software è quindi progettato per interagire esclusivamente attraverso questa interfaccia, evitando qualsiasi dipendenza da un'applicazione specifica. Ciò consente all'applicativo di essere indipendente, senza avere conoscenza specifica sul database con cui sta interagendo.
+	L'implementazione della comunicazione al database è dato dal pattern DAO (\textit{Data Access Object}). Questo pattern propone la creazione di un'interfaccia astratta di comunicazione tra l'applicativo e il database contenente l'insieme di metodi per le interazioni necessarie al database. Il software è quindi progettato per interagire tramite la base di dati esclusivamente attraverso questa interfaccia, in questo modo saranno le classi di implementazione dei DAO a gestire completamente le chiamate al database, evitando qualsiasi dipendenza da un'applicazione specifica. Ciò consente l'applicativo di essere indipendente rispetto la base di dati, poichè non ha una conoscenza specifica sul database con cui sta interagendo.
 	\\\\
-	Il package DAO contiene l'interfaccia menzionata, rappresentata da una serie di interfacce Java, una per ogni entità del modello (e quindi del dominio del problema). Ciascuna interfaccia DAO definisce la firma delle operazioni eseguibili per l'entità corrispondente.
+	Nella soluzione implementiamo il pattern DAO tramite due package
+	\begin{enumerate}
+		\item \textbf{DAO}: dove sono inserite esclusivamente le interfacce dei DAO utilizzati.
+		\item \textbf{DAOImplementations}: dove sono inserite le implementazioni delle interfacce contenute nel package precedente. Qui sono scritte le vere e proprie interazioni al database.
+	\end{enumerate}
+	
+	Il package DAO contiene l'interfaccia al database rappresentata da una serie di interfacce Java. Ciascuna interfaccia DAO definisce la firma delle operazioni eseguibili per l'entità corrispondente.
 	\\\\
 	La connessione al database viene effettuata tramite il package \textbf{database}, il database scelto \`e PostgreSQL.
 	
+	
+	\newpage
+	
 	\subsection{Interfaccia Utente}
-	L'interfaccia utente \`e stata quasi del tutto progettata a mano visto che molti compontenti di essa vengono generati dinamicamente durante l'utilizzo dell'applicazione. Per la GUI \`e stata utilizata la libreria Java Swing con l'implementazione di \textbf{Flatlaf} una libreria che ne migliora l'aspetto.
+	L'interfaccia utente \`e stata progettata in parte attraverso Swing Designer, contenuto nell'IDE IntelliJ IDEA, questo programma si occupa di creare in automatico un file form con estensione .xml nella quale verrà contenuto il design della pagina, successivamente in fare di runtime verranno settati tutti i binding all'interno di una classe con lo stesso nome del form. 
+	Un altra parte di interfaccia grafica è stata scritta a mano attraverso e racchiusa in classi specifiche che vengono istanziate dinamicamente a seconda del solo caso specifico, in particolare queste classi sono:
+	\begin{itemize}
+		\item \textbf{FontSizeComboBox}: Una combobox per cambiare a runtime le dimensioni del testo visualizzato.
+		\item \textbf{ContentShortcutsPanel}: Un pannello con diverse impostazioni di inserimento del testo. (ad es. bold, italic).
+		\item \textbf{NotificationPanel}: Un pannello per visualizzare una notifica e per poterci interagire.
+		\item \textbf{WikiPagePanel}: Un pannello per visualizzare una pagina e per poterci interagire.
+		\item \textbf{UpdateTextComparatorPanel}: Un pannello per la visualizzazione di due testi, viene impiegato per la comparazione delle modifiche del testo di una pagina.
+	\end{itemize}
+	
+	Queste classi sono chiamate dinamicamente e sono tutte racchiuse sotto il package \textbf{GUI.Custom}, ciò è molto utile nella nostra soluzione poichè queste classi hanno il bisogno di essere istanziate più volte nella stessa GUI o in GUI diverse. 
+	Inoltre abbiamo utilizzato dei Custom Renderers per rendere più piacevole all'utente finale l'utilizzo di alcune comboBox:
+	\begin{itemize}
+		\item \textbf{ColorBoxRenderer}: Mostra delle preview sui colori selezionabili nella comboBox.
+		\item \textbf{FontSizeBoxRenderer}: Mostra le grandezze selezionabili nella comboBox nel formato <b>{Numero}px</b>.
+		\item \textbf{FontTypeBoxRenderer}: Mostra in grandezze diverse i tipi di testo utilizzabili. Nel nostro caso sono Titolo, sottotitolo e paragrafo.
+	\end{itemize}
+	
+	Per la GUI \`e stata utilizzata la libreria Java Swing con l'implementazione della libraria \textbf{Flatlaf} che ne migliora l'aspetto.
 
 	\newpage
 
