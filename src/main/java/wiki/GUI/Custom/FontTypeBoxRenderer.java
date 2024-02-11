@@ -1,5 +1,5 @@
 
-package wiki.GUI;
+package wiki.GUI.Custom;
 
 import javax.swing.*;
 import java.awt.*;

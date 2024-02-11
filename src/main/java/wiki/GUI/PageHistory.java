@@ -1,6 +1,8 @@
 package wiki.GUI;
 
 import wiki.Controllers.WikiController;
+import wiki.GUI.Custom.FontSizeComboBox;
+import wiki.GUI.Custom.UpdateTextComparatorPanel;
 import wiki.Models.Page;
 import wiki.Models.PageUpdate;
 import wiki.Models.Utils.ContentStringsUtils;
@@ -81,14 +83,14 @@ public class PageHistory extends PageBase {
     }
 
     private void updateInfoLabel() {
-        infoLabel.setText("<html>Modifica proposta da: <b>" + acceptedPageUpdates.get(index).getAuthor() + "</b>  -  " + acceptedPageUpdates.get(index).getCreationDateString() + "</html>");
+        infoLabel.setText("<html>Modifica proposta da: <b>" + acceptedPageUpdates.get(index).getAuthorName() + "</b>  -  " + acceptedPageUpdates.get(index).getCreationDateString() + "</html>");
     }
 
     private void createTextComparatorPanel() {
         PageUpdate pageUpdate = acceptedPageUpdates.get(index);
 
         String currentText = pageUpdate.getOldTextFormatted();
-        String newText = ContentStringsUtils.getPageUpdateComparedContentHtml(wikiController.fetchPageUpdateContentStrings(pageUpdate.getId()));
+        String newText = ContentStringsUtils.getUpdateComparedContentHtml(wikiController.fetchPageUpdateContentStrings(pageUpdate.getId()));
 
         var textCompPanel = new UpdateTextComparatorPanel(newText, currentText);
         ArrayList<JTextComponent> textComponents = new ArrayList<>();

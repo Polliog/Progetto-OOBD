@@ -1,6 +1,7 @@
 package wiki.GUI;
 
 import wiki.Controllers.WikiController;
+import wiki.GUI.Custom.ContentShortcutsPanel;
 
 import javax.swing.*;
 import java.awt.*;

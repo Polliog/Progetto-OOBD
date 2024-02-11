@@ -1,4 +1,4 @@
-package wiki.GUI;
+package wiki.GUI.Custom;
 
 import wiki.Models.User;
 

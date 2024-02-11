@@ -37,7 +37,7 @@
               <text value="Indietro"/>
             </properties>
           </component>
-          <component id="739f1" class="wiki.GUI.FontSizeComboBox" binding="fontSizeComboBox" custom-create="true">
+          <component id="739f1" class="wiki.GUI.Custom.FontSizeComboBox" binding="fontSizeComboBox" custom-create="true">
               <constraints>
                 <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
               </constraints>

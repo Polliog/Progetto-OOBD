@@ -1,6 +1,8 @@
 package wiki.GUI;
 
 import wiki.Controllers.WikiController;
+import wiki.GUI.Custom.FontSizeComboBox;
+import wiki.GUI.Custom.UpdateTextComparatorPanel;
 import wiki.Models.Page;
 import wiki.Models.PageUpdate;
 import wiki.Models.Utils.ContentStringsUtils;
@@ -111,7 +113,7 @@ public class ReviewUpdates extends PageBase {
     private void createComparatorPanel(PageUpdate pageUpdate) {
         // Creazione del pannello principale
         String currentText = wikiController.fetchAllPageContent(pageUpdate.getPage().getId()).replace("\n", "<br>");;
-        String newText = ContentStringsUtils.getPageUpdateComparedContentHtml(wikiController.fetchPageUpdateContentStrings(pageUpdate.getId()));
+        String newText = ContentStringsUtils.getUpdateComparedContentHtml(wikiController.fetchPageUpdateContentStrings(pageUpdate.getId()));
 
         // Creazione dei pulsanti
         JButton acceptButton = new JButton("Accetta");

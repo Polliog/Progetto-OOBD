@@ -1,6 +1,7 @@
 package wiki.GUI;
 
 import wiki.Controllers.WikiController;
+import wiki.GUI.Custom.FontSizeComboBox;
 import wiki.Models.Page;
 import wiki.Models.PageUpdate;
 
@@ -21,31 +22,27 @@ public class PageView extends PageBase implements IUpdatable {
     private JScrollPane pageContentScrollPane;
     private FontSizeComboBox fontSizeComboBox;
 
-    private final Page page;
-    private final String pageAllContent;
+    private Page page;
+    private String pageAllContent;
 
 
     public PageView(WikiController wikiController, PageBase prevPageRef, Page page) {
         super(wikiController, prevPageRef);
         add(mainPanel);
 
+        fontSizeComboBox.init(editorPane);
+
         this.page = page;
 
         if (page == null) {
             JOptionPane.showMessageDialog(null, "Pagina non trovata", "Errore", JOptionPane.ERROR_MESSAGE);
-
             super.goBackToPrevPage();
         }
-
-        pageAllContent = wikiController.fetchAllPageContent(page.getId());
-
-        fontSizeComboBox.init(editorPane);
 
         backBtn.addActionListener(e -> onBackButtonPressed());
         editBtn.addActionListener(e -> onEditButtonPressed());
         historyBtn.addActionListener(e -> onPageHistoryButtonPressed());
         deleteBtn.addActionListener(e -> onDeleteButtonPressed());
-
         editorPane.addHyperlinkListener(this::onHyperlinkPressed);
 
         updateGUI();
@@ -53,48 +50,44 @@ public class PageView extends PageBase implements IUpdatable {
 
     @Override
     public void updateGUI() {
-        fetchData();
-    }
+        // Fetch il contenuto della pagina di nuovo per ottenere i dati più recenti
+        pageAllContent = wikiController.fetchAllPageContent(page.getId());
 
-    private void fetchData() {
-        //
-        // ricarica pagina
-        //
-        if (page == null) {
-            JOptionPane.showMessageDialog(null, "Pagina non trovata", "Errore", JOptionPane.ERROR_MESSAGE);
-
-            System.out.println("dio cane");
-
+        if (pageAllContent == null) {
+            JOptionPane.showMessageDialog(null, "Errore durante il fetch del contenuto della pagina", "Errore", JOptionPane.ERROR_MESSAGE);
             super.goBackToPrevPage();
         }
-        else {
-            boolean isLoggedUserAuthor =
-                    wikiController.getLoggedUser() != null &&
-                            page != null &&
-                            wikiController.getLoggedUser().getUsername().equals(page.getAuthorName());
 
-            boolean isThereAnyAcceptedUpdates =
-                    !wikiController.fetchPageUpdates(page.getId(), PageUpdate.STATUS_ACCEPTED).isEmpty();
+        initViewComponents();
+    }
 
-            boolean didLoggedUserRequestUpdate =
-                    wikiController.getLoggedUser() != null &&
-                            wikiController.getUpdateRequestCount(page.getId()) > 0;
+    private void initViewComponents() {
+        boolean isLoggedUserAuthor =
+                wikiController.getLoggedUser() != null &&
+                        page != null &&
+                        wikiController.getLoggedUser().getUsername().equals(page.getAuthorName());
 
-            // Buttons Visibility
-            historyBtn.setEnabled((isLoggedUserAuthor || didLoggedUserRequestUpdate) && isThereAnyAcceptedUpdates);
-            editBtn.setVisible(wikiController.getLoggedUser() != null);
-            deleteBtn.setVisible(isLoggedUserAuthor);
+        boolean isThereAnyAcceptedUpdates =
+                !wikiController.fetchPageUpdates(page.getId(), PageUpdate.STATUS_ACCEPTED).isEmpty();
 
-            editBtn.setText(isLoggedUserAuthor ? "Modifica": "Proponi modifica");
+        boolean didLoggedUserRequestUpdate =
+                wikiController.getLoggedUser() != null &&
+                        wikiController.fetchUpdateRequestCount(page.getId()) > 0;
 
-            // Page Text
-            titleLabel.setText(page.getTitle());
-            authorLabel.setText("<html>Autore: <b>" + page.getAuthorName() + "</b></html>");
-            dateLabel.setText("Creato il: " + page.getDateString());
-            pageIdLabel.setText("ID Pagina: " + page.getId());
+        // Buttons Visibility
+        historyBtn.setEnabled((isLoggedUserAuthor || didLoggedUserRequestUpdate) && isThereAnyAcceptedUpdates);
+        editBtn.setVisible(wikiController.getLoggedUser() != null);
+        deleteBtn.setVisible(isLoggedUserAuthor);
 
-            setPageContentText();
-        }
+        editBtn.setText(isLoggedUserAuthor ? "Modifica": "Proponi modifica");
+
+        // Page Text
+        titleLabel.setText(page.getTitle());
+        authorLabel.setText("<html>Autore: <b>" + page.getAuthorName() + "</b></html>");
+        dateLabel.setText("Creato il: " + page.getCreationDateString());
+        pageIdLabel.setText("ID Pagina: " + page.getId());
+
+        setPageContentText();
     }
 
     private void onBackButtonPressed() {

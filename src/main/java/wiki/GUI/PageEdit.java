@@ -1,6 +1,8 @@
 package wiki.GUI;
 
 import wiki.Controllers.WikiController;
+import wiki.GUI.Custom.ContentShortcutsPanel;
+import wiki.GUI.Custom.FontSizeComboBox;
 import wiki.Models.Page;
 
 import javax.swing.*;
@@ -67,6 +69,7 @@ public class PageEdit extends PageBase {
         int dialogResult = JOptionPane.showConfirmDialog (null, "Vuoi salvare le modifiche?","Conferma di salvataggio", JOptionPane.YES_NO_OPTION);
         if (dialogResult == JOptionPane.YES_OPTION){
             wikiController.savePageUpdate(page, pageContentArea.getText());
+            super.goBackToPrevPage();
         }
     }
 

@@ -1,4 +1,4 @@
-package wiki.GUI;
+package wiki.GUI.Custom;
 
 import wiki.Models.Notification;
 import wiki.Models.Page;
@@ -16,8 +16,8 @@ public class NotificationPanel extends JPanel {
     private final Action onDelete;
     private final Action onView;
 
-    private final boolean isNotificationViewed;
-    private final boolean isNotificationTypeRequestUpdate;
+    private boolean isNotificationViewed;
+    private boolean isNotificationTypeRequestUpdate;
 
     private Color backgroundColor;
     private String iconPath;
@@ -52,19 +52,19 @@ public class NotificationPanel extends JPanel {
 
         switch (notification.getType()) {
             case Notification.TYPE_REQUEST_UPDATE:
-                notificationContent = "<html>Richiesta di modifica da parte dell'utente: <i>" + notification.getUpdate().getAuthor() + "</i></html>";
+                notificationContent = "<html>Richiesta di modifica da parte dell'utente: <i>" + notification.getUpdate().getAuthorName() + "</i></html>";
                 iconPath = "src/main/resources/email.png";
                 break;
             case Notification.TYPE_UPDATE_ACCEPTED:
                 if (Objects.equals(page.getAuthorName(), currentUser))
-                    notificationContent = "<html>Hai <font color='#32BA7C'><b>accettato</b></font> la richiesta di modifica da parte dell'utente: <i>" + notification.getUpdate().getAuthor() + "</i></html>";
+                    notificationContent = "<html>Hai <font color='#32BA7C'><b>accettato</b></font> la richiesta di modifica da parte dell'utente: <i>" + notification.getUpdate().getAuthorName() + "</i></html>";
                 else
                     notificationContent = "<html>La richiesta di modifica è stata <font color='#32BA7C'><b>accettata</b></font></html>";
                 iconPath = "src/main/resources/checked.png";
                 break;
             case Notification.TYPE_UPDATE_REJECTED:
                 if (Objects.equals(page.getAuthorName(), currentUser))
-                    notificationContent = "<html>Hai <font color='#FF0000'><b>rifiutato</b></font> la richiesta di modifica da parte dell'utente: <i>" + notification.getUpdate().getAuthor() + "</i></html>";
+                    notificationContent = "<html>Hai <font color='#FF0000'><b>rifiutato</b></font> la richiesta di modifica da parte dell'utente: <i>" + notification.getUpdate().getAuthorName() + "</i></html>";
                 else
                     notificationContent = "<html>La richiesta di modifica è stata <font color='#FF0000'><b>rifiutata</b></font></html>";
                 iconPath = "src/main/resources/x-button.png";
@@ -147,6 +147,8 @@ public class NotificationPanel extends JPanel {
                 if (!isNotificationViewed) {
                     backgroundColor = Color.white;
                     revertVisualFeedback();
+
+                    isNotificationViewed = true;
                 }
             }
             popupMenu.setVisible(false);

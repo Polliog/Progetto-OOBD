@@ -8,12 +8,7 @@ public final class DatabaseConnection {
     private static final String DATABASE_URL = "jdbc:postgresql://localhost:5432/Wiki";
     private static final String DATABASE_USER = "postgres";
     private static final String DATABASE_PASSWORD = "root";
-
     private static Connection connection = null;
-
-
-    // private constructor to prevent instantiation
-    private DatabaseConnection() {}
 
     public static Connection getConnection() throws SQLException {
         if (connection == null || connection.isClosed()) {

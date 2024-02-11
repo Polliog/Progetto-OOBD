@@ -1,10 +1,10 @@
 package wiki.Models;
 
 public class UpdateContentString {
-    private static final int TYPE_SAME = 0;
-    private static final int TYPE_DIFFERENT = 1;
-    private static final int TYPE_ADDED = 2;
-    private static final int TYPE_REMOVED = 3;
+    public static final int TYPE_SAME = 0;
+    public static final int TYPE_DIFFERENT = 1;
+    public static final int TYPE_ADDED = 2;
+    public static final int TYPE_REMOVED = 3;
 
 
     private final int id;

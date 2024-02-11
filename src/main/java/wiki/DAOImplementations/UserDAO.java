@@ -67,24 +67,24 @@ public class UserDAO implements IUserDAO {
             return null;
 
         if (notificationType == null && notificationViewed == null) {
-            pstmt = conn.prepareStatement("SELECT * FROM \"search_notifications\"(?, ?)");
+            pstmt = conn.prepareStatement("SELECT * FROM \"search_notifications\"(?, ?) ORDER BY creation_date");
             pstmt.setString(1, username);
             pstmt.setString(2, pageText);
         }
         else if (notificationType != null && notificationViewed == null) {
-            pstmt = conn.prepareStatement("SELECT * FROM \"search_notifications\"(?, ?, ?)");
+            pstmt = conn.prepareStatement("SELECT * FROM \"search_notifications\"(?, ?, ?) ORDER BY creation_date");
             pstmt.setString(1, username);
             pstmt.setString(2, pageText);
             pstmt.setInt(3, notificationType);
         }
         else if (notificationType == null && notificationViewed != null) {
-            pstmt = conn.prepareStatement("SELECT * FROM \"search_notifications\"(?, ?, ?)");
+            pstmt = conn.prepareStatement("SELECT * FROM \"search_notifications\"(?, ?, ?) ORDER BY creation_date");
             pstmt.setString(1, username);
             pstmt.setString(2, pageText);
             pstmt.setBoolean(3, notificationViewed);
         }
         else {
-            pstmt = conn.prepareStatement("SELECT * FROM \"search_notifications\"(?, ?, ?, ?)");
+            pstmt = conn.prepareStatement("SELECT * FROM \"search_notifications\"(?, ?, ?, ?) ORDER BY creation_date");
             pstmt.setString(1, username);
             pstmt.setString(2, pageText);
             pstmt.setInt(3, notificationType);
