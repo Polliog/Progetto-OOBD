@@ -14,18 +14,17 @@ public abstract class PageBase extends JFrame {
         this.wikiController = wikiController;
         this.prevPage = prevPage;
 
-        // set the icon
+        // Icona della finestra
         ImageIcon img = new ImageIcon("src/main/resources/icon.jpg");
         setIconImage(img.getImage());
 
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
+        // Imposta la dimensione minima e preferita della finestra
         Dimension dimension = new Dimension(600, 600);
         setMinimumSize(dimension);
         setPreferredSize(dimension);
 
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(true);
-
         setLocationRelativeTo(null);
 
         if (prevPage != null)
@@ -36,9 +35,8 @@ public abstract class PageBase extends JFrame {
     protected void goBackToPrevPage() {
         prevPage.setVisible(true);
 
-        if (prevPage instanceof IUpdatable) {
+        if (prevPage instanceof IUpdatable)
             ((IUpdatable) prevPage).updateGUI();
-        }
 
         this.dispose();
     }

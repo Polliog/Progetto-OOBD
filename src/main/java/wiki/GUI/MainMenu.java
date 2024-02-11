@@ -44,7 +44,7 @@ public class MainMenu extends PageBase implements IUpdatable {
         loginBtn.addActionListener(e -> onLoginPressed());
         logoutBtn.addActionListener(e -> onLogoutPressed());
         createPageBtn.addActionListener(e -> onCreatePagePressed());
-        notificationBtn.addActionListener(e -> onNotificationPressed());
+        notificationBtn.addActionListener(e -> onNotificationPagePressed());
         previousPageBtn.addActionListener(e -> previousPage());
         nextPageBtn.addActionListener(e -> nextPage());
         searchPageBtn.addActionListener(e -> fetchData());
@@ -159,12 +159,22 @@ public class MainMenu extends PageBase implements IUpdatable {
         updateUserLabel();
     }
 
-    private void onNotificationPressed() {
+    private void onNotificationPagePressed() {
         new UserNotifications(wikiController, this);
     }
 
     private void onCreatePagePressed() {
         new PageCreate(wikiController, this);
+    }
+
+    private void nextPage() {
+        currentPage++;
+        fetchData();
+    }
+
+    private void previousPage() {
+        currentPage--;
+        fetchData();
     }
 
     private boolean viewPage(Page p) {
@@ -182,13 +192,5 @@ public class MainMenu extends PageBase implements IUpdatable {
         return wikiController.deletePage(page);
     }
 
-    private void nextPage() {
-        currentPage++;
-        fetchData();
-    }
 
-    private void previousPage() {
-        currentPage--;
-        fetchData();
-    }
 }

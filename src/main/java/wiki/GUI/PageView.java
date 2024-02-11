@@ -12,14 +12,14 @@ public class PageView extends PageBase implements IUpdatable {
     private JLabel titleLabel;
     private JLabel authorLabel;
     private JLabel dateLabel;
+    private JLabel pageIdLabel;
     private JButton backBtn;
     private JButton editBtn;
     private JButton deleteBtn;
     private JButton historyBtn;
-    private JLabel pageIdLabel;
     private JEditorPane editorPane;
     private JScrollPane pageContentScrollPane;
-    private FontSizeComboBox fontSizeComboBox1;
+    private FontSizeComboBox fontSizeComboBox;
 
     private final Page page;
     private final String pageAllContent;
@@ -39,7 +39,7 @@ public class PageView extends PageBase implements IUpdatable {
 
         pageAllContent = wikiController.fetchAllPageContent(page.getId());
 
-        fontSizeComboBox1.init(editorPane);
+        fontSizeComboBox.init(editorPane);
 
         backBtn.addActionListener(e -> onBackButtonPressed());
         editBtn.addActionListener(e -> onEditButtonPressed());
@@ -155,6 +155,6 @@ public class PageView extends PageBase implements IUpdatable {
     }
 
     private void createUIComponents() {
-        fontSizeComboBox1 = new FontSizeComboBox();
+        fontSizeComboBox = new FontSizeComboBox();
     }
 }

@@ -1,13 +1,12 @@
 package wiki.GUI;
 
-import org.intellij.lang.annotations.Flow;
 import wiki.Controllers.WikiController;
 import wiki.Models.Page;
 import wiki.Models.PageUpdate;
-import wiki.Models.UpdateContentString;
 import wiki.Models.Utils.ContentStringsUtils;
 
 import javax.swing.*;
+import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,88 +14,101 @@ import java.util.Collections;
 public class ReviewUpdates extends PageBase {
     private JPanel mainPanel;
     private JButton backBtn;
-    private JLabel titleLabel;
+    private JButton prevBtn;
+    private JButton nextBtn;
+    private JButton acceptAllBtn;
+    private JLabel infoLabel;
     private JLabel statusLabel;
-    private JScrollPane updatesView;
-    private JButton indietroButton;
-    private JButton avantiButton;
-    private JButton accettaTuttoButton;
     private JLabel paginationLabel;
+    private JScrollPane updatesViewScrollPane;
+    private FontSizeComboBox fontSizeComboBox;
 
     private int updateIndex = 0;
+    private boolean multipleUpdates;
+    private ArrayList<PageUpdate> pendingPageUpdates;
 
-    private boolean multipleUpdates = false;
-    ArrayList<PageUpdate> pendingPageUpdates;
 
-    // GUI that rewies the pending pageUpdates of a page
     public ReviewUpdates(WikiController wikiController, PageBase prevPage, Page page) {
         super(wikiController, prevPage);
         add(mainPanel);
 
+        // Prende le modifiche in sospeso per la pagina
         pendingPageUpdates = wikiController.fetchPageUpdates(page.getId(), PageUpdate.STATUS_PENDING);
 
-        if (pendingPageUpdates == null) {
-            // error message
+        // Se non ci sono modifiche in sospeso, torna alla pagina precedente
+        if (pendingPageUpdates == null)
             super.goBackToPrevPage();
-        }
 
+        // Ordina le modifiche in modo che la più recente sia la prima
         Collections.reverse(pendingPageUpdates);
 
         multipleUpdates = pendingPageUpdates.size() > 1;
 
-        backBtn.addActionListener(e -> onBackButtonPressed());
-
-        // ? cambiare testo?
-        // tetris titolo
-        titleLabel.setText("Revisione della richiesta di modifica dell'utente " + pendingPageUpdates.get(0).getAuthor() + " alla pagina " + page.getTitle());
-
+        infoLabel.setText("<html>Titolo pagina: <b>" + page.getTitle() + "</b>  -  PageID: <b>" + page.getId() + "</b></html>");
 
         if (multipleUpdates) {
-            statusLabel.setText("Ci sono " + pendingPageUpdates.size() + " modifiche in sospeso per questa pagina.");
+            statusLabel.setText("<html>Ci sono <b>" + pendingPageUpdates.size() + "</b> modifiche in sospeso per questa pagina.</html>");
+            initPaginationButtons();
+            updatePaginationLabel();
 
-            initPagination();
-
-            indietroButton.addActionListener(e -> previousUpdate());
-            avantiButton.addActionListener(e -> nextUpdate());
-            indietroButton.setVisible(true);
-            avantiButton.setVisible(true);
-            accettaTuttoButton.setVisible(true);
-            accettaTuttoButton.addActionListener(e -> onAcceptAllUpdates());
-        }
-
-        if (multipleUpdates) {
-            //mostra un popup che dice che visto che ci sono più modifiche, verranno mostrate tutte di seguito
+            // Mostra un popup
             JOptionPane.showMessageDialog(null, "Ci sono " + pendingPageUpdates.size() + " modifiche in sospeso per questa pagina. Verranno mostrate tutte di seguito.", "Modifiche multiple", JOptionPane.INFORMATION_MESSAGE);
         }
 
-        // ???
-        createUIComponents(pendingPageUpdates.get(updateIndex));
+        backBtn.addActionListener(e -> onBackButtonPressed());
+
+        createComparatorPanel(pendingPageUpdates.get(updateIndex));
     }
 
-    public void onBackButtonPressed() {
-        super.goBackToPrevPage();
-    }
 
-    private void initPagination() {
-        indietroButton.setEnabled(updateIndex != 0);
-        avantiButton.setEnabled(updateIndex != pendingPageUpdates.size() - 1);
+    private void initPaginationButtons() {
+        prevBtn.addActionListener(e -> onPrevButtonPressed());
+        nextBtn.addActionListener(e -> onNextButtonPressed());
+        acceptAllBtn.addActionListener(e -> onAcceptAllButtonPressed());
+        prevBtn.setVisible(true);
+        nextBtn.setVisible(true);
+        acceptAllBtn.setVisible(true);
+    }
+    private void updatePaginationLabel() {
+        prevBtn.setEnabled(updateIndex != 0);
+        nextBtn.setEnabled(updateIndex != pendingPageUpdates.size() - 1);
 
         paginationLabel.setText("Modifica " + (updateIndex + 1) + " di " + pendingPageUpdates.size());
     }
-
-    private void nextUpdate() {
+    public void onBackButtonPressed() {
+        super.goBackToPrevPage();
+    }
+    private void onAcceptAllButtonPressed() {
+        if (wikiController.acceptAllPageUpdates(pendingPageUpdates))
+            super.goBackToPrevPage();
+    }
+    private void onNextButtonPressed() {
         updateIndex++;
-        initPagination();
-        createUIComponents(pendingPageUpdates.get(updateIndex));
+        updatePaginationLabel();
+        createComparatorPanel(pendingPageUpdates.get(updateIndex));
     }
-
-    private void previousUpdate() {
+    private void onPrevButtonPressed() {
         updateIndex--;
-        initPagination();
-        createUIComponents(pendingPageUpdates.get(updateIndex));
+        updatePaginationLabel();
+        createComparatorPanel(pendingPageUpdates.get(updateIndex));
     }
-
-    private void createUIComponents(PageUpdate pageUpdate) {
+    private void onAcceptUpdate(PageUpdate pageUpdate) {
+        if (wikiController.acceptPageUpdate(pageUpdate)) {
+            if (!multipleUpdates || updateIndex == pendingPageUpdates.size() - 1)
+                super.goBackToPrevPage();
+            else
+                onNextButtonPressed();
+        }
+    }
+    private void onRejectUpdate(PageUpdate pageUpdate) {
+        if (wikiController.rejectPageUpdate(pageUpdate)) {
+            if (!multipleUpdates || updateIndex == pendingPageUpdates.size() - 1)
+                super.goBackToPrevPage();
+            else
+                onNextButtonPressed();
+        }
+    }
+    private void createComparatorPanel(PageUpdate pageUpdate) {
         // Creazione del pannello principale
         String currentText = wikiController.fetchAllPageContent(pageUpdate.getPage().getId()).replace("\n", "<br>");;
         String newText = ContentStringsUtils.getPageUpdateComparedContentHtml(wikiController.fetchPageUpdateContentStrings(pageUpdate.getId()));
@@ -117,30 +129,16 @@ public class ReviewUpdates extends PageBase {
         var panel = new UpdateTextComparatorPanel(newText, currentText);
         panel.add(buttonsPanel, BorderLayout.SOUTH);
 
-        updatesView.setViewportView(panel);
-    }
+        // ComboBox per la dimensione del testo
+        ArrayList<JTextComponent> textPanes = new ArrayList<>();
+        textPanes.add(panel.getFirstTextPane());
+        textPanes.add(panel.getSecondTextPane());
 
-    private void onAcceptAllUpdates() {
-        if (wikiController.acceptAllPageUpdates(pendingPageUpdates))
-            super.goBackToPrevPage();
-        // aggiornamento locale degli pageUpdates?
-    }
+        fontSizeComboBox.init(textPanes);
 
-    private void onAcceptUpdate(PageUpdate pageUpdate) {
-        if (wikiController.acceptPageUpdate(pageUpdate)) {
-            if (!multipleUpdates || updateIndex == pendingPageUpdates.size() - 1)
-                super.goBackToPrevPage();
-            else
-                nextUpdate();
-        }
+        updatesViewScrollPane.setViewportView(panel);
     }
-
-    private void onRejectUpdate(PageUpdate pageUpdate) {
-        if (wikiController.rejectPageUpdate(pageUpdate)) {
-            if (!multipleUpdates || updateIndex == pendingPageUpdates.size() - 1)
-                super.goBackToPrevPage();
-            else
-                nextUpdate();
-        }
+    private void createUIComponents() {
+        fontSizeComboBox = new FontSizeComboBox();
     }
 }

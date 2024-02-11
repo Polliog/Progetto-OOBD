@@ -9,21 +9,33 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class UserDAO implements IUserDAO {
+    // User related methods
     public void insertUser(String username, String password) throws SQLException {
         Connection conn = DatabaseConnection.getConnection();
-        PreparedStatement pstmt = conn.prepareStatement("INSERT INTO \"User\" (username, password) VALUES (?, ?)");
+
+        // check if there are no users in the database
+        PreparedStatement pstmt = conn.prepareStatement("SELECT COUNT(*) as count FROM \"User\"");
+        ResultSet rs = pstmt.executeQuery();
+        rs.next();
+        boolean firstUser = (rs.getInt("count") == 0);
+
+        if (firstUser) {
+            pstmt = conn.prepareStatement("INSERT INTO \"User\" (username, password, admin) VALUES (?, ?, true)");
+        }
+        else {
+            pstmt = conn.prepareStatement("INSERT INTO \"User\" (username, password) VALUES (?, ?)");
+        }
+
         pstmt.setString(1, username);
         pstmt.setString(2, password);
         pstmt.executeUpdate();
     }
-
     public boolean doesUserExist(String username) throws SQLException {
         Connection conn = DatabaseConnection.getConnection();
         PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM \"User\" WHERE username = ?");
         pstmt.setString(1, username);
         return pstmt.executeQuery().next();
     }
-
     public User login(String username, String password) throws SQLException {
         Connection conn = DatabaseConnection.getConnection();
         PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM \"User\" WHERE username = ? AND password = ?");
@@ -37,13 +49,7 @@ public class UserDAO implements IUserDAO {
         return new User(rs.getString("username"), rs.getBoolean("admin"), rs.getTimestamp("creation_date"));
     }
 
-    public boolean doesUserHaveUnviewedNotifications(String username) throws SQLException {
-        Connection conn = DatabaseConnection.getConnection();
-        PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM \"Notification\" WHERE \"user\" = ? AND viewed = false");
-        pstmt.setString(1, username);
-        return pstmt.executeQuery().next();
-    }
-
+    // Notification related methods
     public int getUserUnviewedNotificationsCount(String username) throws SQLException {
         Connection conn = DatabaseConnection.getConnection();
         PreparedStatement pstmt = conn.prepareStatement("SELECT COUNT(*) as count FROM \"Notification\" WHERE \"user\" = ? AND viewed = false");
@@ -52,10 +58,7 @@ public class UserDAO implements IUserDAO {
         rs.next();
         return rs.getInt("count");
     }
-
-
-    public ArrayList<Notification> fetchUserNotifications(String username, String pageText, Integer notificationType, Boolean notificationViewed) throws SQLException
-    {
+    public ArrayList<Notification> fetchUserNotifications(String username, String pageText, Integer notificationType, Boolean notificationViewed) throws SQLException {
         Connection conn = DatabaseConnection.getConnection();
         ArrayList<Notification> notifications = new ArrayList<>();
         PreparedStatement pstmt;
@@ -130,7 +133,6 @@ public class UserDAO implements IUserDAO {
         Collections.reverse(notifications);
         return notifications;
     }
-
     public void setNotificationViewed(int notificationId, String username) throws SQLException {
         Connection conn = DatabaseConnection.getConnection();
         //controlla se la notifica appartiene all'utente
@@ -141,7 +143,6 @@ public class UserDAO implements IUserDAO {
         pstmt.setString(3, username);
         pstmt.executeUpdate();
     }
-
     public void deleteNotification(Notification notification, String username) throws SQLException {
         Connection conn = DatabaseConnection.getConnection();
 
@@ -169,5 +170,4 @@ public class UserDAO implements IUserDAO {
         pstmt.setInt(1, notification.getId());
         pstmt.executeUpdate();
     }
-
 }
