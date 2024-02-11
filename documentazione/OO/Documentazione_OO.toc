@@ -15,15 +15,16 @@
 \contentsline {subsection}{\numberline {2.3}Model}{7}{}%
 \contentsline {subsection}{\numberline {2.4}Database e DAO}{7}{}%
 \contentsline {subsection}{\numberline {2.5}Interfaccia Utente}{7}{}%
-\contentsline {section}{\numberline {3}Overview dell'Applicazione}{7}{}%
-\contentsline {subsubsection}{\numberline {3.0.1}LoginPage}{7}{}%
-\contentsline {subsubsection}{\numberline {3.0.2}RegisterPage}{9}{}%
-\contentsline {subsubsection}{\numberline {3.0.3}PageView}{11}{}%
-\contentsline {subsubsection}{\numberline {3.0.4}PageCreate}{12}{}%
-\contentsline {subsubsection}{\numberline {3.0.5}PageEdit}{13}{}%
-\contentsline {subsubsection}{\numberline {3.0.6}PageHistory}{14}{}%
-\contentsline {subsubsection}{\numberline {3.0.7}UserNotifications}{15}{}%
-\contentsline {subsubsection}{\numberline {3.0.8}ReviewUpdates}{16}{}%
-\contentsline {section}{\numberline {4}Sequence Diagram}{17}{}%
-\contentsline {subsection}{\numberline {4.1}Login (senza notifiche)}{17}{}%
-\contentsline {subsection}{\numberline {4.2}Modifica Pagina}{18}{}%
+\contentsline {subsection}{\numberline {2.6}Diagramma della Soluzione}{8}{}%
+\contentsline {section}{\numberline {3}Overview dell'Applicazione}{9}{}%
+\contentsline {subsubsection}{\numberline {3.0.1}LoginPage}{9}{}%
+\contentsline {subsubsection}{\numberline {3.0.2}RegisterPage}{10}{}%
+\contentsline {subsubsection}{\numberline {3.0.3}PageView}{12}{}%
+\contentsline {subsubsection}{\numberline {3.0.4}PageCreate}{13}{}%
+\contentsline {subsubsection}{\numberline {3.0.5}PageEdit}{14}{}%
+\contentsline {subsubsection}{\numberline {3.0.6}PageHistory}{15}{}%
+\contentsline {subsubsection}{\numberline {3.0.7}UserNotifications}{16}{}%
+\contentsline {subsubsection}{\numberline {3.0.8}ReviewUpdates}{17}{}%
+\contentsline {section}{\numberline {4}Sequence Diagram}{18}{}%
+\contentsline {subsection}{\numberline {4.1}Login (senza notifiche)}{18}{}%
+\contentsline {subsection}{\numberline {4.2}Modifica Pagina}{19}{}%
