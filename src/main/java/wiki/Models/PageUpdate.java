@@ -9,16 +9,16 @@ public class PageUpdate {
 
     private final int id;
     private final Page page;
-    private final String author;
+    private final String authorName;
     private final int status;
     private final String oldText;
     private final Timestamp creationDate;
 
 
-    public PageUpdate(int id, Page page, String author, int status, Timestamp creationDate, String oldText) {
+    public PageUpdate(int id, Page page, String authorName, int status, Timestamp creationDate, String oldText) {
         this.id = id;
         this.page = page;
-        this.author = author;
+        this.authorName = authorName;
         this.status = status;
         this.creationDate = creationDate;
         this.oldText = oldText;
@@ -31,8 +31,8 @@ public class PageUpdate {
     public Page getPage() {
         return page;
     }
-    public String getAuthor() {
-        return author;
+    public String getAuthorName() {
+        return authorName;
     }
     public int getStatus() {
         return status;

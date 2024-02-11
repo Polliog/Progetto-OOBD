@@ -121,10 +121,10 @@
       </item>
     </group>
     <group name="Custom">
-      <item class="wiki.GUI.FontSizeComboBox" icon="/com/intellij/uiDesigner/icons/comboBox.svg" removable="true" auto-create-binding="true" can-attach-label="true">
+      <item class="wiki.GUI.Custom.FontSizeComboBox" icon="/com/intellij/uiDesigner/icons/comboBox.svg" removable="true" auto-create-binding="true" can-attach-label="true">
         <default-constraints vsize-policy="0" hsize-policy="2" anchor="0" fill="0" />
       </item>
-      <item class="wiki.GUI.ContentShortcutsPanel" icon="/com/intellij/uiDesigner/icons/panel.svg" removable="true" auto-create-binding="false" can-attach-label="false" is-container="true">
+      <item class="wiki.GUI.Custom.ContentShortcutsPanel" icon="/com/intellij/uiDesigner/icons/panel.svg" removable="true" auto-create-binding="false" can-attach-label="false" is-container="true">
         <default-constraints vsize-policy="3" hsize-policy="3" anchor="0" fill="0" />
       </item>
     </group>

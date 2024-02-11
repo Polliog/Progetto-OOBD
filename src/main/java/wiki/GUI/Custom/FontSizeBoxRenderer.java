@@ -1,12 +1,10 @@
 
-package wiki.GUI;
+package wiki.GUI.Custom;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Map;
 
 public class FontSizeBoxRenderer extends DefaultListCellRenderer {
-
     public FontSizeBoxRenderer() {}
 
     @Override

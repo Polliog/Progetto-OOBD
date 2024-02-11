@@ -1,6 +1,7 @@
 package wiki.GUI;
 
 import wiki.Controllers.WikiController;
+import wiki.GUI.Custom.WikiPagePanel;
 import wiki.Models.Page;
 import wiki.Models.PaginationPage;
 import wiki.Models.User;
@@ -126,7 +127,7 @@ public class MainMenu extends PageBase implements IUpdatable {
                             page.getTitle(),
                             intro,
                             page.getAuthorName(),
-                            page.getDateString(),
+                            page.getCreationDateString(),
                             wikiController.getLoggedUser(),
                             () -> viewPage(page),
                             () -> editPage(page),

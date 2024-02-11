@@ -39,27 +39,31 @@ public final class ContentStringsUtils {
         return sb.toString();
     }
 
-    public static String getPageUpdateComparedContentHtml(ArrayList<UpdateContentString> contentStrings) {
+    public static String getUpdateComparedContentHtml(ArrayList<UpdateContentString> contentStrings) {
         StringBuilder str = new StringBuilder();
 
         for (UpdateContentString contentString : contentStrings) {
             String line = contentString.getText();
 
             switch (contentString.getType()) {
-                case 0: // Il testo è uguale, non colorare
+                // Il testo è uguale, non colorare
+                case UpdateContentString.TYPE_SAME:
                     str.append(line);
                     break;
-                case 2:  // Il testo è nuovo, quindi colora la riga di verde
-                    str.append("<font color='#CCCC00'>");
-                    str.append(line);
-                    str.append("</font>");
-                    break;
-                case 1:// Il testo è diverso, quindi colora la riga di giallo scuro
+                // Il testo è diverso, quindi colora la riga di giallo scuro
+                case UpdateContentString.TYPE_DIFFERENT:
                     str.append("<font color='green'>");
                     str.append(line);
                     str.append("</font>");
                     break;
-                case 3: // Il testo è stato rimosso, quindi colora la riga di rosso
+                // Il testo è nuovo, quindi colora la riga di verde
+                case UpdateContentString.TYPE_ADDED:
+                    str.append("<font color='#CCCC00'>");
+                    str.append(line);
+                    str.append("</font>");
+                    break;
+                // Il testo è stato rimosso, quindi colora la riga di rosso
+                case UpdateContentString.TYPE_REMOVED:
                     str.append("<font color='red'>");
                     str.append(line);
                     str.append("</font>");

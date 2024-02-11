@@ -1,19 +1,18 @@
 package wiki.Models;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
 
 public class Page {
     private final int id;
     private final String title;
-    private final String author;
+    private final String authorName;
     private final Timestamp creationDate;
 
 
-    public Page(int id, String title, String author, Timestamp creationDate) {
+    public Page(int id, String title, String authorName, Timestamp creationDate) {
         this.id = id;
         this.title = title;
-        this.author = author;
+        this.authorName = authorName;
         this.creationDate = creationDate;
     }
 
@@ -25,9 +24,9 @@ public class Page {
         return title;
     }
     public String getAuthorName() {
-        return author;
+        return authorName;
     }
-    public String getDateString() {
+    public String getCreationDateString() {
         return creationDate.toString().substring(0, 16);
     }
 }

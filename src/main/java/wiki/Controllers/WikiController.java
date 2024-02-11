@@ -13,12 +13,6 @@ import javax.swing.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-// TODO
-//  da correggere tante cose..
-//  ricerca di una notifica, paginazione delle notifiche
-//  bug fix: caricamento pagina
-
-
 public class WikiController {
     // DAOs references
     private final IUserDAO userDAO = new UserDAO();
@@ -37,6 +31,7 @@ public class WikiController {
     }
 
 
+    // User related methods
     public boolean onTryLogin(String username, String password) {
         if (username.isEmpty() || password.isEmpty()) {
             JOptionPane.showMessageDialog(null, "Compila tutti i campi", "Errore", JOptionPane.ERROR_MESSAGE);
@@ -47,6 +42,8 @@ public class WikiController {
             JOptionPane.showMessageDialog(null, "Nome utente e password non possono contenere spazi", "Errore", JOptionPane.ERROR_MESSAGE);
             return false;
         }
+
+        username = username.toLowerCase();
 
         try {
             if (!userDAO.doesUserExist(username)) {
@@ -151,6 +148,11 @@ public class WikiController {
     public User getLoggedUser() {
         return loggedUser;
     }
+    private void setLoggedUser(User user) {
+        loggedUser = user;
+    }
+
+    // Page related methods
     public boolean createPage(String title, String content) {
         if (title.isEmpty() || content.isEmpty()) {
             JOptionPane.showMessageDialog(null, "Compila tutti i campi", "Errore", JOptionPane.ERROR_MESSAGE);
@@ -181,19 +183,19 @@ public class WikiController {
             return null;
         }
     }
-
-    public ArrayList<PageContentString> fetchPageContentStrings(int pageId) {
+    //type 0 = titolo, type 1 = autore
+    public PaginationPage fetchPages(String search, int page, int limit, int type) {
         try {
-            return pageDAO.fetchPageContentStrings(pageId);
+            return pageDAO.fetchPages(search, page, limit, type);
         }
         catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Errore durante il caricamento della pagina", "Errore", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Errore durante il caricamento delle pagine", "Errore", JOptionPane.ERROR_MESSAGE);
             return null;
         }
     }
-    public ArrayList<UpdateContentString> fetchPageUpdateContentStrings(int pageUpdateId) {
+    public ArrayList<PageContentString> fetchPageContentStrings(int pageId) {
         try {
-            return pageDAO.fetchPageUpdateContentStrings(pageUpdateId);
+            return pageDAO.fetchPageContentStrings(pageId);
         }
         catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Errore durante il caricamento della pagina", "Errore", JOptionPane.ERROR_MESSAGE);
@@ -209,33 +211,31 @@ public class WikiController {
             return null;
         }
     }
-    public String fetchAllUpdatePageContent(int pageUpdateId) {
+    public boolean deletePage(Page page) {
         try {
-            return ContentStringsUtils.getAllUpdateContentStrings(pageDAO.fetchPageUpdateContentStrings(pageUpdateId));
+            int n = JOptionPane.showConfirmDialog(null, "Sei sicuro di voler eliminare la pagina?", "Elimina pagina", JOptionPane.YES_NO_OPTION);
+            if (n == JOptionPane.YES_OPTION) {
+                pageDAO.deletePage(page, loggedUser);
+                JOptionPane.showMessageDialog(null, "Pagina eliminata con successo", "Pagina eliminata", JOptionPane.INFORMATION_MESSAGE);
+                return true;
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Errore durante l'eliminazione della pagina", "Errore", JOptionPane.ERROR_MESSAGE);
+            return false;
         }
-        catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Errore durante il caricamento della pagina", "Errore", JOptionPane.ERROR_MESSAGE);
-            return null;
-        }
+        return false;
     }
-    public int getUpdateRequestCount(int pageId) {
+
+
+    // Page Update related methods
+    public ArrayList<PageUpdate> fetchPageUpdates(int pageId, int status) {
         try {
-            return pageDAO.getUpdateRequestCount(loggedUser.getUsername(), pageId);
+            return pageDAO.fetchUpdates(pageId, status);
         }
         catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Errore durante il caricamento delle richieste di modifica", "Errore", JOptionPane.ERROR_MESSAGE);
-            return 0;
+            JOptionPane.showMessageDialog(null, "Errore durante il caricamento delle modifiche", "Errore", JOptionPane.ERROR_MESSAGE);
         }
-    }
-    //type 0 = titolo, type 1 = autore
-    public PaginationPage fetchPages(String search, int page, int limit, int type) {
-        try {
-            return pageDAO.fetchPages(search, page, limit, type);
-        }
-        catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Errore durante il caricamento delle pagine", "Errore", JOptionPane.ERROR_MESSAGE);
-            return null;
-        }
+        return null;
     }
     public void savePageUpdate(Page oldPage, String newText) {
         try {
@@ -245,6 +245,88 @@ public class WikiController {
             JOptionPane.showMessageDialog(null, "Errore durante il salvataggio delle modifiche", "Errore", JOptionPane.ERROR_MESSAGE);
         }
     }
+    public boolean acceptPageUpdate(PageUpdate pageUpdate) {
+        try {
+            int n = JOptionPane.showConfirmDialog(null, "Sei sicuro di voler accettare la modifica?", "Accetta modifica", JOptionPane.YES_NO_OPTION);
+            if (n == JOptionPane.YES_OPTION) {
+                pageDAO.approveChanges(pageUpdate, loggedUser);
+                JOptionPane.showMessageDialog(null, "Modifica accettata con successo", "Modifica accettata", JOptionPane.INFORMATION_MESSAGE);
+
+                // ?????
+                //pageUpdate.setStatus(PageUpdate.STATUS_ACCEPTED);
+                //System.out.println("1: pageUpdate status: " + pageUpdate.getStatus());
+
+                return true;
+            }
+        }
+        catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Errore durante l'accettazione della modifica", "Errore", JOptionPane.ERROR_MESSAGE);
+        }
+        return false;
+    }
+    public boolean rejectPageUpdate(PageUpdate pageUpdate) {
+        try {
+            int n = JOptionPane.showConfirmDialog(null, "Sei sicuro di voler rifiutare la modifica?", "Rifiuta modifica", JOptionPane.YES_NO_OPTION);
+            if (n == JOptionPane.YES_OPTION) {
+                pageDAO.refuseChanges(pageUpdate, loggedUser);
+                JOptionPane.showMessageDialog(null, "Modifica rifiutata con successo", "Modifica rifiutata", JOptionPane.INFORMATION_MESSAGE);
+
+                // pageUpdate.setStatus(PageUpdate.STATUS_REJECTED);
+
+                return true;
+            }
+        }
+        catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Errore durante il rifiuto della modifica", "Errore", JOptionPane.ERROR_MESSAGE);
+        }
+        return false;
+    }
+    public boolean acceptAllPageUpdates(ArrayList<PageUpdate> pageUpdates) {
+        try {
+            int n = JOptionPane.showConfirmDialog(null, "Sei sicuro di voler accettare tutte le modifiche?", "Accetta tutte le modifiche", JOptionPane.YES_NO_OPTION);
+            if (n == JOptionPane.YES_OPTION) {
+                for (PageUpdate pageUpdate : pageUpdates) {
+                    pageDAO.approveChanges(pageUpdate, loggedUser);
+                    //pageUpdate.setStatus(PageUpdate.STATUS_ACCEPTED);
+                }
+                JOptionPane.showMessageDialog(null, "Modifiche accettate con successo", "Modifiche accettate", JOptionPane.INFORMATION_MESSAGE);
+                return true;
+            }
+        }
+        catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Errore durante l'accettazione della modifica", "Errore", JOptionPane.ERROR_MESSAGE);
+        }
+        return false;
+    }
+    public ArrayList<UpdateContentString> fetchPageUpdateContentStrings(int pageUpdateId) {
+        try {
+            return pageDAO.fetchPageUpdateContentStrings(pageUpdateId);
+        }
+        catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Errore durante il caricamento della pagina", "Errore", JOptionPane.ERROR_MESSAGE);
+            return null;
+        }
+    }
+    public String fetchAllUpdatePageContent(int pageUpdateId) {
+        try {
+            return ContentStringsUtils.getAllUpdateContentStrings(pageDAO.fetchPageUpdateContentStrings(pageUpdateId));
+        }
+        catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Errore durante il caricamento della pagina", "Errore", JOptionPane.ERROR_MESSAGE);
+            return null;
+        }
+    }
+    public int fetchUpdateRequestCount(int pageId) {
+        try {
+            return pageDAO.getUpdateRequestCount(loggedUser.getUsername(), pageId);
+        }
+        catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Errore durante il caricamento delle richieste di modifica", "Errore", JOptionPane.ERROR_MESSAGE);
+            return 0;
+        }
+    }
+
+    // Notification related methods
     public boolean setNotificationViewed(int notificationId) {
         try {
             userDAO.setNotificationViewed(notificationId, loggedUser.getUsername());
@@ -254,15 +336,6 @@ public class WikiController {
             JOptionPane.showMessageDialog(null, "Errore durante il salvataggio dello stato della notifica", "Errore", JOptionPane.ERROR_MESSAGE);
         }
         return false;
-    }
-    public ArrayList<PageUpdate> fetchPageUpdates(int pageId, int status) {
-        try {
-            return pageDAO.fetchUpdates(pageId, status);
-        }
-        catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Errore durante il caricamento delle modifiche", "Errore", JOptionPane.ERROR_MESSAGE);
-        }
-        return null;
     }
     public ArrayList<Notification> fetchAllUserNotifications(String pageTitle, Integer notificationType, Boolean notificationViewed) {
         try {
@@ -304,75 +377,7 @@ public class WikiController {
         }
         return false;
     }
-    public boolean acceptPageUpdate(PageUpdate pageUpdate) {
-        try {
-            int n = JOptionPane.showConfirmDialog(null, "Sei sicuro di voler accettare la modifica?", "Accetta modifica", JOptionPane.YES_NO_OPTION);
-            if (n == JOptionPane.YES_OPTION) {
-                pageDAO.approveChanges(pageUpdate, loggedUser);
-                JOptionPane.showMessageDialog(null, "Modifica accettata con successo", "Modifica accettata", JOptionPane.INFORMATION_MESSAGE);
 
-                // ?????
-                //pageUpdate.setStatus(PageUpdate.STATUS_ACCEPTED);
-                //System.out.println("1: pageUpdate status: " + pageUpdate.getStatus());
 
-                return true;
-            }
-        }
-        catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Errore durante l'accettazione della modifica", "Errore", JOptionPane.ERROR_MESSAGE);
-        }
-        return false;
-    }
-    public boolean rejectPageUpdate(PageUpdate pageUpdate) {
-        try {
-            int n = JOptionPane.showConfirmDialog(null, "Sei sicuro di voler rifiutare la modifica?", "Rifiuta modifica", JOptionPane.YES_NO_OPTION);
-            if (n == JOptionPane.YES_OPTION) {
-                pageDAO.refuseChanges(pageUpdate, loggedUser);
-                JOptionPane.showMessageDialog(null, "Modifica rifiutata con successo", "Modifica rifiutata", JOptionPane.INFORMATION_MESSAGE);
 
-               // pageUpdate.setStatus(PageUpdate.STATUS_REJECTED);
-
-                return true;
-            }
-        }
-        catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Errore durante il rifiuto della modifica", "Errore", JOptionPane.ERROR_MESSAGE);
-        }
-        return false;
-    }
-    public boolean acceptAllPageUpdates(ArrayList<PageUpdate> pageUpdates) {
-        try {
-            int n = JOptionPane.showConfirmDialog(null, "Sei sicuro di voler accettare tutte le modifiche?", "Accetta tutte le modifiche", JOptionPane.YES_NO_OPTION);
-            if (n == JOptionPane.YES_OPTION) {
-                for (PageUpdate pageUpdate : pageUpdates) {
-                    pageDAO.approveChanges(pageUpdate, loggedUser);
-                    //pageUpdate.setStatus(PageUpdate.STATUS_ACCEPTED);
-                }
-                JOptionPane.showMessageDialog(null, "Modifiche accettate con successo", "Modifiche accettate", JOptionPane.INFORMATION_MESSAGE);
-                return true;
-            }
-        }
-        catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Errore durante l'accettazione della modifica", "Errore", JOptionPane.ERROR_MESSAGE);
-        }
-        return false;
-    }
-    public boolean deletePage(Page page) {
-        try {
-            int n = JOptionPane.showConfirmDialog(null, "Sei sicuro di voler eliminare la pagina?", "Elimina pagina", JOptionPane.YES_NO_OPTION);
-            if (n == JOptionPane.YES_OPTION) {
-                pageDAO.deletePage(page, loggedUser);
-                JOptionPane.showMessageDialog(null, "Pagina eliminata con successo", "Pagina eliminata", JOptionPane.INFORMATION_MESSAGE);
-                return true;
-            }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Errore durante l'eliminazione della pagina", "Errore", JOptionPane.ERROR_MESSAGE);
-            return false;
-        }
-        return false;
-    }
-
-    private void setLoggedUser(User user) {
-        loggedUser = user;
-    }
 }

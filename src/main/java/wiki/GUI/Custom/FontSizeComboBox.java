@@ -1,13 +1,14 @@
-package wiki.GUI;
+package wiki.GUI.Custom;
+
+import wiki.GUI.Custom.FontSizeBoxRenderer;
 
 import javax.swing.*;
 import javax.swing.text.JTextComponent;
 import java.awt.*;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class FontSizeComboBox extends JComboBox {
-    public final int[] fontSizeArray = {10, 12, 14, 16, 18, 20, 24, 28, 32, 36};
+    private final int[] fontSizeArray = {10, 12, 14, 16, 18, 20, 24, 28, 32, 36};
 
     private ArrayList<JTextComponent> textComponents;
 

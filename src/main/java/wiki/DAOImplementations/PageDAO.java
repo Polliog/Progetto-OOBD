@@ -490,7 +490,7 @@ public class PageDAO implements IPageDAO {
                         pstmt.setString(2, text);
                     }
                     pstmt.setInt(3, oldPage.getId());
-                    pstmt.setString(4, pageUpdate.getAuthor());
+                    pstmt.setString(4, pageUpdate.getAuthorName());
                     pstmt.executeUpdate();
                     pstmt.close();
                 }

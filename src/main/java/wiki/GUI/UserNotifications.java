@@ -1,6 +1,7 @@
 package wiki.GUI;
 
 import wiki.Controllers.WikiController;
+import wiki.GUI.Custom.NotificationPanel;
 import wiki.Models.Notification;
 import wiki.Models.Page;
 import wiki.Models.Utils.NotificationUtils;
@@ -9,7 +10,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 
-public class UserNotifications extends PageBase {
+public class UserNotifications extends PageBase implements IUpdatable {
     private JPanel mainPanel;
     private JButton backBtn;
     private JButton searchBtn;
@@ -59,6 +60,11 @@ public class UserNotifications extends PageBase {
 
         updateNotificationCounterLabel();
         createNotificationPanels();
+    }
+
+    @Override
+    public void updateGUI() {
+        fetchData();
     }
 
     private void onBackButtonPressed() {
