@@ -60,7 +60,6 @@ public class PageDAO implements IPageDAO {
         catch (SQLException e) {
             conn.rollback();
             JOptionPane.showMessageDialog(null, "Errore durante la creazione della pagina", "Errore", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
             throw e;
         }
         finally {
@@ -82,46 +81,7 @@ public class PageDAO implements IPageDAO {
             String author = rs.getString("author");
             java.sql.Timestamp creation_date = rs.getTimestamp("creation_date");
 
-            Page page = new Page(id, title, author, creation_date);
-            return page;
-            /*
-            //get text and links if present
-            pstmt = conn.prepareStatement("SELECT * FROM \"PageText\" WHERE page_id = ? ORDER BY order_num");
-            pstmt.setInt(1, id);
-            rs = pstmt.executeQuery();
-
-            while (rs.next()) {
-                int textId = rs.getInt("id");
-                String text = rs.getString("text");
-                String textAuthor = rs.getString("author");
-                int order = rs.getInt("order_num");
-
-                page.addContent(new PageContentString(textId, text,order, textAuthor));
-            }
-
-            ArrayList<PageUpdate> pageUpdates = new ArrayList<>();
-
-            //fetch all pageUpdates for the page with old text and updated text
-            pstmt = conn.prepareStatement("SELECT * FROM \"PageUpdate\" WHERE page_id = ? ORDER BY creation_date DESC");
-            pstmt.setInt(1, id);
-            rs = pstmt.executeQuery();
-
-            while (rs.next()) {
-                int updateId = rs.getInt("id");
-                String updateAuthor = rs.getString("author");
-                String oldText = rs.getString("old_text");
-                java.sql.Timestamp updateCreation = rs.getTimestamp("creation_date");
-                Integer updateStatus = rs.getInt("status");
-
-                PageUpdate pageUpdate = new PageUpdate(updateId, page, updateAuthor, updateStatus, updateCreation, oldText);
-
-                if (oldText != null) {
-                    pageUpdate.setOldText(oldText);
-                    pageUpdates.add(pageUpdate);
-                }
-            }
-
-             */
+            return new Page(id, title, author, creation_date);
         }
         catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Errore durante il caricamento della pagina", "Errore", JOptionPane.ERROR_MESSAGE);
@@ -174,7 +134,6 @@ public class PageDAO implements IPageDAO {
         }
         catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Errore durante il caricamento del testo", "Errore", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
             throw e;
         }
     }
@@ -195,11 +154,11 @@ public class PageDAO implements IPageDAO {
 
             int count = rs.getInt("count");
 
-            if (type == 0) {
+            if (type == 0)
                 pstmt = conn.prepareStatement("SELECT * FROM \"Page\" WHERE title LIKE ? ORDER BY creation_date DESC LIMIT ? OFFSET ?");
-            } else {
+            else
                 pstmt = conn.prepareStatement("SELECT * FROM \"Page\" WHERE author LIKE ? ORDER BY creation_date DESC LIMIT ? OFFSET ?");
-            }
+
 
             pstmt.setString(1, "%" + q + "%");
             pstmt.setInt(2, limit);
@@ -269,21 +228,16 @@ public class PageDAO implements IPageDAO {
         }
         catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Errore durante il caricamento delle modifiche", "Errore", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
             throw e;
         }
     }
     public void savePageUpdate(Page oldPage, String newText, User user) throws SQLException {
-
-        //se l'autore e' uguale all'ultimo autore a chi ha modificato la pagina
+        // Aggiorna direttamente il testo della pagina se è l'autore a tentare una modifica
         if (oldPage.getAuthorName().equals(user.getUsername())) {
-            //aggiorna direttamente il testo
-
             Connection conn = DatabaseConnection.getConnection();
             conn.setAutoCommit(false);
 
-            //rimuovi il vecchio testo e inserisci il nuovo
-
+            // Rimozione del vecchio testo e aggiornamento con il nuovo
             try {
                 var pstmt = conn.prepareStatement("DELETE FROM \"PageText\" WHERE page_id = ?");
                 pstmt.setInt(1, oldPage.getId());
@@ -305,52 +259,44 @@ public class PageDAO implements IPageDAO {
             catch (SQLException e) {
                 conn.rollback();
                 JOptionPane.showMessageDialog(null, "Errore durante il salvataggio delle modifiche", "Errore", JOptionPane.ERROR_MESSAGE);
-                e.printStackTrace();
                 throw e;
             }
             catch (Exception e) {
                 conn.rollback();
-                JOptionPane.showMessageDialog(null, "Errore durante il salvataggio delle modifiche", "Errore", JOptionPane.ERROR_MESSAGE);
                 e.printStackTrace();
                 throw e;
-            } finally {
+            }
+            finally {
                 conn.setAutoCommit(true);
             }
+
+            return;
         }
-        else {
-            // Split the old and new text into lines
-            var oldLinesStrings = fetchPageContentStrings(oldPage.getId());
+        // Altrimenti, crea un nuovo aggiornamento
 
-            String[] oldLines = ContentStringsUtils.getAllPageContentStrings(oldLinesStrings).split("\n");
-            String[] newLines = newText.split("\n");
+        // Inserisci il testo della modifica
+        var oldLinesStrings = fetchPageContentStrings(oldPage.getId());
 
-            // Create a new record in the PageUpdate table
-            int updateId = insertUpdate(oldPage.getId(), user.getUsername());
+        String[] oldLines = ContentStringsUtils.getAllPageContentStrings(oldLinesStrings).split("\n");
+        String[] newLines = newText.split("\n");
 
-            // Iterate over each line in the new text and compare it with the old text to find the differences
-            // if the line is equal to the old one save with type 0
-            // if the line is new save with type 1
-            // if the line is modified save with type 2
-            // if the line is deleted save with type 3
+        // Crea un nuovo aggiornamento
+        int updateId = insertUpdate(oldPage.getId(), user.getUsername());
 
-            //use insertUpdatedText(updateId, line, i, type) to insert the new record
-            //type is an integer
-
-            for (int i = 0; i < newLines.length; i++) {
-                String line = newLines[i];
-                if (i < oldLines.length) {
-                    // Check if the line is equal to the old one
-                    if (line.equals(oldLines[i])) {
-                        // Save with type 0
-                        insertUpdatedText(updateId, line, i, 0);
-                    } else {
-                        // Save with type 2
-                        insertUpdatedText(updateId, line, i, 2);
-                    }
+        for (int i = 0; i < newLines.length; i++) {
+            String line = newLines[i];
+            if (i < oldLines.length) {
+                // Check if the line is equal to the old one
+                if (line.equals(oldLines[i])) {
+                    // Save with type 0
+                    insertUpdatedText(updateId, line, i, 0);
                 } else {
-                    // Save with type 1
-                    insertUpdatedText(updateId, line, i, 1);
+                    // Save with type 2
+                    insertUpdatedText(updateId, line, i, 2);
                 }
+            } else {
+                // Save with type 1
+                insertUpdatedText(updateId, line, i, 1);
             }
         }
 
@@ -600,6 +546,5 @@ public class PageDAO implements IPageDAO {
         catch (SQLException e) {
             e.printStackTrace();
         }
-
     }
 }

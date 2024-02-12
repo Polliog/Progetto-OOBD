@@ -164,8 +164,12 @@ public class UserNotifications extends PageBase implements IUpdatable {
     }
 
     private void updateNotificationCounterLabel() {
+        // Aggiorna il conteggio delle notifiche
+        notifications = wikiController.fetchAllUserNotifications();
+
         notificationsCounterLabel.setText("<html>Hai <b>" + notifications.size() +
                 "</b> notifiche, di cui <b>" + NotificationUtils.getTypeRequestUpdateCount(notifications) +
                 "</b> in sospeso e <b>" + NotificationUtils.getUnviewedCount(notifications) + "</b> da leggere.</html>");
+
     }
 }

@@ -42,7 +42,7 @@ public interface IUserDAO {
      * @return Numero di notifiche non lette.
      * @throws SQLException Eccezione lanciata in caso di errore di connessione al database.
      */
-    int getUserUnviewedNotificationsCount(String username) throws SQLException;
+    int fetchUserUnviewedNotificationsCount(String username) throws SQLException;
 
     /**
      * ELimina una notifica.

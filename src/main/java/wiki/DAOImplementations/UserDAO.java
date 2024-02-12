@@ -50,7 +50,7 @@ public class UserDAO implements IUserDAO {
     }
 
     // Notification related methods
-    public int getUserUnviewedNotificationsCount(String username) throws SQLException {
+    public int fetchUserUnviewedNotificationsCount(String username) throws SQLException {
         Connection conn = DatabaseConnection.getConnection();
         PreparedStatement pstmt = conn.prepareStatement("SELECT COUNT(*) as count FROM \"Notification\" WHERE \"user\" = ? AND viewed = false");
         pstmt.setString(1, username);

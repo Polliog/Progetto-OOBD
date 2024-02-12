@@ -149,7 +149,7 @@ public class WikiController {
             return false;
 
         try {
-            int res = userDAO.getUserUnviewedNotificationsCount(loggedUser.getUsername());
+            int res = userDAO.fetchUserUnviewedNotificationsCount(loggedUser.getUsername());
 
             if (res != 0) {
                 String message = "Hai (" + res + ") nuove notifiche da leggere";
