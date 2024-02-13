@@ -89,11 +89,11 @@ public class MainMenu extends PageBase implements IUpdatable {
 
         if (response == null) return;
 
-        totalPages = response.totalPages;
-        currentPage = response.currentPage;
+        totalPages = response.getTotalPages();
+        currentPage = response.getCurrentPage();
 
         updatePaginationUI();
-        updateSearchResultListUI(response.pages);
+        updateSearchResultListUI(response.getPages());
     }
 
     /** Metodo che aggiorna l'interfaccia grafica della paginazione */

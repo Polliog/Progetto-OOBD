@@ -32,6 +32,7 @@ public class ReviewUpdates extends PageBase {
     private boolean multipleUpdates; // Flag per indicare se ci sono aggiornamenti multipli
     private ArrayList<PageUpdate> pendingPageUpdates; // La lista di aggiornamenti di pagina in sospeso
 
+
     /**
      * Costruisce una nuova ReviewUpdates con i dettagli specificati.
      *
@@ -89,7 +90,7 @@ public class ReviewUpdates extends PageBase {
         paginationLabel.setText("Modifica " + (updateIndex + 1) + " di " + pendingPageUpdates.size());
     }
 
-    public void onBackButtonPressed() {
+    private void onBackButtonPressed() {
         super.goBackToPrevPage();
     }
 
@@ -129,9 +130,8 @@ public class ReviewUpdates extends PageBase {
     }
 
     private void createComparatorPanel(PageUpdate pageUpdate) {
-        // Creazione del pannello principale
+        // Prende il testo corrente e quello della modifica
         String currentText = wikiController.fetchAllPageContent(pageUpdate.getPage().getId()).replace("\n", "<br>");
-        ;
         String newText = ContentStringsUtils.getUpdateComparedContentHtml(wikiController.fetchPageUpdateContentStrings(pageUpdate.getId()));
 
         // Creazione dei pulsanti
@@ -156,7 +156,6 @@ public class ReviewUpdates extends PageBase {
         textPanes.add(panel.getSecondTextPane());
 
         fontSizeComboBox.init(textPanes);
-
         updatesViewScrollPane.setViewportView(panel);
     }
 

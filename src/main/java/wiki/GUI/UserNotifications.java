@@ -34,6 +34,11 @@ public class UserNotifications extends PageBase implements IUpdatable {
 
     private ArrayList<Notification> notifications; // La lista di notifiche
 
+    private int notificationCount;
+    private int requestUpdateCount;
+    private int unviewedCount;
+
+
     /**
      * Costruisce una nuova UserNotifications con i dettagli specificati.
      *
@@ -45,7 +50,11 @@ public class UserNotifications extends PageBase implements IUpdatable {
         add(mainPanel);
         setMinimumSize(new Dimension(600, 700));
 
+        // Inizializza la lista di notifiche e i contatori
         notifications = wikiController.fetchAllUserNotifications();
+        notificationCount = notifications.size();
+        requestUpdateCount = NotificationUtils.getTypeRequestUpdateCount(notifications);
+        unviewedCount = NotificationUtils.getUnviewedCount(notifications);
 
         ButtonGroup typeGroup = new ButtonGroup();
         typeGroup.add(anyTypeRadBtn);
@@ -60,13 +69,12 @@ public class UserNotifications extends PageBase implements IUpdatable {
         viewedGroup.add(notViewedRadBtn);
         viewedGroup.setSelected(anyViewedRadBtn.getModel(), true);
 
-        usernameLabel.setText("<html>Utente: <b>" + wikiController.getLoggedUser().getUsername() + "</b></html>");
-
-
         // Event Listeners
         backBtn.addActionListener(e -> onBackButtonPressed());
         searchBtn.addActionListener(e -> fetchData());
         textField1.addActionListener(e -> fetchData());
+
+        usernameLabel.setText("<html>Utente: <b>" + wikiController.getLoggedUser().getUsername() + "</b></html>");
 
         updateNotificationCounterLabel();
         createNotificationPanels();
@@ -77,7 +85,12 @@ public class UserNotifications extends PageBase implements IUpdatable {
      */
     @Override
     public void updateGUI() {
-        fetchData();
+        notifications = wikiController.fetchAllUserNotifications();
+        notificationCount = notifications.size();
+        requestUpdateCount = NotificationUtils.getTypeRequestUpdateCount(notifications);
+        unviewedCount = NotificationUtils.getUnviewedCount(notifications);
+        updateNotificationCounterLabel();
+        createNotificationPanels();
     }
 
     // Metodi privati per gestire le azioni dell'utente e aggiornare l'interfaccia utente
@@ -149,6 +162,7 @@ public class UserNotifications extends PageBase implements IUpdatable {
 
     private boolean deleteNotification(Notification notification) {
         if (wikiController.deleteNotification(notification)) {
+            notificationCount--;
             updateNotificationCounterLabel();
             return true;
         }
@@ -157,6 +171,7 @@ public class UserNotifications extends PageBase implements IUpdatable {
 
     private boolean viewNotification(Notification notification) {
         if (wikiController.setNotificationViewed(notification.getId())) {
+            unviewedCount--;
             updateNotificationCounterLabel();
             return true;
         }
@@ -165,11 +180,10 @@ public class UserNotifications extends PageBase implements IUpdatable {
 
     private void updateNotificationCounterLabel() {
         // Aggiorna il conteggio delle notifiche
-        notifications = wikiController.fetchAllUserNotifications();
 
-        notificationsCounterLabel.setText("<html>Hai <b>" + notifications.size() +
-                "</b> notifiche, di cui <b>" + NotificationUtils.getTypeRequestUpdateCount(notifications) +
-                "</b> in sospeso e <b>" + NotificationUtils.getUnviewedCount(notifications) + "</b> da leggere.</html>");
-
+        notificationsCounterLabel.setText(
+                "<html>Hai <b>" + notificationCount +
+                "</b> notifiche, di cui <b>" + requestUpdateCount +
+                "</b> in sospeso e <b>" + unviewedCount + "</b> da leggere.</html>");
     }
 }
